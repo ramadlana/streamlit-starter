@@ -138,9 +138,11 @@ sudo ufw enable
 
 ## 📂 Project Structure
 - `run.py`: Hybrid runner. Supports `python run.py` (Dev) and `python run.py --prod` (Production).
-- `app_flask.py`: Flask auth logic + `/auth-check` endpoint for Nginx security.
-- `app.py`: Core Streamlit application.
+- `auth_server.py`: Flask auth logic + `/auth-check` endpoint for Nginx security.
+- `dashboard_app.py`: Main Streamlit entry point.
+- `dashboard_pages/`: Folder containing all Streamlit UI content and pages.
 - `models.py`: Database schema and password hashing logic.
-- `templates/`: Premium glassmorphism HTML templates.
+- `scripts/`: Administrative and management scripts.
+- `templates/`: Premium glassmorphism HTML templates (Flask wrapper).
 - `instance/users.db`: SQLite database for user storage.
 

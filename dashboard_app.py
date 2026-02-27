@@ -18,19 +18,22 @@ st.set_page_config(layout="wide", initial_sidebar_state="expanded")
 # """, unsafe_allow_html=True)
 
 
-home_page = st.Page("home.py", title="Home", icon=":material/home:")
+home_page = st.Page("dashboard_pages/home.py", title="Home", icon=":material/home:")
 
-basic_page = st.Page("basic.py", title="Basic Page",
+basic_page = st.Page("dashboard_pages/basic.py", title="Basic Page",
                      icon=":material/add_circle:")
 
-map_page = st.Page("example/map.py", title="Map Page",
+map_page = st.Page("dashboard_pages/example/map.py", title="Map Page",
                    icon=":material/delete:")
+
+streamlit_components_page = st.Page("dashboard_pages/example/streamlit-components.py", title="Streamlit Components",
+                                    icon=":material/dashboard:")
 
 
 pg = st.navigation(
     {
         "Main Menu": [home_page, map_page],
-        "Example": [basic_page],
+        "Example": [basic_page,streamlit_components_page],
     }
 )
 

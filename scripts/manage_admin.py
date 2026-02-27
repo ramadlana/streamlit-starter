@@ -1,5 +1,10 @@
 import sys
-from app_flask import app
+import os
+
+# Add parent directory to path so we can import from root
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from auth_server import app
 from models import db, User
 
 def create_admin(username, email, password):

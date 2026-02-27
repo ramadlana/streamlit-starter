@@ -11,7 +11,7 @@ def run_app():
     
     # 1. Configure Streamlit Command
     streamlit_cmd = [
-        sys.executable, "-m", "streamlit", "run", "app.py",
+        sys.executable, "-m", "streamlit", "run", "dashboard_app.py",
         "--server.port", "8501",
         "--server.address", "127.0.0.1",
         "--server.headless", "true"
@@ -29,7 +29,7 @@ def run_app():
     flask_env["FLASK_DEBUG"] = "False" if is_prod else "True"
     
     print(f"🌐 Starting Flask server (Debug: {'OFF' if is_prod else 'ON'})...")
-    flask_proc = subprocess.Popen([sys.executable, "app_flask.py"], env=flask_env)
+    flask_proc = subprocess.Popen([sys.executable, "auth_server.py"], env=flask_env)
     
     print("\n✅ Systems are running!")
     if is_prod:
