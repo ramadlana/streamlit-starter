@@ -210,16 +210,20 @@
     <nav class="navbar">
         <div class="logo">Streamlit Starterkit</div>
         <div class="nav-links">
+            <a href="/">Home</a>
             {% if current_user.is_authenticated %}
-            <span style="color: var(--text-secondary); font-size: 0.9rem;">Hi, <strong>{{ current_user.username
-                    }}</strong></span>
             {% if current_user.is_admin %}
-            <a href="{{ url_for('admin') }}">Admin</a>
+            <a href="{{ url_for('admin') }}">Admin Panel</a>
             {% endif %}
             <a href="{{ url_for('logout') }}" style="color: var(--error-color); opacity: 0.8;">Logout</a>
             {% else %}
             <a href="{{ url_for('login') }}">Login</a>
             <a href="{{ url_for('signup') }}">Sign Up</a>
+            {% endif %}
+
+            {% if current_user.is_authenticated %}
+            <span style="color: var(--text-secondary); font-size: 0.9rem;">Hi, <strong>{{ current_user.username
+                    }}</strong></span>
             {% endif %}
         </div>
     </nav>

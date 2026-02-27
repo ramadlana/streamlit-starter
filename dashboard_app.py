@@ -2,38 +2,24 @@ import streamlit as st
 
 st.set_page_config(layout="wide", initial_sidebar_state="expanded")
 
-# st.markdown("""
-# <style>
-#     header { visibility: hidden; height: 0; }
 
-#     #MainMenu { visibility: hidden; }
-
-#     footer { visibility: hidden; }
-
-#     button[kind="header"] { display: none !important; }
-
-#     .block-container { padding-top: 0.75rem !important; }
-#     button[aria-label="Collapse sidebar"] { display: none !important; }
-# </style>
-# """, unsafe_allow_html=True)
-
-
+# Page Definitions
 home_page = st.Page("dashboard_pages/home.py", title="Home", icon=":material/home:")
 
-basic_page = st.Page("dashboard_pages/example/basic.py", title="Basic Page",
-                     icon=":material/add_circle:")
+basic_page = st.Page("dashboard_pages/example/basic.py", title="Basic Page",icon=":material/add_circle:")
 
-map_page = st.Page("dashboard_pages/example/map.py", title="Map Page",
-                   icon=":material/delete:")
+map_page = st.Page("dashboard_pages/example/map.py", title="Map Page", icon=":material/delete:")
 
-streamlit_components_page = st.Page("dashboard_pages/example/streamlit-components.py", title="Streamlit Components",
-                                    icon=":material/dashboard:")
+streamlit_components_page = st.Page("dashboard_pages/example/streamlit-components.py", title="Streamlit Components", icon=":material/dashboard:")
+
+sales_dashboard_page = st.Page("dashboard_pages/example/sales-dashboard.py", title="Sales Dashboard", icon=":material/monitoring:")
 
 
+# Navigation
 pg = st.navigation(
     {
         "Main Menu": [home_page],
-        "Example": [basic_page,streamlit_components_page, map_page],
+        "Example": [basic_page,streamlit_components_page, map_page, sales_dashboard_page],
     }
 )
 
