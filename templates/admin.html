@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Admin Panel - Rama Starterkit{% endblock %}
+{% block title %}Admin Panel - Streamlit Starter{% endblock %}
 
 {% block content %}
 <style>
@@ -152,11 +152,12 @@
                     {% endif %}
                 </td>
                 <td>
-                    <button class="action-btn"
-                        onclick="editUser('{{ user.id }}', '{{ user.username }}', '{{ user.email }}', {{ 'true' if user.is_admin else 'false' }})">Edit</button>
+                    <button class="action-btn edit-user-btn" data-id="{{ user.id }}" data-username="{{ user.username }}"
+                        data-email="{{ user.email }}"
+                        data-isadmin="{{ 'true' if user.is_admin else 'false' }}">Edit</button>
                     {% if user.id != current_user.id %}
-                    <button class="action-btn btn-delete"
-                        onclick="confirmDelete('{{ user.id }}', '{{ user.username }}')">Delete</button>
+                    <button class="action-btn btn-delete delete-user-btn" data-id="{{ user.id }}"
+                        data-username="{{ user.username }}">Delete</button>
                     {% endif %}
                 </td>
             </tr>
@@ -262,19 +263,33 @@
         document.getElementById(id).style.display = 'none';
     }
 
-    function editUser(id, username, email, isAdmin) {
-        document.getElementById('edit_username').value = username;
-        document.getElementById('edit_email').value = email;
-        document.getElementById('edit_is_admin').checked = isAdmin;
-        document.getElementById('editForm').action = "/admin/edit/" + id;
-        showModal('editModal');
-    }
+    // Handle Edit User Clicks
+    document.querySelectorAll('.edit-user-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const id = button.getAttribute('data-id');
+            const username = button.getAttribute('data-username');
+            const email = button.getAttribute('data-email');
+            const isAdmin = button.getAttribute('data-isadmin') === 'true';
 
-    function confirmDelete(id, username) {
-        document.getElementById('delete_username_label').innerText = username;
-        document.getElementById('confirm_delete_btn').href = "/admin/delete/" + id;
-        showModal('deleteModal');
-    }
+            document.getElementById('edit_username').value = username;
+            document.getElementById('edit_email').value = email;
+            document.getElementById('edit_is_admin').checked = isAdmin;
+            document.getElementById('editForm').action = "/admin/edit/" + id;
+            showModal('editModal');
+        });
+    });
+
+    // Handle Delete User Clicks
+    document.querySelectorAll('.delete-user-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const id = button.getAttribute('data-id');
+            const username = button.getAttribute('data-username');
+
+            document.getElementById('delete_username_label').innerText = username;
+            document.getElementById('confirm_delete_btn').href = "/admin/delete/" + id;
+            showModal('deleteModal');
+        });
+    });
 
     // Close on outside click
     window.onclick = function (event) {
