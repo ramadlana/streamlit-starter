@@ -57,6 +57,7 @@ cd streamlit-starter
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+python3 scripts/manage_admin.py create admin admin@admin.com admin123
 ```
 
 ### 3. Nginx Configuration
