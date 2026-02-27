@@ -60,6 +60,9 @@ python manage_admin.py list
 python manage_admin.py create <username> <email> <password>
 ```
 
+current dev admin user is
+user: admin
+password: admin123
 ---
 
 ## 🔒 Production Deployment (Nginx)
