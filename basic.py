@@ -55,6 +55,7 @@ st.write(x, 'squared is', x * x)
 
 """
 ## Session state as variable
+session state is persist after reload and not re-isiniated until we want that
 """
 st.text_input("Your name", key="name")
 
