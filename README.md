@@ -119,6 +119,7 @@ nohup python3 run.py --prod > app.log 2>&1 &
 Open browser http://yourserverip/
 username: admin
 password: admin123
+
 ---
 
 ## 🛡️ Admin & Tools
