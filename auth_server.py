@@ -26,7 +26,8 @@ with app.app_context():
 def index():
     # In development (debug=True), point directly to the Streamlit port.
     # In production, use the Nginx proxy path.
-    streamlit_url = "http://localhost:8501" if app.debug else "/dashboard-app/"
+    streamlit_port = os.environ.get('STREAMLIT_PORT', '8501')
+    streamlit_url = f"http://localhost:{streamlit_port}" if app.debug else "/dashboard-app/"
     return render_template('index.html', streamlit_url=streamlit_url)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -154,4 +155,5 @@ def admin_delete_user(user_id):
 if __name__ == '__main__':
     # Use environment variable to control debug mode, default to True
     is_debug = os.environ.get('FLASK_DEBUG', 'True').lower() == 'true'
-    app.run(host='127.0.0.1', port=5001, debug=is_debug)
+    flask_port = int(os.environ.get('FLASK_PORT', 5001))
+    app.run(host='127.0.0.1', port=flask_port, debug=is_debug)

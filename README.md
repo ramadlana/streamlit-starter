@@ -1,151 +1,125 @@
-# StreamlitPro - Secure Dashboard wrapper
+# 🚀 StreamlitPro - Secure Dashboard Wrapper
 
-A premium, secure wrapper for Streamlit applications using Flask, Flask-Login, and SQLite. This project provides a robust authentication layer with a stunning dark glassmorphism design.
-
-## 🌟 Features
-- **Secure Authentication**: Flask-Login based session management.
-- **SQLite Database**: Local user storage with password hashing (Werkzeug).
-- **Premium UI**: Dark-themed dashboard with Inter typography and smooth animations.
-- **Embedded Streamlit**: Your Streamlit app runs securely inside a protected iframe.
+A premium, secure wrapper for Streamlit applications using Flask and SQLite. Provides a robust authentication layer with a stunning dark glassmorphism design.
 
 ---
 
-## 🛠 Prerequisites
-Ensure you have Python 3.9+ installed and a virtual environment activated.
+## 🛠️ Quick Start
+
+### 1. Setup
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Initial admin setup (if needed)
+python3 scripts/manage_admin.py create admin admin@example.com admin123
+```
+
+### 2. Configure Ports
+Edit `.env.ports` to change default ports (default: 5001 for Flask, 8501 for Streamlit).
+
+### 3. Run Application
+The unified runner automatically cleans up zombie processes and starts both servers.
 
 ```bash
-# Clone the repository
-git clone <your-repo-url>
+# Development Mode (Debug ON)
+python3 run.py
+
+# Production Mode (Debug OFF + Nginx Support)
+python3 run.py --prod
+```
+
+---
+
+## 🛡️ Admin & Tools
+
+### 🏠 Admin Panel
+Accessed at `/admin` (requires admin account). Manage users, reset passwords, and assign roles via the UI.
+
+### 🖥️ CLI Utilities
+- **User Management**: `python3 scripts/manage_admin.py list` or `create`.
+- **Port Cleanup**: `python3 scripts/kill_ports.py` (Kills any processes stuck on configured ports).
+
+## 🔒 Production Deployment (Ubuntu + Nginx)
+
+Follow these steps to deploy on a clean Ubuntu server.
+
+### 1. System Preparation
+```bash
+sudo apt update && sudo apt install python3-pip python3-venv nginx -y
+git clone https://github.com/ramadlana/streamlit-starter.git
 cd streamlit-starter
+```
 
-# Create and activate virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install dependencies
+### 2. Environment Setup
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
----
-
-## 🚀 Development Run
-To run the application locally for development purposes, use the unified runner script. This will start both the Flask authentication server and the Streamlit engine.
-
-```bash
-python run.py
-```
-- **Flask Gateway**: [http://localhost:5001](http://localhost:5001)
-- **Streamlit Backend**: [http://localhost:8501](http://localhost:8501)
-
----
-
-## 🛡️ Admin Management
-The system includes a secure Admin Panel to manage users. Administrators can view, add, edit, and delete user accounts.
-
-### 🏠 Admin Dashboard
-Accessed at `/admin` (only visible to users with `is_admin` set to `true`).
-- **User List**: Grid view of all registered users.
-- **Add User**: Create new users and assign roles.
-- **Edit User**: Modify existing account details or reset passwords.
-- **Delete User**: Remove accounts (protected against self-deletion).
-
-### 🖥️ Terminal Admin Script
-For high-security operations, you can manage administrators directly from the server terminal.
-
-```bash
-# List all users and their status
-python manage_admin.py list
-
-# Create a new admin or promote/reset an existing one
-python manage_admin.py create <username> <email> <password>
-```
-
-current dev admin user is
-user: admin
-password: admin123
----
-
-## 🔒 Production Deployment (Nginx)
-
-For production, it is critical to hide the Streamlit port (8501) and the Flask port (5001) from the public internet and use Nginx as a reverse proxy.
-
-### 1. Nginx Configuration
-Create a new Nginx configuration file (e.g., `/etc/nginx/sites-available/streamlitpro`):
-
+### 3. Nginx Configuration
+Create a config file: `sudo nano /etc/nginx/sites-available/streamlitpro`
 ```nginx
 server {
     listen 80;
-    server_name yourdomain.com;
+    server_name yourdomain.com; # Or server IP
 
-    # 1. Flask Authentication Gateway
     location / {
         proxy_pass http://127.0.0.1:5001;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
 
-    # 2. Lightweight Auth Check for Nginx
-    # This endpoint returns 200 OK if logged in, 401 Unauthorized if not.
     location = /auth-check {
         internal;
         proxy_pass http://127.0.0.1:5001/auth-check;
         proxy_pass_request_body off;
         proxy_set_header Content-Length "";
-        proxy_set_header X-Original-URI $request_uri;
     }
 
-    # 3. Protected Streamlit App
     location /dashboard-app/ {
         auth_request /auth-check;
-        error_page 401 = @error401;
-
         proxy_pass http://127.0.0.1:8501/dashboard-app/;
-        
-        # REQUIRED for Streamlit WebSockets
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;
     }
-
-    # Redirect to login if unauthorized
-    location @error401 {
-        return 302 /login;
-    }
 }
 ```
-
-### 2. Startup Command (Production Mode)
-Use the unified runner with the `--prod` flag. This disables Flask debug mode and configures Streamlit correctly for the Nginx proxy path.
-
+Enable the site:
 ```bash
-python run.py --prod
+sudo ln -s /etc/nginx/sites-available/streamlitpro /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl restart nginx
 ```
 
-### 3. Firewall Security (UFW)
-Ensure only Nginx is accessible from the outside.
-
+### 4. Security & Cleanup
 ```bash
-# Allow Nginx
 sudo ufw allow 'Nginx Full'
-
-# Deny direct access to backend ports
-sudo ufw deny 8501
 sudo ufw deny 5001
-
-# Enable firewall
+sudo ufw deny 8501
 sudo ufw enable
+
+# Clear any stuck ports
+python3 scripts/kill_ports.py
 ```
+
+### 5. Run for Production
+Use `nohup` or `screen` to keep the app running after closing the terminal:
+```bash
+nohup python3 run.py --prod > app.log 2>&1 &
+```
+*(Alternatively, use a tool like `pm2` or `systemd` for professional process management).*
 
 ---
 
 ## 📂 Project Structure
-- `run.py`: Hybrid runner. Supports `python run.py` (Dev) and `python run.py --prod` (Production).
-- `auth_server.py`: Flask auth logic + `/auth-check` endpoint for Nginx security.
-- `dashboard_app.py`: Main Streamlit entry point.
-- `dashboard_pages/`: Folder containing all Streamlit UI content and pages.
-- `models.py`: Database schema and password hashing logic.
-- `scripts/`: Administrative and management scripts.
-- `templates/`: Premium glassmorphism HTML templates (Flask wrapper).
-- `instance/users.db`: SQLite database for user storage.
-
+- `run.py`: Hybrid entry point (Dev/Prod). Supports automatic port cleanup.
+- `auth_server.py`: Flask Authentication & Gateway logic.
+- `dashboard_app.py`: Streamlit application entry point.
+- `dashboard_pages/`: All Streamlit UI content and multi-page files.
+- `models.py`: Database schema and encryption.
+- `scripts/`: Management scripts (`kill_ports.py`, `manage_admin.py`).
+- `.env.ports`: Centralized port configuration.
+- `templates/`: Premium glassmorphism HTML templates.
