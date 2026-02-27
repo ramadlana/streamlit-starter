@@ -67,12 +67,14 @@ Create a config file: `sudo nano /etc/nginx/sites-available/streamlitpro`
 ```nginx
 server {
     listen 80;
-    server_name yourdomain.com; # Or server IP
+    server_name _; # Use '_' to catch all traffic or your actual domain/IP
 
     location / {
         proxy_pass http://127.0.0.1:5001;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 
     location = /auth-check {
@@ -92,9 +94,16 @@ server {
     }
 }
 ```
-Enable the site:
+
+**CRITICAL: Enable the site and remove the default Nginx page:**
 ```bash
-sudo ln -s /etc/nginx/sites-available/streamlitpro /etc/nginx/sites-enabled/
+# 1. Remove the default Nginx catch-all (important!)
+sudo rm /etc/nginx/sites-enabled/default
+
+# 2. Enable your new configuration
+sudo ln -sf /etc/nginx/sites-available/streamlitpro /etc/nginx/sites-enabled/
+
+# 3. Test and restart
 sudo nginx -t && sudo systemctl restart nginx
 ```
 
@@ -116,6 +125,10 @@ nohup python3 run.py --prod > app.log 2>&1 &
 ```
 *(Alternatively, use a tool like `pm2` or `systemd` for professional process management).*
 
+### 6. Open web page
+Open browser http://yourserverip/
+username: admin
+password: admin123
 ---
 
 ## 📂 Project Structure
@@ -127,6 +140,7 @@ nohup python3 run.py --prod > app.log 2>&1 &
 - `scripts/`: Management scripts (`kill_ports.py`, `manage_admin.py`).
 - `.env.ports`: Centralized port configuration.
 - `templates/`: Premium glassmorphism HTML templates.
+
 
 """
 
