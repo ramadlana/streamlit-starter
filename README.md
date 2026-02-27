@@ -5,7 +5,7 @@ Ideal for internal business tools, it provides a simple yet secure authenticatio
 
 ---
 
-## 🛠️ Quick Start
+## 🛠️ Quick Start (Development mode)
 
 ### 1. Setup
 ```bash
@@ -31,15 +31,6 @@ python3 run.py --prod
 ```
 
 ---
-
-## 🛡️ Admin & Tools
-
-### 🏠 Admin Panel
-Accessed at `/admin` (requires admin account). Manage users, reset passwords, and assign roles via the UI.
-
-### 🖥️ CLI Utilities
-- **User Management**: `python3 scripts/manage_admin.py list` or `create`.
-- **Port Cleanup**: `python3 scripts/kill_ports.py` (Kills any processes stuck on configured ports).
 
 ## 🔒 Production Deployment (Ubuntu + Nginx)
 
@@ -93,6 +84,15 @@ server {
 }
 ```
 
+## 🛡️ Admin & Tools
+
+### 🏠 Admin Panel
+Accessed at `/admin` (requires admin account). Manage users, reset passwords, and assign roles via the UI.
+
+### 🖥️ CLI Utilities
+- **User Management**: `python3 scripts/manage_admin.py list` or `create`.
+- **Port Cleanup**: `python3 scripts/kill_ports.py` (Kills any processes stuck on configured ports).
+- 
 **CRITICAL: Enable the site and remove the default Nginx page:**
 ```bash
 # 1. Remove the default Nginx catch-all (important!)
@@ -108,6 +108,7 @@ sudo nginx -t && sudo systemctl restart nginx
 ### 4. Security & Cleanup
 ```bash
 sudo ufw allow 'Nginx Full'
+sudo ufw allow 22
 sudo ufw deny 5001
 sudo ufw deny 8501
 sudo ufw enable
