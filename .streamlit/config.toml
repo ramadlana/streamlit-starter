@@ -1,8 +1,3 @@
 [server]
-headless = true
-
-[client]
-toolbarMode = "minimal"
-
-[browser]
-gatherUsageStats = false
+enableCORS = false
+enableXsrfProtection = false

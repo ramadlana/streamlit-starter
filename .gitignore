@@ -1,1 +1,28 @@
-.venv
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite Database
+instance/
+*.db
+
+# Streamlit
+# .streamlit/config.toml
+# !.streamlit/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+
+# Secrets
+.env
+secret_key.txt
