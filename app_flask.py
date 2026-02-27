@@ -24,7 +24,10 @@ with app.app_context():
 @app.route('/')
 @login_required
 def index():
-    return render_template('index.html')
+    # In development (debug=True), point directly to the Streamlit port.
+    # In production, use the Nginx proxy path.
+    streamlit_url = "http://localhost:8501" if app.debug else "/dashboard-app/"
+    return render_template('index.html', streamlit_url=streamlit_url)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -72,6 +75,12 @@ def signup():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+@app.route('/auth-check')
+def auth_check():
+    if current_user.is_authenticated:
+        return 'Authenticated', 200
+    return 'Unauthorized', 401
 
 # --- Admin Routes ---
 def admin_required(f):
@@ -143,4 +152,6 @@ def admin_delete_user(user_id):
     return redirect(url_for('admin'))
 
 if __name__ == '__main__':
-    app.run(port=5001, debug=True)
+    # Use environment variable to control debug mode, default to True
+    is_debug = os.environ.get('FLASK_DEBUG', 'True').lower() == 'true'
+    app.run(host='127.0.0.1', port=5001, debug=is_debug)

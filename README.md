@@ -62,11 +62,85 @@ python manage_admin.py create <username> <email> <password>
 
 ---
 
+## 🔒 Production Deployment (Nginx)
+
+For production, it is critical to hide the Streamlit port (8501) and the Flask port (5001) from the public internet and use Nginx as a reverse proxy.
+
+### 1. Nginx Configuration
+Create a new Nginx configuration file (e.g., `/etc/nginx/sites-available/streamlitpro`):
+
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com;
+
+    # 1. Flask Authentication Gateway
+    location / {
+        proxy_pass http://127.0.0.1:5001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # 2. Lightweight Auth Check for Nginx
+    # This endpoint returns 200 OK if logged in, 401 Unauthorized if not.
+    location = /auth-check {
+        internal;
+        proxy_pass http://127.0.0.1:5001/auth-check;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header X-Original-URI $request_uri;
+    }
+
+    # 3. Protected Streamlit App
+    location /dashboard-app/ {
+        auth_request /auth-check;
+        error_page 401 = @error401;
+
+        proxy_pass http://127.0.0.1:8501/dashboard-app/;
+        
+        # REQUIRED for Streamlit WebSockets
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+    }
+
+    # Redirect to login if unauthorized
+    location @error401 {
+        return 302 /login;
+    }
+}
+```
+
+### 2. Startup Command (Production Mode)
+Use the unified runner with the `--prod` flag. This disables Flask debug mode and configures Streamlit correctly for the Nginx proxy path.
+
+```bash
+python run.py --prod
+```
+
+### 3. Firewall Security (UFW)
+Ensure only Nginx is accessible from the outside.
+
+```bash
+# Allow Nginx
+sudo ufw allow 'Nginx Full'
+
+# Deny direct access to backend ports
+sudo ufw deny 8501
+sudo ufw deny 5001
+
+# Enable firewall
+sudo ufw enable
+```
+
+---
+
 ## 📂 Project Structure
-- `app_flask.py`: Flask authentication logic, user management routes, and dashboard routing.
-- `app.py`: Core Streamlit application logic.
-- `models.py`: Database schema (User model with roles).
-- `manage_admin.py`: Terminal-based administrative tool.
-- `run.py`: Unified development runner script.
-- `templates/`: Premium glassmorphism HTML templates (Admin, Login, Signup, Dashboard).
-- `instance/users.db`: Secure SQLite database for user storage.
+- `run.py`: Hybrid runner. Supports `python run.py` (Dev) and `python run.py --prod` (Production).
+- `app_flask.py`: Flask auth logic + `/auth-check` endpoint for Nginx security.
+- `app.py`: Core Streamlit application.
+- `models.py`: Database schema and password hashing logic.
+- `templates/`: Premium glassmorphism HTML templates.
+- `instance/users.db`: SQLite database for user storage.
+
