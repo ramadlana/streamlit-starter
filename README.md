@@ -83,16 +83,7 @@ server {
     }
 }
 ```
-
-## 🛡️ Admin & Tools
-
-### 🏠 Admin Panel
-Accessed at `/admin` (requires admin account). Manage users, reset passwords, and assign roles via the UI.
-
-### 🖥️ CLI Utilities
-- **User Management**: `python3 scripts/manage_admin.py list` or `create`.
-- **Port Cleanup**: `python3 scripts/kill_ports.py` (Kills any processes stuck on configured ports).
-- 
+ 
 **CRITICAL: Enable the site and remove the default Nginx page:**
 ```bash
 # 1. Remove the default Nginx catch-all (important!)
@@ -129,6 +120,15 @@ Open browser http://yourserverip/
 username: admin
 password: admin123
 ---
+
+## 🛡️ Admin & Tools
+
+### 🏠 Admin Panel
+Accessed at `/admin` (requires admin account). Manage users, reset passwords, and assign roles via the UI.
+
+### 🖥️ CLI Utilities
+- **User Management**: `python3 scripts/manage_admin.py list` or `create`.
+- **Port Cleanup**: `python3 scripts/kill_ports.py` (Kills any processes stuck on configured ports).
 
 ## 📂 Project Structure
 - `run.py`: Hybrid entry point (Dev/Prod). Supports automatic port cleanup.
