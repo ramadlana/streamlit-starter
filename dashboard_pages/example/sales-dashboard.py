@@ -98,7 +98,7 @@ with mid_col1:
         xaxis=dict(showgrid=False),
         yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)')
     )
-    st.plotly_chart(fig_line, use_container_width=True)
+    st.plotly_chart(fig_line, width="stretch")
 
 with mid_col2:
     st.subheader("Regional Mix")
@@ -113,7 +113,7 @@ with mid_col2:
         paper_bgcolor='rgba(0,0,0,0)',
         legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5)
     )
-    st.plotly_chart(fig_pie, use_container_width=True)
+    st.plotly_chart(fig_pie, width="stretch")
 
 # 3. Product Performance and Filters
 st.divider()
@@ -135,7 +135,7 @@ with bot_col1:
         yaxis_title=None,
         coloraxis_showscale=False
     )
-    st.plotly_chart(fig_bar, use_container_width=True)
+    st.plotly_chart(fig_bar, width="stretch")
 
 with bot_col2:
     st.subheader("Key Accounts Intelligence")
@@ -158,7 +158,7 @@ with bot_col2:
                      ),
                  },
                  hide_index=True,
-                 use_container_width=True)
+                 width="stretch")
 
 # Footer
 st.markdown("---")

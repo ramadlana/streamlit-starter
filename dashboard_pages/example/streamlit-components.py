@@ -106,7 +106,7 @@ if submitted:
 st.header("DataFrame & Table")
 df = pd.DataFrame(
     {"a": [1, 2, 3, 4], "b": [10, 20, 30, 40], "c": [1, 2, 3, 4]})
-st.dataframe(df, use_container_width=True)
+st.dataframe(df, width="stretch")
 st.table(df)
 sty = pd.DataFrame(np.random.randn(10, 5), columns=list("abcde"))
 st.dataframe(sty.style.highlight_max(axis=0))
@@ -150,10 +150,10 @@ if st.toggle("Show Charts"):
     )
 
     st.subheader("Pie Chart")
-    st.altair_chart(pie, use_container_width=True)
+    st.altair_chart(pie, width="stretch")
 
     st.subheader("Donut Chart")
-    st.altair_chart(donut, use_container_width=True)
+    st.altair_chart(donut, width="stretch")
 
     radar_df = pd.DataFrame({
         "metric": ["CPU", "RAM", "Disk", "IO", "Net"],
@@ -161,12 +161,12 @@ if st.toggle("Show Charts"):
     })
     radar = px.line_polar(radar_df, r="value", theta="metric", line_close=True)
     st.subheader("Radar Chart")
-    st.plotly_chart(radar, use_container_width=True)
+    st.plotly_chart(radar, width="stretch")
 
     heat_df = pd.DataFrame(np.random.randn(10, 10))
     heat = px.imshow(heat_df)
     st.subheader("Heatmap")
-    st.plotly_chart(heat, use_container_width=True)
+    st.plotly_chart(heat, width="stretch")
 
 # =========================
 # MAP (on-demand)
@@ -183,7 +183,7 @@ st.header("File Upload / Download")
 up = st.file_uploader("Upload CSV", type=["csv"])
 if up:
     udf = pd.read_csv(up)
-    st.dataframe(udf, use_container_width=True)
+    st.dataframe(udf, width="stretch")
 st.download_button("Download sample CSV", df.to_csv(index=False), "sample.csv")
 
 # =========================
