@@ -5,7 +5,8 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from auth_server import app
-from models import db, User
+from flask_app.extensions import db
+from flask_app.models import User
 
 def create_admin(username, email, password):
     with app.app_context():

@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}PostgreSQL CRUD{% endblock %}
+
+{% block content %}
+<style>
+    .crud-container {
+        width: 100%;
+        max-width: 1200px;
+        margin-top: 40px;
+        padding-bottom: 50px;
+    }
+
+    .crud-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .crud-panel {
+        background: var(--surface-color);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.25rem;
+    }
+
+    .crud-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .crud-table th,
+    .crud-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--glass-border);
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .crud-table th {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .flash-message {
+        margin-bottom: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        background: rgba(0, 120, 212, 0.12);
+        border: 1px solid rgba(0, 120, 212, 0.25);
+        color: var(--azure-light);
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 70px;
+        padding: 10px;
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        color: white;
+    }
+
+    .actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-small {
+        width: auto;
+        margin-top: 0;
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+    }
+
+    .btn-danger {
+        background: var(--error-color);
+    }
+</style>
+
+<div class="crud-container">
+    <h1>PostgreSQL CRUD</h1>
+    <p class="subtitle">Protected page for logged-in users. Data is stored in table <code>app_items</code>.</p>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="flash-message">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="crud-grid">
+        <div class="crud-panel">
+            <h3>Create Item</h3>
+            <form method="POST" action="{{ url_for('postgres.pg_items_create') }}">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" required />
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" placeholder="Optional description"></textarea>
+                </div>
+                <button class="btn" type="submit">Create</button>
+            </form>
+        </div>
+
+        <div class="crud-panel">
+            <h3>Items</h3>
+            <table class="crud-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('postgres.pg_items_edit', item_id=item.id) }}" id="edit-{{ item.id }}">
+                                <input type="text" name="name" value="{{ item.name }}" required />
+                            </form>
+                        </td>
+                        <td>
+                            <textarea name="description" form="edit-{{ item.id }}">{{ item.description or '' }}</textarea>
+                        </td>
+                        <td>{{ item.created_at }}</td>
+                        <td>{{ item.updated_at }}</td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn btn-small" type="submit" form="edit-{{ item.id }}">Update</button>
+                                <form method="POST" action="{{ url_for('postgres.pg_items_delete', item_id=item.id) }}"
+                                    onsubmit="return confirm('Delete this item?');">
+                                <button class="btn btn-small btn-danger" type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="color: var(--text-secondary);">No rows yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

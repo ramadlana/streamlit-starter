@@ -212,13 +212,14 @@
         <div class="nav-links">
             <a href="/">Home</a>
             {% if current_user.is_authenticated %}
+            <a href="{{ url_for('postgres.pg_items') }}">PostgreSQL CRUD</a>
             {% if current_user.is_admin %}
-            <a href="{{ url_for('admin') }}">Admin Panel</a>
+            <a href="{{ url_for('admin.admin') }}">Admin Panel</a>
             {% endif %}
-            <a href="{{ url_for('logout') }}" style="color: var(--error-color); opacity: 0.8;">Logout</a>
+            <a href="{{ url_for('auth.logout') }}" style="color: var(--error-color); opacity: 0.8;">Logout</a>
             {% else %}
-            <a href="{{ url_for('login') }}">Login</a>
-            <a href="{{ url_for('signup') }}">Sign Up</a>
+            <a href="{{ url_for('auth.login') }}">Login</a>
+            <a href="{{ url_for('auth.signup') }}">Sign Up</a>
             {% endif %}
 
             {% if current_user.is_authenticated %}
