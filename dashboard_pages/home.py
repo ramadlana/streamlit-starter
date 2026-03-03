@@ -1,5 +1,7 @@
 import streamlit as st
 
+st.title("")
+
 """
 # 🚀 Streamlit Starter - Secure Dashboard Wrapper
 
@@ -86,7 +88,7 @@ server {
     }
 }
 ```
- 
+
 **CRITICAL: Enable the site and remove the default Nginx page:**
 ```bash
 # 1. Remove the default Nginx catch-all (important!)
@@ -211,5 +213,3 @@ Accessed at `/admin` (requires admin account). Manage users, reset passwords, an
 
 
 """
-
-
