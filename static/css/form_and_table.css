@@ -1,8 +1,8 @@
 .crud-container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 100%;
     margin-top: 24px;
-    padding-bottom: 32px;
+    padding: 0 1.5rem 32px;
 }
 
 .crud-grid {
@@ -49,7 +49,7 @@
 }
 
 .crud-table-wrapper {
-    max-height: 420px;
+    max-height: 60vh;
     overflow-y: auto;
     overflow-x: auto;
     border-radius: 12px;

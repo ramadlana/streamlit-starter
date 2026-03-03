@@ -70,6 +70,61 @@ body {
     color: var(--azure-light);
 }
 
+.nav-dropdown {
+    position: relative;
+}
+
+.nav-dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.nav-dropdown-toggle:hover {
+    color: var(--azure-light);
+}
+
+.nav-dropdown-menu {
+    position: absolute;
+    top: 120%;
+    left: 0;
+    min-width: 180px;
+    padding: 0.5rem 0;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(16px) saturate(180%);
+    border-radius: 0.75rem;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.6);
+    display: none;
+    flex-direction: column;
+    z-index: 1100;
+}
+
+.nav-dropdown-menu a {
+    padding: 0.5rem 1rem;
+    display: block;
+    white-space: nowrap;
+}
+
+.nav-dropdown-menu a:hover {
+    background: rgba(148, 163, 184, 0.12);
+}
+
+.nav-dropdown.open .nav-dropdown-menu {
+    display: flex;
+}
+
+.nav-dropdown-caret {
+    font-size: 0.7rem;
+}
+
 .container {
     flex: 1;
     display: flex;

@@ -15,14 +15,14 @@ Flask authentication wrapper for Streamlit apps with PostgreSQL-backed auth/user
 
 ## Quick Run (development)
 
-### 0. Clone this repository
+### 1. Clone this repository
 
 ```bash
 git clone https://github.com/ramadlana/streamlit-starter
 cd streamlit-gatekeeper
 ```
 
-### 1. Create virtualenv and install dependencies
+### 2. Create virtualenv and install dependencies
 
 ```bash
 python3 -m venv .venv
@@ -30,7 +30,7 @@ source .venv/bin/activate  # adjust if your venv path/name differs
 pip install -r requirements.txt
 ```
 
-### 2. Configure database and app environment
+### 3. Configure database and app environment
 
 Linux/Mac:
 
@@ -80,13 +80,13 @@ ALTER TABLE public.dummydata
 ADD CONSTRAINT dummydata_pkey PRIMARY KEY (id);
 ```
 
-### 3. Create first admin user
+### 4. Create first admin user
 
 ```bash
 python3 scripts/manage_admin.py create admin admin@example.com admin123
 ```
 
-### 4. Run the app in development mode
+### 5. Run the app in development mode
 
 ```bash
 python3 run.py
