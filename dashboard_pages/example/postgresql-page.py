@@ -140,59 +140,12 @@ def load_data():
     return df
 
 
-def update_rows(original_df, edited_df):
-    changed_rows = edited_df.compare(original_df)
 
-    if changed_rows.empty:
-        return 0
-
-    with engine.begin() as conn:
-        for idx in changed_rows.index:
-            row_id = edited_df.loc[idx, "id"]
-            name = edited_df.loc[idx, "name"]
-            email = edited_df.loc[idx, "email"]
-
-            conn.execute(
-                text("""
-                    UPDATE dummydata
-                    SET name = :name,
-                        email = :email
-                    WHERE id = :id
-                """),
-                {"id": int(row_id), "name": name, "email": email},
-            )
-
-    load_data.clear()
-    return len(changed_rows)
-
-
-# ===============================
-# UI
-# ===============================
 st.set_page_config(layout="wide")
 st.title("PostgreSQL Admin Panel")
 
-original_df = load_data()
+df = load_data()
 
-edited_df = st.data_editor(
-    original_df,
-    use_container_width=True,
-    num_rows="fixed",
-    column_config={
-        "id": st.column_config.NumberColumn("ID", disabled=True),
-    },
-    key="data_editor"
-)
-
-col1, col2 = st.columns([1, 6])
-
-with col1:
-    if st.button("Save Changes", type="primary"):
-        updated_count = update_rows(original_df, edited_df)
-
-        if updated_count > 0:
-            st.success(f"{updated_count} row(s) updated successfully.")
-            st.rerun()
-        else:
-            st.info("No changes detected.")
+# Display st.dataframe(df, use_container_width=True)
+st.table(df)
 

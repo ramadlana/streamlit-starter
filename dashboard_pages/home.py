@@ -5,7 +5,7 @@ st.title("")
 """
 # 🚀 Streamlit Starter - Secure Dashboard Wrapper
 
-Secure wrapper for Streamlit applications using Flask and SQLite. Provides a robust authentication layer with a stunning dark glassmorphism design.
+Secure wrapper for Streamlit applications using Flask and PostgreSQL. Provides a robust authentication layer with a stunning dark glassmorphism design.
 Ideal for internal business tools, it provides a simple yet secure authentication gateway to protect your Streamlit dashboards without the complexity of enterprise identity management.
 
 ---

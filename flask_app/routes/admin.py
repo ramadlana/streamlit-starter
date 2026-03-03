@@ -3,8 +3,7 @@ from functools import wraps
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from flask_app.extensions import db
-from flask_app.models import User
+from flask_app.db import User, db
 
 bp = Blueprint("admin", __name__)
 

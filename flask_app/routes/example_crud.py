@@ -1,61 +1,19 @@
-import os
-
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-bp = Blueprint("postgres", __name__)
-_pg_engine = None
+from flask_app.db import ensure_example_crud_table, get_sql_engine
+
+bp = Blueprint("example_crud", __name__)
 
 
-def get_postgres_engine():
-    global _pg_engine
-    if _pg_engine is not None:
-        return _pg_engine
-
-    db_user = os.environ.get("DB_USER")
-    db_password = os.environ.get("DB_PASSWORD")
-    db_host = os.environ.get("DB_HOST")
-    db_port = os.environ.get("DB_PORT")
-    db_name = os.environ.get("DB_NAME")
-
-    if not all([db_user, db_password, db_host, db_port, db_name]):
-        raise RuntimeError(
-            "Missing PostgreSQL env vars. Required: DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME."
-        )
-
-    uri = (
-        f"postgresql+psycopg2://{db_user}:{db_password}"
-        f"@{db_host}:{db_port}/{db_name}"
-    )
-    _pg_engine = create_engine(uri, future=True, pool_pre_ping=True)
-    return _pg_engine
-
-
-def ensure_pg_items_table():
-    with get_postgres_engine().begin() as conn:
-        conn.execute(
-            text(
-                """
-                CREATE TABLE IF NOT EXISTS app_items (
-                    id BIGSERIAL PRIMARY KEY,
-                    name VARCHAR(150) NOT NULL,
-                    description TEXT,
-                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-                )
-                """
-            )
-        )
-
-
-@bp.route("/pg-items")
+@bp.route("/example-crud")
 @login_required
-def pg_items():
+def example_crud():
     try:
-        ensure_pg_items_table()
-        with get_postgres_engine().connect() as conn:
+        ensure_example_crud_table()
+        with get_sql_engine().connect() as conn:
             result = conn.execute(
                 text(
                     """
@@ -69,22 +27,22 @@ def pg_items():
     except (RuntimeError, SQLAlchemyError) as exc:
         flash(f"PostgreSQL error: {exc}")
         items = []
-    return render_template("postgres_crud.html", items=items)
+    return render_template("example_crud.html", items=items)
 
 
-@bp.route("/pg-items/create", methods=["POST"])
+@bp.route("/example-crud/create", methods=["POST"])
 @login_required
-def pg_items_create():
+def example_crud_create():
     name = (request.form.get("name") or "").strip()
     description = (request.form.get("description") or "").strip()
 
     if not name:
         flash("Name is required.")
-        return redirect(url_for("postgres.pg_items"))
+        return redirect(url_for("example_crud.example_crud"))
 
     try:
-        ensure_pg_items_table()
-        with get_postgres_engine().begin() as conn:
+        ensure_example_crud_table()
+        with get_sql_engine().begin() as conn:
             conn.execute(
                 text(
                     """
@@ -97,22 +55,22 @@ def pg_items_create():
         flash("Item created.")
     except (RuntimeError, SQLAlchemyError) as exc:
         flash(f"Create failed: {exc}")
-    return redirect(url_for("postgres.pg_items"))
+    return redirect(url_for("example_crud.example_crud"))
 
 
-@bp.route("/pg-items/edit/<int:item_id>", methods=["POST"])
+@bp.route("/example-crud/edit/<int:item_id>", methods=["POST"])
 @login_required
-def pg_items_edit(item_id):
+def example_crud_edit(item_id):
     name = (request.form.get("name") or "").strip()
     description = (request.form.get("description") or "").strip()
 
     if not name:
         flash("Name is required.")
-        return redirect(url_for("postgres.pg_items"))
+        return redirect(url_for("example_crud.example_crud"))
 
     try:
-        ensure_pg_items_table()
-        with get_postgres_engine().begin() as conn:
+        ensure_example_crud_table()
+        with get_sql_engine().begin() as conn:
             updated = conn.execute(
                 text(
                     """
@@ -132,15 +90,15 @@ def pg_items_edit(item_id):
         flash("Item updated." if updated.rowcount else "Item not found.")
     except (RuntimeError, SQLAlchemyError) as exc:
         flash(f"Update failed: {exc}")
-    return redirect(url_for("postgres.pg_items"))
+    return redirect(url_for("example_crud.example_crud"))
 
 
-@bp.route("/pg-items/delete/<int:item_id>", methods=["POST"])
+@bp.route("/example-crud/delete/<int:item_id>", methods=["POST"])
 @login_required
-def pg_items_delete(item_id):
+def example_crud_delete(item_id):
     try:
-        ensure_pg_items_table()
-        with get_postgres_engine().begin() as conn:
+        ensure_example_crud_table()
+        with get_sql_engine().begin() as conn:
             deleted = conn.execute(
                 text("DELETE FROM app_items WHERE id = :item_id"),
                 {"item_id": item_id},
@@ -148,4 +106,4 @@ def pg_items_delete(item_id):
         flash("Item deleted." if deleted.rowcount else "Item not found.")
     except (RuntimeError, SQLAlchemyError) as exc:
         flash(f"Delete failed: {exc}")
-    return redirect(url_for("postgres.pg_items"))
+    return redirect(url_for("example_crud.example_crud"))

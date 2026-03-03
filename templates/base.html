@@ -212,7 +212,7 @@
         <div class="nav-links">
             <a href="/">Home</a>
             {% if current_user.is_authenticated %}
-            <a href="{{ url_for('postgres.pg_items') }}">PostgreSQL CRUD</a>
+            <a href="{{ url_for('example_crud.example_crud') }}">Example CRUD</a>
             {% if current_user.is_admin %}
             <a href="{{ url_for('admin.admin') }}">Admin Panel</a>
             {% endif %}

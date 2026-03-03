@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}PostgreSQL CRUD{% endblock %}
+{% block title %}Example CRUD{% endblock %}
 
 {% block content %}
 <style>
@@ -82,7 +82,7 @@
 </style>
 
 <div class="crud-container">
-    <h1>PostgreSQL CRUD</h1>
+    <h1>Example CRUD</h1>
     <p class="subtitle">Protected page for logged-in users. Data is stored in table <code>app_items</code>.</p>
 
     {% with messages = get_flashed_messages() %}
@@ -96,7 +96,7 @@
     <div class="crud-grid">
         <div class="crud-panel">
             <h3>Create Item</h3>
-            <form method="POST" action="{{ url_for('postgres.pg_items_create') }}">
+            <form method="POST" action="{{ url_for('example_crud.example_crud_create') }}">
                 <div class="form-group">
                     <label>Name</label>
                     <input type="text" name="name" required />
@@ -127,7 +127,7 @@
                     <tr>
                         <td>{{ item.id }}</td>
                         <td>
-                            <form method="POST" action="{{ url_for('postgres.pg_items_edit', item_id=item.id) }}" id="edit-{{ item.id }}">
+                            <form method="POST" action="{{ url_for('example_crud.example_crud_edit', item_id=item.id) }}" id="edit-{{ item.id }}">
                                 <input type="text" name="name" value="{{ item.name }}" required />
                             </form>
                         </td>
@@ -139,7 +139,7 @@
                         <td>
                             <div class="actions">
                                 <button class="btn btn-small" type="submit" form="edit-{{ item.id }}">Update</button>
-                                <form method="POST" action="{{ url_for('postgres.pg_items_delete', item_id=item.id) }}"
+                                <form method="POST" action="{{ url_for('example_crud.example_crud_delete', item_id=item.id) }}"
                                     onsubmit="return confirm('Delete this item?');">
                                 <button class="btn btn-small btn-danger" type="submit">Delete</button>
                                 </form>

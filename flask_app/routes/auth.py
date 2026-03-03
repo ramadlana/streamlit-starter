@@ -3,8 +3,8 @@ from typing import Optional
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
-from flask_app.extensions import db, login_manager
-from flask_app.models import User
+from flask_app.db import User, db
+from flask_app.extensions import login_manager
 
 bp = Blueprint("auth", __name__)
 
