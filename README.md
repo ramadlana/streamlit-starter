@@ -14,6 +14,20 @@ pip install -r requirements.txt
 
 # Initial admin setup (if needed)
 python3 scripts/manage_admin.py create admin admin@example.com admin123
+
+# Set env Variable (Linux/Mac)
+export DB_USER=appuser
+export DB_PASSWORD=strongpassword
+export DB_HOST=127.0.0.1
+export DB_PORT=5432     
+export DB_NAME=appdb
+
+# Set env Variable (Windows)
+set DB_USER=appuser
+set DB_PASSWORD=strongpassword
+set DB_HOST=127.0.0.1
+set DB_PORT=5432
+set DB_NAME=appdb
 ```
 
 ### 2. Configure Ports
