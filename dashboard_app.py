@@ -14,13 +14,13 @@ streamlit_components_page = st.Page("dashboard_pages/example/streamlit-component
 
 sales_dashboard_page = st.Page("dashboard_pages/example/sales-dashboard.py", title="Sales Dashboard", icon=":material/monitoring:")
 
-postgresql_page = st.Page("dashboard_pages/example/postgresql-page.py", title="PostgreSQL Page", icon=":material/database:")
+dummydata_crud_page = st.Page("dashboard_pages/example/dummy-data-postgresql-page.py", title="PSQL Dummydata Display Page", icon=":material/database:")
 
 # Navigation
 pg = st.navigation(
     {
         "Main Menu": [home_page],
-        "Example": [basic_page,streamlit_components_page, map_page, sales_dashboard_page, postgresql_page],
+        "Example": [basic_page,streamlit_components_page, map_page, sales_dashboard_page, dummydata_crud_page],
     }
 )
 

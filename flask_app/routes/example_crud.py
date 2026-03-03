@@ -18,7 +18,7 @@ def example_crud():
                 text(
                     """
                     SELECT id, name, description, created_at, updated_at
-                    FROM app_items
+                    FROM example_crud_items
                     ORDER BY id DESC
                     """
                 )
@@ -46,7 +46,7 @@ def example_crud_create():
             conn.execute(
                 text(
                     """
-                    INSERT INTO app_items (name, description)
+                    INSERT INTO example_crud_items (name, description)
                     VALUES (:name, :description)
                     """
                 ),
@@ -74,7 +74,7 @@ def example_crud_edit(item_id):
             updated = conn.execute(
                 text(
                     """
-                    UPDATE app_items
+                    UPDATE example_crud_items
                     SET name = :name,
                         description = :description,
                         updated_at = NOW()
@@ -100,7 +100,7 @@ def example_crud_delete(item_id):
         ensure_example_crud_table()
         with get_sql_engine().begin() as conn:
             deleted = conn.execute(
-                text("DELETE FROM app_items WHERE id = :item_id"),
+                text("DELETE FROM example_crud_items WHERE id = :item_id"),
                 {"item_id": item_id},
             )
         flash("Item deleted." if deleted.rowcount else "Item not found.")

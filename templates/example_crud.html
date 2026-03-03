@@ -2,88 +2,19 @@
 
 {% block title %}Example CRUD{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form_and_table.css') }}">
+{% endblock %}
+
 {% block content %}
-<style>
-    .crud-container {
-        width: 100%;
-        max-width: 1200px;
-        margin-top: 40px;
-        padding-bottom: 50px;
-    }
-
-    .crud-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    .crud-panel {
-        background: var(--surface-color);
-        border: 1px solid var(--glass-border);
-        border-radius: 16px;
-        padding: 1.25rem;
-    }
-
-    .crud-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .crud-table th,
-    .crud-table td {
-        padding: 0.75rem;
-        border-bottom: 1px solid var(--glass-border);
-        text-align: left;
-        vertical-align: top;
-    }
-
-    .crud-table th {
-        color: var(--text-secondary);
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-    }
-
-    .flash-message {
-        margin-bottom: 1rem;
-        padding: 0.75rem 1rem;
-        border-radius: 10px;
-        background: rgba(0, 120, 212, 0.12);
-        border: 1px solid rgba(0, 120, 212, 0.25);
-        color: var(--azure-light);
-    }
-
-    textarea {
-        width: 100%;
-        min-height: 70px;
-        padding: 10px;
-        background: rgba(15, 23, 42, 0.5);
-        border: 1px solid var(--glass-border);
-        border-radius: 10px;
-        color: white;
-    }
-
-    .actions {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .btn-small {
-        width: auto;
-        margin-top: 0;
-        padding: 8px 12px;
-        border-radius: 10px;
-        font-size: 0.9rem;
-    }
-
-    .btn-danger {
-        background: var(--error-color);
-    }
-</style>
 
 <div class="crud-container">
-    <h1>Example CRUD</h1>
-    <p class="subtitle">Protected page for logged-in users. Data is stored in table <code>app_items</code>.</p>
+    <div class="crud-header">
+        <div>
+            <h1>Example CRUD</h1>
+            <p class="subtitle">Protected page for logged-in users. Data is stored in table <code>example_crud_items</code>.</p>
+        </div>
+    </div>
 
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -94,69 +25,157 @@
     {% endwith %}
 
     <div class="crud-grid">
+        <!-- Column 1: compact table -->
         <div class="crud-panel">
-            <h3>Create Item</h3>
-            <form method="POST" action="{{ url_for('example_crud.example_crud_create') }}">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" name="name" required />
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea name="description" placeholder="Optional description"></textarea>
-                </div>
-                <button class="btn" type="submit">Create</button>
-            </form>
+            <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);">
+                Items
+            </h3>
+            <div class="crud-table-wrapper">
+                <table class="crud-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                            <th>Created</th>
+                            <th>Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td title="{{ item.name }}">{{ item.name }}</td>
+                            <td title="{{ item.description or '' }}">
+                                {% if item.description %}
+                                    {{ item.description[:80] }}{% if item.description|length > 80 %}…{% endif %}
+                                {% else %}
+                                    <span style="color: var(--text-secondary); opacity: 0.7;">No description</span>
+                                {% endif %}
+                            </td>
+                        
+                            <td>
+                                <div class="actions">
+                                    <button
+                                        type="button"
+                                        class="btn btn-small btn-ghost row-edit-btn"
+                                        data-id="{{ item.id }}"
+                                        data-name="{{ item.name }}"
+                                        data-description="{{ item.description or '' }}"
+                                    >
+                                        Edit
+                                    </button>
+                                    <form method="POST" action="{{ url_for('example_crud.example_crud_delete', item_id=item.id) }}"
+                                        onsubmit="return confirm('Delete this item?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-small btn-danger" type="submit">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                            <td>{{ item.created_at }}</td>
+                            <td>{{ item.updated_at }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" style="color: var(--text-secondary);">No rows yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
+        <!-- Column 2: compact editor form -->
         <div class="crud-panel">
-            <h3>Items</h3>
-            <table class="crud-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Created</th>
-                        <th>Updated</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in items %}
-                    <tr>
-                        <td>{{ item.id }}</td>
-                        <td>
-                            <form method="POST" action="{{ url_for('example_crud.example_crud_edit', item_id=item.id) }}" id="edit-{{ item.id }}">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <input type="text" name="name" value="{{ item.name }}" required />
-                            </form>
-                        </td>
-                        <td>
-                            <textarea name="description" form="edit-{{ item.id }}">{{ item.description or '' }}</textarea>
-                        </td>
-                        <td>{{ item.created_at }}</td>
-                        <td>{{ item.updated_at }}</td>
-                        <td>
-                            <div class="actions">
-                                <button class="btn btn-small" type="submit" form="edit-{{ item.id }}">Update</button>
-                                <form method="POST" action="{{ url_for('example_crud.example_crud_delete', item_id=item.id) }}"
-                                    onsubmit="return confirm('Delete this item?');">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button class="btn btn-small btn-danger" type="submit">Delete</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="6" style="color: var(--text-secondary);">No rows yet.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <h3 id="item-form-title" style="font-size: 0.95rem; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);">
+                New Item
+            </h3>
+            <form
+                id="item-form"
+                class="form-compact"
+                method="POST"
+                action="{{ url_for('example_crud.example_crud_create') }}"
+                data-create-url="{{ url_for('example_crud.example_crud_create') }}"
+                data-edit-url-prefix="/example-crud/edit/"
+            >
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" id="item-id" value="">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" id="item-name" required />
+                </div>
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                    <label>Description</label>
+                    <textarea name="description" id="item-description" placeholder="Optional description"></textarea>
+                </div>
+                <button class="btn" type="submit" id="item-submit">Create item</button>
+                <button
+                    type="button"
+                    class="btn btn-ghost"
+                    id="item-cancel-edit"
+                    style="width: 100%; margin-top: 0.5rem; display: none;"
+                >
+                    Cancel edit
+                </button>
+            </form>
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        const form = document.getElementById('item-form');
+        if (!form) return;
+
+        const titleEl = document.getElementById('item-form-title');
+        const idInput = document.getElementById('item-id');
+        const nameInput = document.getElementById('item-name');
+        const descInput = document.getElementById('item-description');
+        const submitBtn = document.getElementById('item-submit');
+        const cancelBtn = document.getElementById('item-cancel-edit');
+
+        const createUrl = form.getAttribute('data-create-url');
+        const editUrlPrefix = form.getAttribute('data-edit-url-prefix');
+
+        function setCreateMode() {
+            idInput.value = '';
+            form.action = createUrl;
+            submitBtn.textContent = 'Create item';
+            titleEl.textContent = 'New Item';
+            cancelBtn.style.display = 'none';
+            nameInput.value = '';
+            descInput.value = '';
+        }
+
+        function setEditMode(itemId, name, description) {
+            idInput.value = itemId;
+            nameInput.value = name || '';
+            descInput.value = description || '';
+            form.action = (editUrlPrefix || '/example-crud/edit/') + itemId;
+            submitBtn.textContent = 'Update item';
+            titleEl.textContent = 'Edit Item';
+            cancelBtn.style.display = 'block';
+            nameInput.focus();
+            nameInput.select();
+        }
+
+        document.addEventListener('click', function (evt) {
+            const btn = evt.target.closest('.row-edit-btn');
+            if (!btn) return;
+            const itemId = btn.getAttribute('data-id');
+            const name = btn.getAttribute('data-name') || '';
+            const description = btn.getAttribute('data-description') || '';
+            if (!itemId) return;
+            setEditMode(itemId, name, description);
+        });
+
+        cancelBtn.addEventListener('click', function () {
+            setCreateMode();
+        });
+
+        // Ensure initial state is create mode
+        setCreateMode();
+    })();
+</script>
 {% endblock %}

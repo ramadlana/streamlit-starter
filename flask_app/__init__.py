@@ -10,6 +10,7 @@ from flask_app.routes.admin import bp as admin_bp
 from flask_app.routes.auth import bp as auth_bp
 from flask_app.routes.example_crud import bp as example_crud_bp
 from flask_app.routes.home import bp as home_bp
+from flask_app.routes.dummydata_crud import bp as dummydata_crud_bp
 
 
 def create_app():
@@ -48,6 +49,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(example_crud_bp)
+    app.register_blueprint(dummydata_crud_bp)
 
     with app.app_context():
         db.create_all()

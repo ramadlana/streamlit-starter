@@ -1,4 +1,4 @@
-# Streamlit Starter
+# Streamlit Gatekeeper
 
 Flask authentication wrapper for Streamlit apps with PostgreSQL-backed auth/users and example CRUD.
 
@@ -13,15 +13,27 @@ Flask authentication wrapper for Streamlit apps with PostgreSQL-backed auth/user
 - SQLAlchemy + psycopg2 (PostgreSQL)
 - Streamlit multi-page app
 
-## Quick Start
+## Quick Run (development)
 
-### 1. Install
+### 0. Clone this repository
+
 ```bash
+git clone https://github.com/ramadlana/streamlit-starter
+cd streamlit-gatekeeper
+```
+
+### 1. Create virtualenv and install dependencies
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate  # adjust if your venv path/name differs
 pip install -r requirements.txt
 ```
 
-### 2. Set database env vars
+### 2. Configure database and app environment
+
 Linux/Mac:
+
 ```bash
 export DB_USER=appuser
 export DB_PASSWORD=strongpassword
@@ -34,6 +46,7 @@ export STREAMLIT_PORT=8501
 ```
 
 Windows (cmd):
+
 ```bat
 set DB_USER=appuser
 set DB_PASSWORD=strongpassword
@@ -45,24 +58,42 @@ set FLASK_PORT=5001
 set STREAMLIT_PORT=8501
 ```
 
-Alternative:
+Alternative (single URL):
+
 ```bash
 export DATABASE_URL=postgresql+psycopg2://appuser:strongpassword@127.0.0.1:5432/appdb
+export SECRET_KEY=change-this-internal-secret
+export FLASK_PORT=5001
+export STREAMLIT_PORT=8501
 ```
 
-### 3. Activate venv and create first admin
+create dummydata table:
+```sql
+CREATE TABLE public.dummydata (
+  id serial NOT NULL,
+  name text NOT NULL,
+  email text NOT NULL,
+  created_at timestamp without time zone NULL DEFAULT now()
+);
+
+ALTER TABLE public.dummydata
+ADD CONSTRAINT dummydata_pkey PRIMARY KEY (id);
+```
+
+### 3. Create first admin user
+
 ```bash
-source .venv/bin/activate  # adjust if your venv path/name differs
 python3 scripts/manage_admin.py create admin admin@example.com admin123
 ```
 
-### 4. Run app
+### 4. Run the app in development mode
+
 ```bash
 python3 run.py
 ```
 
-- Flask: `http://127.0.0.1:5001`
-- Streamlit proxied behind Flask after login
+- Flask UI: `http://127.0.0.1:5001`
+- Streamlit dashboard is proxied behind Flask after login
 
 ## Core URLs
 - `/login` - sign in
@@ -99,15 +130,76 @@ python3 run.py
 
 ## Developer Workflow
 
+### Example vs real tables
+
+- **Auth / `User` model**: created automatically by SQLAlchemy on startup via `db.create_all()`; you do not need to create this table manually.
+- **Example CRUD table**: the `/example-crud` feature uses a demo table named `example_crud_items`, which is auto-created if missing by `app_db/example_crud.py` (`ensure_example_crud_table()`).
+- **Real feature tables**: for your own features (for example, a `dummydata` table), you are expected to create/manage tables via migrations or SQL, and have routes issue straightforward `SELECT/INSERT/UPDATE/DELETE` queries against them. There is no need to auto-create real tables in request handlers.
+
 ### Add a public/protected page
+
 Use this pattern:
 1. Create `flask_app/routes/<feature>.py` with a blueprint.
 2. Add public/protected routes (`@login_required` for protected).
-3. Register blueprint in `flask_app/__init__.py`.
+3. Register the blueprint in `flask_app/__init__.py`.
 4. Add matching templates in `templates/`.
 5. Use explicit `url_for("blueprint.endpoint")` names.
 
-### Deployment (Nginx + systemd on `/opt`)
+### (Optional) Using AI agents to scaffold a new CRUD
+
+If you are using Cursor or another AI-powered editor, you can paste and adapt this prompt to quickly generate a new CRUD feature:
+
+> You are working in my `streamlit-starter` repo (Flask auth gateway + Streamlit dashboard). Follow `AGENTS.md` and this `README.md`. I want you to generate a new protected CRUD feature in the same style as `example_crud`, but backed by the table defined below (PostgreSQL).
+>
+> 1. Read `flask_app/routes/example_crud.py`, `app_db/example_crud.py`, `templates/example_crud.html`, `templates/base.html`, `flask_app/__init__.py`, and `app_db/__init__.py` to mirror patterns and conventions.
+> 2. Create a new CRUD blueprint under `flask_app/routes/<feature>_crud.py` that:
+>    - Uses `@login_required` on all routes.
+>    - Uses `get_sql_engine()` and raw SQL for `SELECT/INSERT/UPDATE/DELETE` on my table (do not auto-create the table).
+> 3. Create a new template `templates/<feature>_crud.html`:
+>    - Extend `base.html`.
+>    - Include `form_and_table.css` like `example_crud.html`.
+>    - Show a table listing all rows with sensible columns.
+>    - Provide a right-hand form to create/update rows, with JS like `example_crud.html` to toggle “New” vs “Edit”.
+> 4. Wire it up:
+>    - Register the new blueprint in `flask_app/__init__.py`.
+>    - Add a nav link in `templates/base.html` under the authenticated user section.
+> 5. Update docs:
+>    - Append a short section to `README.md` under “Developer Workflow” describing this new CRUD feature and including the table DDL.
+> 6. Ensure everything compiles (run `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`) and fix any simple errors.
+>
+> **Table DDL (Data Definition Languange) to use (edit this block as needed):**
+>
+> ```sql
+> CREATE TABLE public.dummydata (
+>   id serial NOT NULL,
+>   name text NOT NULL,
+>   email text NOT NULL,
+>   created_at timestamp without time zone NULL DEFAULT now()
+> );
+>
+> ALTER TABLE public.dummydata
+> ADD CONSTRAINT dummydata_pkey PRIMARY KEY (id);
+> ```
+
+#### Example: `dummydata` table DDL
+
+For the `dummydata` CRUD example, you can create the backing table on a new database with:
+
+```sql
+CREATE TABLE public.dummydata (
+  id serial NOT NULL,
+  name text NOT NULL,
+  email text NOT NULL,
+  created_at timestamp without time zone NULL DEFAULT now()
+);
+
+ALTER TABLE public.dummydata
+ADD CONSTRAINT dummydata_pkey PRIMARY KEY (id);
+```
+
+## Production Run (Linux with systemd + Nginx)
+
+Use this when deploying to a server (e.g. Ubuntu) under `/opt`, managed by `systemd` and fronted by Nginx.
 
 Use this structure:
 - App path: `/opt/myappname`
@@ -142,6 +234,11 @@ SECRET_KEY=replace-with-a-long-random-secret
 FLASK_PORT=5001
 STREAMLIT_PORT=8501
 ```
+
+> **IMPORTANT (security reminder)**  
+> - Always change `SECRET_KEY` to a long, random value in production.  
+> - Never use the example passwords or `appuser/strongpassword` in a real deployment.  
+> - Store real database credentials and secrets in environment variables or an env file that is **not** committed to Git.
 
 Secure it:
 ```bash
