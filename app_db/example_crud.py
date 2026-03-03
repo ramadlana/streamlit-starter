@@ -1,6 +1,6 @@
 from sqlalchemy import text
 
-from flask_app.db.engine import get_sql_engine
+from app_db.engine import get_sql_engine
 
 def ensure_example_crud_table():
     with get_sql_engine().begin() as conn:

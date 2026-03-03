@@ -1,5 +1,5 @@
 # Backward-compatible import shim.
-# New code should import from flask_app.db.
-from flask_app.db import User, db
+# New code should import from app_db.
+from app_db import User, db
 
 __all__ = ["db", "User"]

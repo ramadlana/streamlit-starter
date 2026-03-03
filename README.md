@@ -28,6 +28,7 @@ export DB_PASSWORD=strongpassword
 export DB_HOST=127.0.0.1
 export DB_PORT=5432
 export DB_NAME=appdb
+export SECRET_KEY=change-this-internal-secret
 ```
 
 Windows (cmd):
@@ -37,6 +38,7 @@ set DB_PASSWORD=strongpassword
 set DB_HOST=127.0.0.1
 set DB_PORT=5432
 set DB_NAME=appdb
+set SECRET_KEY=change-this-internal-secret
 ```
 
 Alternative:
@@ -78,13 +80,13 @@ python3 run.py
 │   │   ├── home.py
 │   │   ├── admin.py
 │   │   └── example_crud.py
-│   └── db/
-│       ├── __init__.py
-│       ├── base.py            # db = SQLAlchemy()
-│       ├── config.py          # DB URI builder
-│       ├── engine.py          # shared SQL engine (raw SQL helpers)
-│       ├── models.py          # ORM User model
-│       └── example_crud.py    # example feature table bootstrap helper
+├── app_db/
+│   ├── __init__.py
+│   ├── base.py                # db = SQLAlchemy()
+│   ├── config.py              # DB URI builder
+│   ├── engine.py              # shared SQL engine (raw SQL helpers)
+│   ├── models.py              # ORM User model
+│   └── example_crud.py        # example feature table bootstrap helper
 ├── templates/
 ├── dashboard_pages/
 └── scripts/
@@ -109,9 +111,15 @@ Use the full step-by-step guide:
 ## Troubleshooting
 - `Missing PostgreSQL configuration`:
   - Set `DATABASE_URL` OR all `DB_*` vars.
+- Sessions reset unexpectedly:
+  - Ensure `SECRET_KEY` is set and stable across restarts.
+- App fails to start in production mode:
+  - `SECRET_KEY` is required when running with `--prod`.
 - `BuildError` in template:
   - Check `url_for('blueprint.endpoint')` names.
 - Route returns 404:
   - Ensure blueprint is registered in `flask_app/__init__.py`.
 - Login redirect loops:
   - Verify session cookies enabled and Flask secret key is set (already set by app factory).
+- Form submit shows session-expired message:
+  - Refresh page and submit again (CSRF token expired after session change).

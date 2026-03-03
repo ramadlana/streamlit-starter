@@ -213,3 +213,9 @@ Accessed at `/admin` (requires admin account). Manage users, reset passwords, an
 
 
 """
+
+st.header("User Guide")
+
+"""
+"""
+

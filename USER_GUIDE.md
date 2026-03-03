@@ -10,7 +10,7 @@ This guide is for beginners who want to add features safely in this codebase.
 
 Main folders:
 - `flask_app/routes/`: Flask route files
-- `flask_app/db/`: DB config, models, SQL engine/helpers
+- `app_db/`: DB config, models, SQL engine/helpers
 - `templates/`: HTML templates
 
 ## 2. Start the project
@@ -27,6 +27,7 @@ export DB_PASSWORD=strongpassword
 export DB_HOST=127.0.0.1
 export DB_PORT=5432
 export DB_NAME=appdb
+export SECRET_KEY=change-this-internal-secret
 ```
 
 3. Create admin user:
@@ -110,12 +111,12 @@ Goal: add `/inventory` with create, list, edit, delete.
 
 ### Step A: Create DB helper
 
-Create `flask_app/db/inventory.py`:
+Create `app_db/inventory.py`:
 
 ```python
 from sqlalchemy import text
 
-from flask_app.db import get_sql_engine
+from app_db import get_sql_engine
 
 
 def ensure_inventory_table():
@@ -200,7 +201,7 @@ Create `flask_app/routes/inventory.py`:
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
-from flask_app.db.inventory import (
+from app_db.inventory import (
     add_inventory_item,
     delete_inventory_item,
     get_inventory_items,
@@ -300,6 +301,7 @@ Create `templates/inventory.html`:
   {% endwith %}
 
   <form method="POST" action="{{ url_for('inventory.inventory_create') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="form-group">
       <label>Item Name</label>
       <input type="text" name="item_name" required />
@@ -330,6 +332,7 @@ Create `templates/inventory.html`:
         <td style="padding: 8px;">{{ item.id }}</td>
         <td style="padding: 8px;">
           <form method="POST" action="{{ url_for('inventory.inventory_edit', item_id=item.id) }}" id="edit-{{ item.id }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="text" name="item_name" value="{{ item.item_name }}" required />
           </form>
         </td>
@@ -341,6 +344,7 @@ Create `templates/inventory.html`:
         <td style="padding: 8px; white-space: nowrap;">
           <button class="btn" type="submit" form="edit-{{ item.id }}" style="width:auto; margin-top:0;">Update</button>
           <form method="POST" action="{{ url_for('inventory.inventory_delete', item_id=item.id) }}" style="display:inline-block;" onsubmit="return confirm('Delete this item?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button class="btn" type="submit" style="width:auto; margin-top:0; background:#f43f5e;">Delete</button>
           </form>
         </td>
@@ -387,7 +391,7 @@ In `templates/base.html` under authenticated links:
 5. DB env vars configured
 6. Quick syntax check passes:
 ```bash
-python3 -m compileall -q flask_app auth_server.py scripts
+python3 -m compileall -q app_db flask_app auth_server.py scripts models.py
 ```
 
 ## 7. Common mistakes
@@ -395,4 +399,5 @@ python3 -m compileall -q flask_app auth_server.py scripts
 - `BuildError`: wrong blueprint or endpoint name in `url_for`
 - 404 route: blueprint not registered
 - DB runtime error: missing `DATABASE_URL` or `DB_*` env vars
+- Unexpected logout/session reset: `SECRET_KEY` missing or changed
 - Template not found: wrong template path/name

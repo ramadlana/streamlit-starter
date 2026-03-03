@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 
-from flask_app.db.config import build_database_uri
+from app_db.config import build_database_uri
 
 _sql_engine = None
 

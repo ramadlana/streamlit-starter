@@ -1,10 +1,11 @@
-import secrets
+import os
 from pathlib import Path
 
-from flask import Flask
+from flask import Flask, flash, redirect, request, url_for
+from flask_wtf.csrf import CSRFError, generate_csrf
 
-from flask_app.db import build_database_uri, db
-from flask_app.extensions import login_manager
+from app_db import build_database_uri, db
+from flask_app.extensions import csrf, login_manager
 from flask_app.routes.admin import bp as admin_bp
 from flask_app.routes.auth import bp as auth_bp
 from flask_app.routes.example_crud import bp as example_crud_bp
@@ -18,13 +19,30 @@ def create_app():
         template_folder=str(project_root / "templates"),
         static_folder=str(project_root / "static"),
     )
-    app.config["SECRET_KEY"] = secrets.token_hex(16)
+    is_debug = os.environ.get("FLASK_DEBUG", "True").lower() == "true"
+    secret_key = os.environ.get("SECRET_KEY")
+    if not secret_key and not is_debug:
+        raise RuntimeError(
+            "Missing SECRET_KEY in production mode. "
+            "Set SECRET_KEY environment variable."
+        )
+    app.config["SECRET_KEY"] = secret_key or "dev-only-change-this-secret-key"
     app.config["SQLALCHEMY_DATABASE_URI"] = build_database_uri()
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
+    csrf.init_app(app)
     setattr(login_manager, "login_view", "auth.login")
     login_manager.init_app(app)
+
+    @app.context_processor
+    def inject_csrf_token():
+        return {"csrf_token": generate_csrf}
+
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(_):
+        flash("Your session expired. Please try again.")
+        return redirect(request.referrer or url_for("auth.login"))
 
     app.register_blueprint(home_bp)
     app.register_blueprint(auth_bp)

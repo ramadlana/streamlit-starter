@@ -12,7 +12,7 @@ Fast orientation for AI agents working in this repository.
 
 ## Start Here (read in order)
 1. `flask_app/__init__.py` (app factory + blueprint registration)
-2. `flask_app/db/__init__.py` (DB exports)
+2. `app_db/__init__.py` (DB exports)
 3. `flask_app/routes/auth.py` (auth flow)
 4. `flask_app/routes/example_crud.py` (feature CRUD pattern)
 5. `templates/base.html` (global nav/layout)
@@ -20,7 +20,7 @@ Fast orientation for AI agents working in this repository.
 
 ## Folder Map
 - `flask_app/routes/`: Flask blueprints (one file per feature)
-- `flask_app/db/`: DB layer
+- `app_db/`: DB layer
   - `base.py`: SQLAlchemy instance
   - `config.py`: DB URL builder
   - `engine.py`: shared SQL engine for raw SQL features
@@ -47,6 +47,7 @@ Or all of:
 - `DB_HOST`
 - `DB_PORT`
 - `DB_NAME`
+- `SECRET_KEY` (required in production mode; recommended always)
 
 ## Current Blueprints
 - `home`: `/` (protected)
@@ -56,16 +57,18 @@ Or all of:
 
 ## Coding Conventions
 - Keep each new feature in a dedicated route file (`flask_app/routes/<feature>.py`)
-- Keep SQL/helper logic in `flask_app/db/<feature>.py` when using raw SQL
+- Keep SQL/helper logic in `app_db/<feature>.py` when using raw SQL
 - Keep templates dumb: rendering + forms only, no business logic
 - Use `@login_required` for protected routes
 - Use explicit endpoint names in `url_for("blueprint.endpoint")`
+- For every HTML `<form method="POST">`, include CSRF hidden input:
+  - `<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">`
 
 ## Compatibility Notes
 - Legacy compatibility shims exist:
   - `models.py`
   - `flask_app/models.py`
-- Prefer imports from `flask_app.db` for new code.
+- Prefer imports from `app_db` for new code.
 
 ## Safe Refactor Rules
 - Do not re-introduce SQLite config
@@ -78,5 +81,5 @@ Or all of:
 ## Validation Before Finishing
 Run:
 ```bash
-python3 -m compileall -q flask_app auth_server.py scripts
+python3 -m compileall -q app_db flask_app auth_server.py scripts models.py
 ```

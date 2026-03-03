@@ -3,7 +3,7 @@ from flask_login import login_required
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-from flask_app.db import ensure_example_crud_table, get_sql_engine
+from app_db import ensure_example_crud_table, get_sql_engine
 
 bp = Blueprint("example_crud", __name__)
 

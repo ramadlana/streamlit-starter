@@ -3,7 +3,7 @@ from functools import wraps
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from flask_app.db import User, db
+from app_db import User, db
 
 bp = Blueprint("admin", __name__)
 
@@ -71,7 +71,7 @@ def admin_edit_user(user_id):
     return redirect(url_for("admin.admin"))
 
 
-@bp.route("/admin/delete/<int:user_id>")
+@bp.route("/admin/delete/<int:user_id>", methods=["POST"])
 @login_required
 @admin_required
 def admin_delete_user(user_id):

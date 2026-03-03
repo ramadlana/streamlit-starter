@@ -97,6 +97,7 @@
         <div class="crud-panel">
             <h3>Create Item</h3>
             <form method="POST" action="{{ url_for('example_crud.example_crud_create') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group">
                     <label>Name</label>
                     <input type="text" name="name" required />
@@ -128,6 +129,7 @@
                         <td>{{ item.id }}</td>
                         <td>
                             <form method="POST" action="{{ url_for('example_crud.example_crud_edit', item_id=item.id) }}" id="edit-{{ item.id }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="text" name="name" value="{{ item.name }}" required />
                             </form>
                         </td>
@@ -141,6 +143,7 @@
                                 <button class="btn btn-small" type="submit" form="edit-{{ item.id }}">Update</button>
                                 <form method="POST" action="{{ url_for('example_crud.example_crud_delete', item_id=item.id) }}"
                                     onsubmit="return confirm('Delete this item?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button class="btn btn-small btn-danger" type="submit">Delete</button>
                                 </form>
                             </div>

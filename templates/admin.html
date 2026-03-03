@@ -171,6 +171,7 @@
     <div class="modal-content">
         <h2>Add New User</h2>
         <form action="{{ url_for('admin.admin_add_user') }}" method="POST" style="margin-top: 1.5rem;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
                 <label>Username</label>
                 <input type="text" name="username" required>
@@ -201,6 +202,7 @@
     <div class="modal-content">
         <h2>Edit User</h2>
         <form id="editForm" method="POST" style="margin-top: 1.5rem;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
                 <label>Username</label>
                 <input type="text" name="username" id="edit_username" required>
@@ -246,8 +248,11 @@
                 style="color: var(--text-primary);"></strong>. This action cannot be undone.
         </p>
         <div style="display: flex; gap: 15px;">
-            <a id="confirm_delete_btn" href="#" class="btn"
-                style="background: var(--error-color); margin-top: 0; flex: 1;">Delete User</a>
+            <form id="confirm_delete_form" method="POST" action="#" style="flex: 1;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button id="confirm_delete_btn" type="submit" class="btn"
+                    style="background: var(--error-color); margin-top: 0; width: 100%;">Delete User</button>
+            </form>
             <button type="button" class="btn" style="background: rgba(255,255,255,0.1); margin-top: 0; flex: 1;"
                 onclick="closeModal('deleteModal')">Cancel</button>
         </div>
@@ -286,7 +291,7 @@
             const username = button.getAttribute('data-username');
 
             document.getElementById('delete_username_label').innerText = username;
-            document.getElementById('confirm_delete_btn').href = "/admin/delete/" + id;
+            document.getElementById('confirm_delete_form').action = "/admin/delete/" + id;
             showModal('deleteModal');
         });
     });
