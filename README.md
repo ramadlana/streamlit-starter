@@ -163,9 +163,7 @@ If you are using Cursor or another AI-powered editor, you can paste and adapt th
 > 4. Wire it up:
 >    - Register the new blueprint in `flask_app/__init__.py`.
 >    - Add a nav link in `templates/base.html` under the authenticated user section.
-> 5. Update docs:
->    - Append a short section to `README.md` under “Developer Workflow” describing this new CRUD feature and including the table DDL.
-> 6. Ensure everything compiles (run `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`) and fix any simple errors.
+> 5. Ensure everything compiles (run `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`) and fix any simple errors.
 >
 > **Table DDL (Data Definition Languange) to use (edit this block as needed):**
 >
