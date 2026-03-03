@@ -1,22 +1,12 @@
 import os
 import signal
 import subprocess
-import sys
 
 def get_config_ports():
-    """Load ports from .env.ports file, fallback to defaults."""
-    ports = {"FLASK": 5001, "STREAMLIT": 8501}
-    # Path relative to the script location (assuming it's in scripts/ folder)
-    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env.ports")
-    
-    if os.path.exists(env_path):
-        with open(env_path, "r") as f:
-            for line in f:
-                if "=" in line:
-                    key, val = line.strip().split("=")
-                    if key == "FLASK_PORT": ports["FLASK"] = int(val)
-                    if key == "STREAMLIT_PORT": ports["STREAMLIT"] = int(val)
-    return ports
+    """Load ports from environment variables with safe defaults."""
+    flask_port = int(os.environ.get("FLASK_PORT", "5001"))
+    streamlit_port = int(os.environ.get("STREAMLIT_PORT", "8501"))
+    return {"FLASK": flask_port, "STREAMLIT": streamlit_port}
 
 def kill_processes_on_ports(ports):
     """Finds and kills processes listening on the specified ports."""

@@ -75,7 +75,6 @@ Or all of:
 - Do not rename routes or blueprints without updating all `url_for(...)` references
 - Keep docs in sync when changing structure:
   - `README.md`
-  - `USER_GUIDE.md`
   - `AGENTS.md`
 
 ## Validation Before Finishing

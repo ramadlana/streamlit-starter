@@ -22,7 +22,7 @@ python3 scripts/manage_admin.py create admin admin@example.com admin123
 ```
 
 ### 2. Configure Ports
-Edit `.env.ports` to change default ports (default: 5001 for Flask, 8501 for Streamlit).
+Set `FLASK_PORT` and `STREAMLIT_PORT` environment variables to change ports (defaults: 5001 for Flask, 8501 for Streamlit).
 
 ### 3. Run Application
 The unified runner automatically cleans up zombie processes and starts both servers.
@@ -208,7 +208,7 @@ Accessed at `/admin` (requires admin account). Manage users, reset passwords, an
 - `dashboard_pages/`: All Streamlit UI content and multi-page files.
 - `models.py`: Database schema and encryption.
 - `scripts/`: Management scripts (`kill_ports.py`, `manage_admin.py`).
-- `.env.ports`: Centralized port configuration.
+- `FLASK_PORT` / `STREAMLIT_PORT`: Port configuration environment variables.
 - `templates/`: Premium glassmorphism HTML templates.
 
 
@@ -218,4 +218,3 @@ st.header("User Guide")
 
 """
 """
-
