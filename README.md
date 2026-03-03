@@ -22,6 +22,23 @@ git clone https://github.com/ramadlana/streamlit-starter
 cd streamlit-gatekeeper
 ```
 
+setup postgresql:
+```
+# Mac:
+brew install postgresql
+brew services start postgresql
+
+# Linux:
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+sudo service postgresql start
+
+#Open terminal and run (please change database name, user, and password in production!):
+psql postgres
+CREATE ROLE appuser WITH LOGIN PASSWORD 'strongpassword';
+CREATE DATABASE appdb OWNER appuser;
+```
+
 ### 2. Create virtualenv and install dependencies
 
 ```bash
