@@ -200,21 +200,21 @@ ADD CONSTRAINT dummydata_pkey PRIMARY KEY (id);
 Use this when deploying to a server (e.g. Ubuntu) under `/opt`, managed by `systemd` and fronted by Nginx.
 
 Use this structure:
-- App path: `/opt/myappname`
-- Env file: `/etc/myappname/myapp.env`
-- Service file: `/etc/systemd/system/myappname.service`
+- App path: `/opt/streamgatekeeper`
+- Env file: `/etc/streamgatekeeper/streamgatekeeper.env`
+- Service file: `/etc/systemd/system/streamgatekeeper.service`
 
 1. Server setup:
 ```bash
 sudo apt update
 sudo apt install -y python3-pip python3-venv nginx
-sudo mkdir -p /opt/myappname /etc/myappname
-sudo chown -R $USER:$USER /opt/myappname
+sudo mkdir -p /opt/streamgatekeeper /etc/streamgatekeeper
+sudo chown -R $USER:$USER /opt/streamgatekeeper
 ```
 
 2. Copy project and install:
 ```bash
-cd /opt/myappname
+cd /opt/streamgatekeeper
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -222,7 +222,7 @@ pip install -r requirements.txt
 
 3. Create env file:
 ```bash
-sudo nano /etc/myappname/myapp.env
+sudo nano /etc/streamgatekeeper/streamgatekeeper.env
 ```
 
 Example content:
@@ -240,23 +240,23 @@ STREAMLIT_PORT=8501
 
 Secure it:
 ```bash
-sudo chown root:root /etc/myappname/myapp.env
-sudo chmod 600 /etc/myappname/myapp.env
+sudo chown root:root /etc/streamgatekeeper/streamgatekeeper.env
+sudo chmod 600 /etc/streamgatekeeper/streamgatekeeper.env
 ```
 
-4. Create systemd unit (`/etc/systemd/system/myappname.service`):
+4. Create systemd unit (`/etc/systemd/system/streamgatekeeper.service`):
 ```ini
 [Unit]
-Description=My App Name (Flask + Streamlit)
+Description=Streamlit Gatekeeper (Flask + Streamlit)
 After=network.target
 
 [Service]
 Type=simple
 User=www-data
 Group=www-data
-WorkingDirectory=/opt/myappname
-EnvironmentFile=/etc/myappname/myapp.env
-ExecStart=/opt/myappname/.venv/bin/python3 /opt/myappname/run.py --prod
+WorkingDirectory=/opt/streamgatekeeper
+EnvironmentFile=/etc/streamgatekeeper/streamgatekeeper.env
+ExecStart=/opt/streamgatekeeper/.venv/bin/python3 /opt/streamgatekeeper/run.py --prod
 Restart=always
 RestartSec=5
 KillMode=control-group
@@ -269,10 +269,10 @@ WantedBy=multi-user.target
 5. Enable and run:
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable myappname.service
-sudo systemctl start myappname.service
-sudo systemctl status myappname.service
-sudo journalctl -u myappname.service -f
+sudo systemctl enable streamgatekeeper.service
+sudo systemctl start streamgatekeeper.service
+sudo systemctl status streamgatekeeper.service
+sudo journalctl -u streamgatekeeper.service -f
 ```
 
 6. Nginx site (example):
@@ -309,7 +309,7 @@ server {
 
 Then enable Nginx site and reload:
 ```bash
-sudo ln -sf /etc/nginx/sites-available/myappname /etc/nginx/sites-enabled/myappname
+sudo ln -sf /etc/nginx/sites-available/streamgatekeeper /etc/nginx/sites-enabled/streamgatekeeper
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
 ```
