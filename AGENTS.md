@@ -10,6 +10,20 @@ Use this file as the fast execution guide for this repo.
 - SQL access pattern: ORM for core entities, raw SQL for feature/reporting helpers
 - Python target: 3.10+
 
+## 1.1) Delivery Mode (Spec-Driven)
+Work in spec-first mode for any non-trivial change.
+
+- Shared spec file: `SPECS.md`
+- Rule: plan -> implement -> verify -> update spec evidence
+- If scope changes, update `SPECS.md` first, then code
+
+Minimum agent behavior:
+1. Map request to an existing spec or create a new `SPEC-*` entry in `SPECS.md`.
+2. Confirm files/routes/tables impacted before editing.
+3. Implement only what is in scope for that spec.
+4. Verify against spec acceptance criteria.
+5. Record verification evidence in the spec change log/evidence section.
+
 ---
 
 ## 2) System Snapshot
@@ -241,3 +255,7 @@ When changing docs/routing/features, verify:
 - Protected routes enforce login
 - POST forms include CSRF token
 
+Also verify against `SPECS.md`:
+- Every delivered item maps to a `SPEC-*`.
+- Acceptance criteria checkboxes are satisfied.
+- Verification evidence is recorded before marking spec `Done`.

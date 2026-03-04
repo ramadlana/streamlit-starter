@@ -162,6 +162,8 @@ CREATE TABLE public.dummydata (
 
 ## 8) Development Playbooks
 
+Before non-trivial implementation work, define/refine a spec in `SPECS.md` and execute against its acceptance criteria.
+
 ### Add a protected Flask feature
 1. Create `flask_app/routes/<feature>.py` blueprint.
 2. Add endpoints and protect with `@login_required` as needed.
@@ -284,6 +286,7 @@ server {
 
 ## 13) Agent Context
 - [AGENTS.md](AGENTS.md)
+- [SPECS.md](SPECS.md)
 
 ## 14) Roadmap (Condensed)
 - Add documentation module (editor + slug/tag pages + attachment support).
