@@ -1,267 +1,197 @@
 # Streamlit Gatekeeper
 
-Flask authentication wrapper for Streamlit apps with PostgreSQL-backed auth/users and example CRUD.
+Flask authentication gateway for Streamlit, with PostgreSQL-backed users and CRUD feature patterns.
 
-## Why this starter
-- Secure Streamlit behind Flask login
-- PostgreSQL for auth + app data
-- Admin panel for user management
-- Simple project layout for adding new features quickly
+## 1) What This Starter Solves
+- Protect Streamlit behind Flask login/session.
+- Keep auth and user management in PostgreSQL.
+- Provide admin user management endpoints.
+- Provide feature templates for protected CRUD pages.
 
-## Tech stack
-- Flask, Flask-Login, Flask-SQLAlchemy
-- SQLAlchemy + psycopg2 (PostgreSQL)
-- Streamlit multi-page app
+## 2) Architecture At A Glance
 
-## Quick Run (development)
+### Runtime model
+`run.py` launches:
+- Flask app (`auth_server.py`) on `FLASK_PORT` (default `5001`)
+- Streamlit app (`dashboard_app.py`) on `STREAMLIT_PORT` (default `8501`)
 
-### 1. Clone this repository
+In `--prod` mode, Streamlit is served behind `/dashboard-app/` and typically fronted by Nginx.
 
+### Core stack
+- Flask, Flask-Login, Flask-WTF CSRF
+- Flask-SQLAlchemy + SQLAlchemy engine
+- PostgreSQL (`psycopg2`)
+- Streamlit multipage app
+
+## 3) Quick Start (Development)
+
+### 3.1 Clone and install
 ```bash
 git clone https://github.com/ramadlana/streamlit-starter
-cd streamlit-gatekeeper
-```
-
-setup postgresql:
-```
-# Mac:
-brew install postgresql
-brew services start postgresql
-
-# Linux:
-sudo apt update
-sudo apt install postgresql postgresql-contrib
-sudo service postgresql start
-
-#Open terminal and run (please change database name, user, and password in production!):
-psql postgres
-CREATE ROLE appuser WITH LOGIN PASSWORD 'strongpassword';
-CREATE DATABASE appdb OWNER appuser;
-```
-
-### 2. Create virtualenv and install dependencies
-
-```bash
+cd streamlit-starter
 python3 -m venv .venv
-source .venv/bin/activate  # adjust if your venv path/name differs
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Configure database and app environment
+### 3.2 Start PostgreSQL
+Use your preferred setup (Docker/local service). Example Docker:
+```bash
+docker run -d \
+  --name postgres-appdb \
+  --restart unless-stopped \
+  -p 5432:5432 \
+  -e POSTGRES_USER=appuser \
+  -e POSTGRES_PASSWORD=strongpassword \
+  -e POSTGRES_DB=appdb \
+  -v postgres_data:/var/lib/postgresql/data \
+  postgres:16
+```
 
-Linux/Mac:
+### 3.3 Configure environment
+Use either `DATABASE_URL` or full `DB_*` variables.
 
+Option A (`DB_*`):
 ```bash
 export DB_USER=appuser
 export DB_PASSWORD=strongpassword
 export DB_HOST=127.0.0.1
 export DB_PORT=5432
 export DB_NAME=appdb
-export SECRET_KEY=change-this-internal-secret
+export SECRET_KEY=change-this-secret
 export FLASK_PORT=5001
 export STREAMLIT_PORT=8501
 ```
 
-Windows (cmd):
-
-```bat
-set DB_USER=appuser
-set DB_PASSWORD=strongpassword
-set DB_HOST=127.0.0.1
-set DB_PORT=5432
-set DB_NAME=appdb
-set SECRET_KEY=change-this-internal-secret
-set FLASK_PORT=5001
-set STREAMLIT_PORT=8501
-```
-
-Alternative (single URL):
-
+Option B (`DATABASE_URL`):
 ```bash
 export DATABASE_URL=postgresql+psycopg2://appuser:strongpassword@127.0.0.1:5432/appdb
-export SECRET_KEY=change-this-internal-secret
+export SECRET_KEY=change-this-secret
 export FLASK_PORT=5001
 export STREAMLIT_PORT=8501
 ```
 
-create dummydata table:
-```sql
-CREATE TABLE public.dummydata (
-  id serial NOT NULL,
-  name text NOT NULL,
-  email text NOT NULL,
-  created_at timestamp without time zone NULL DEFAULT now()
-);
-
-ALTER TABLE public.dummydata
-ADD CONSTRAINT dummydata_pkey PRIMARY KEY (id);
-```
-
-### 4. Create first admin user
-
+### 3.4 Create first admin
 ```bash
 python3 scripts/manage_admin.py create admin admin@example.com admin123
 ```
 
-### 5. Run the app in development mode
-
+### 3.5 Run app
 ```bash
 python3 run.py
 ```
 
+Access:
 - Flask UI: `http://127.0.0.1:5001`
-- Streamlit dashboard is proxied behind Flask after login
+- Streamlit is accessed from protected Flask home after login
 
-## Core URLs
-- `/login` - sign in
-- `/signup` - register user
-- `/` - protected home
-- `/example-crud` - protected CRUD example
-- `/admin` - admin-only user management
+## 4) Environment Contract
+Required DB config:
+- `DATABASE_URL`
+- or `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`
 
-## Project Structure
+Security/runtime:
+- `SECRET_KEY` (required in production; strongly recommended always)
+- `FLASK_PORT` (optional, default `5001`)
+- `STREAMLIT_PORT` (optional, default `8501`)
+
+Rules:
+- PostgreSQL only (no SQLite fallback).
+- Do not hardcode credentials/secrets.
+
+## 5) Routes and Access Model
+
+### Blueprints
+- `home`
+- `auth`
+- `admin`
+- `example_crud`
+- `dummydata_crud`
+
+### Core routes
+- `/login`
+- `/signup`
+- `/logout`
+- `/auth-check`
+- `/` (protected)
+- `/admin` (admin-only)
+- `/example-crud` (protected)
+- `/dummydata-crud` (protected)
+
+## 6) Project Layout
 ```text
 .
+├── run.py
 ├── auth_server.py
 ├── dashboard_app.py
-├── run.py
 ├── flask_app/
-│   ├── __init__.py            # app factory + blueprint registration
-│   ├── extensions.py          # login_manager
-│   ├── routes/
-│   │   ├── auth.py
-│   │   ├── home.py
-│   │   ├── admin.py
-│   │   └── example_crud.py
-├── app_db/
 │   ├── __init__.py
-│   ├── base.py                # db = SQLAlchemy()
-│   ├── config.py              # DB URI builder
-│   ├── engine.py              # shared SQL engine (raw SQL helpers)
-│   ├── models.py              # ORM User model
-│   └── example_crud.py        # example feature table bootstrap helper
+│   ├── extensions.py
+│   └── routes/
+│       ├── auth.py
+│       ├── home.py
+│       ├── admin.py
+│       ├── example_crud.py
+│       └── dummydata_crud.py
+├── app_db/
+│   ├── base.py
+│   ├── config.py
+│   ├── engine.py
+│   ├── models.py
+│   └── example_crud.py
 ├── templates/
 ├── dashboard_pages/
 └── scripts/
 ```
 
-## Developer Workflow
+## 7) Database Notes
+- `User` table is managed through SQLAlchemy (`db.create_all()` in app factory).
+- `example_crud_items` is auto-created by `ensure_example_crud_table()`.
+- `dummydata` table is expected to exist already.
 
-### Example vs real tables
-
-- **Auth / `User` model**: created automatically by SQLAlchemy on startup via `db.create_all()`; you do not need to create this table manually.
-- **Example CRUD table**: the `/example-crud` feature uses a demo table named `example_crud_items`, which is auto-created if missing by `app_db/example_crud.py` (`ensure_example_crud_table()`).
-- **Real feature tables**: for your own features (for example, a `dummydata` table), you are expected to create/manage tables via migrations or SQL, and have routes issue straightforward `SELECT/INSERT/UPDATE/DELETE` queries against them. There is no need to auto-create real tables in request handlers.
-
-### Add a public/protected page
-
-Use this pattern:
-1. Create `flask_app/routes/<feature>.py` with a blueprint.
-2. Add public/protected routes (`@login_required` for protected).
-3. Register the blueprint in `flask_app/__init__.py`.
-4. Add matching templates in `templates/`.
-5. Use explicit `url_for("blueprint.endpoint")` names.
-
-### (Optional) Using AI agents to scaffold a new CRUD
-
-If you are using Cursor or another AI-powered editor, you can paste and adapt this prompt to quickly generate a new CRUD feature:
-
-> You are working in my `streamlit-starter` repo (Flask auth gateway + Streamlit dashboard). Follow `AGENTS.md` and this `README.md`. I want you to generate a new protected CRUD feature in the same style as `example_crud`, but backed by the table defined below (PostgreSQL).
->
-> 1. Read `flask_app/routes/example_crud.py`, `app_db/example_crud.py`, `templates/example_crud.html`, `templates/base.html`, `flask_app/__init__.py`, and `app_db/__init__.py` to mirror patterns and conventions.
-> 2. Create a new CRUD blueprint under `flask_app/routes/<feature>_crud.py` that:
->    - Uses `@login_required` on all routes.
->    - Uses `get_sql_engine()` and raw SQL for `SELECT/INSERT/UPDATE/DELETE` on my table (do not auto-create the table).
-> 3. Create a new template `templates/<feature>_crud.html`:
->    - Extend `base.html`.
->    - Include `form_and_table.css` like `example_crud.html`.
->    - Show a table listing all rows with sensible columns.
->    - Provide a right-hand form to create/update rows, with JS like `example_crud.html` to toggle “New” vs “Edit”.
-> 4. Wire it up:
->    - Register the new blueprint in `flask_app/__init__.py`.
->    - Add a nav link in `templates/base.html` under the authenticated user section.
-> 5. Ensure everything compiles (run `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`) and fix any simple errors.
->
-> **Table DDL (Data Definition Languange) to use (edit this block as needed):**
->
-> ```sql
-> CREATE TABLE public.dummydata (
->   id serial NOT NULL,
->   name text NOT NULL,
->   email text NOT NULL,
->   created_at timestamp without time zone NULL DEFAULT now()
-> );
->
-> ALTER TABLE public.dummydata
-> ADD CONSTRAINT dummydata_pkey PRIMARY KEY (id);
-> ```
-
-#### Example: `dummydata` table DDL
-
-For the `dummydata` CRUD example, you can create the backing table on a new database with:
-
+Example DDL for `dummydata`:
 ```sql
 CREATE TABLE public.dummydata (
   id serial NOT NULL,
   name text NOT NULL,
   email text NOT NULL,
-  created_at timestamp without time zone NULL DEFAULT now()
+  created_at timestamp without time zone NULL DEFAULT now(),
+  CONSTRAINT dummydata_pkey PRIMARY KEY (id)
 );
-
-ALTER TABLE public.dummydata
-ADD CONSTRAINT dummydata_pkey PRIMARY KEY (id);
 ```
 
-## Production Run (Linux with systemd + Nginx)
+## 8) Development Playbooks
 
-Use this when deploying to a server (e.g. Ubuntu) under `/opt`, managed by `systemd` and fronted by Nginx.
+### Add a protected Flask feature
+1. Create `flask_app/routes/<feature>.py` blueprint.
+2. Add endpoints and protect with `@login_required` as needed.
+3. Add templates under `templates/`.
+4. Register blueprint in `flask_app/__init__.py`.
+5. Add navigation link in `templates/base.html` if user-facing.
 
-Use this structure:
-- App path: `/opt/streamgatekeeper`
-- Env file: `/etc/streamgatekeeper/streamgatekeeper.env`
-- Service file: `/etc/systemd/system/streamgatekeeper.service`
+### Add a new CRUD page
+1. Put DB logic in `app_db/<feature>.py`.
+2. Use raw SQL via `get_sql_engine()` for feature/reporting tables.
+3. Keep route handlers thin (validate input, call DB helpers, render/redirect).
 
-1. Server setup:
-```bash
-sudo apt update
-sudo apt install -y python3-pip python3-venv nginx
-sudo mkdir -p /opt/streamgatekeeper /etc/streamgatekeeper
-sudo chown -R $USER:$USER /opt/streamgatekeeper
+### Add a Streamlit page
+1. Add file under `dashboard_pages/`.
+2. Register with `st.Page(...)` in `dashboard_app.py`.
+3. Keep heavy logic out of page files.
+
+## 9) Security Checklist
+- Include CSRF token on every HTML `POST` form:
+```html
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 ```
+- Use `@login_required` for protected routes.
+- Keep admin checks in route logic (`admin_required`).
+- Set stable `SECRET_KEY` across restarts.
 
-2. Copy project and install:
-```bash
-cd /opt/streamgatekeeper
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
+## 10) Production (systemd + Nginx)
 
-3. Create env file:
-```bash
-sudo nano /etc/streamgatekeeper/streamgatekeeper.env
-```
-
-Example content:
-```bash
-DATABASE_URL=postgresql+psycopg2://appuser:strongpassword@127.0.0.1:5432/appdb
-SECRET_KEY=replace-with-a-long-random-secret
-FLASK_PORT=5001
-STREAMLIT_PORT=8501
-```
-
-> **IMPORTANT (security reminder)**  
-> - Always change `SECRET_KEY` to a long, random value in production.  
-> - Never use the example passwords or `appuser/strongpassword` in a real deployment.  
-> - Store real database credentials and secrets in environment variables or an env file that is **not** committed to Git.
-
-Secure it:
-```bash
-sudo chown root:root /etc/streamgatekeeper/streamgatekeeper.env
-sudo chmod 600 /etc/streamgatekeeper/streamgatekeeper.env
-```
-
-4. Create systemd unit (`/etc/systemd/system/streamgatekeeper.service`):
+### 10.1 Example systemd unit
+`/etc/systemd/system/streamgatekeeper.service`
 ```ini
 [Unit]
 Description=Streamlit Gatekeeper (Flask + Streamlit)
@@ -283,16 +213,22 @@ TimeoutStopSec=30
 WantedBy=multi-user.target
 ```
 
-5. Enable and run:
+### 10.2 Example env file
+`/etc/streamgatekeeper/streamgatekeeper.env`
 ```bash
-sudo systemctl daemon-reload
-sudo systemctl enable streamgatekeeper.service
-sudo systemctl start streamgatekeeper.service
-sudo systemctl status streamgatekeeper.service
-sudo journalctl -u streamgatekeeper.service -f
+DATABASE_URL=postgresql+psycopg2://appuser:strongpassword@127.0.0.1:5432/appdb
+SECRET_KEY=replace-with-a-long-random-secret
+FLASK_PORT=5001
+STREAMLIT_PORT=8501
 ```
 
-6. Nginx site (example):
+Secure it:
+```bash
+sudo chown root:root /etc/streamgatekeeper/streamgatekeeper.env
+sudo chmod 600 /etc/streamgatekeeper/streamgatekeeper.env
+```
+
+### 10.3 Example Nginx site
 ```nginx
 server {
     listen 80;
@@ -324,136 +260,32 @@ server {
 }
 ```
 
-Then enable Nginx site and reload:
-```bash
-sudo ln -sf /etc/nginx/sites-available/streamgatekeeper /etc/nginx/sites-enabled/streamgatekeeper
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo nginx -t && sudo systemctl reload nginx
-```
-
-### AI agent context
-- [AGENTS.md](AGENTS.md)
-
-## Common Commands
+## 11) Common Commands
 - Run app: `python3 run.py`
-- Run app in production mode: `python3 run.py --prod`
+- Run production wiring: `python3 run.py --prod`
 - List users: `python3 scripts/manage_admin.py list`
 - Create/promote admin: `python3 scripts/manage_admin.py create <username> <email> <password>`
-- Kill occupied ports: `python3 scripts/kill_ports.py`
+- Cleanup occupied ports: `python3 scripts/kill_ports.py`
+- Validation compile: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`
 
-## Troubleshooting
+## 12) Troubleshooting
 - `Missing PostgreSQL configuration`:
-  - Set `DATABASE_URL` OR all `DB_*` vars.
-- Sessions reset unexpectedly:
-  - Ensure `SECRET_KEY` is set and stable across restarts.
-- App fails to start in production mode:
-  - `SECRET_KEY` is required when running with `--prod`.
-- `BuildError` in template:
-  - Check `url_for('blueprint.endpoint')` names.
-- Route returns 404:
+  - Set `DATABASE_URL` or all `DB_*` vars.
+- Session resets unexpectedly:
+  - Ensure `SECRET_KEY` is set and stable.
+- Production boot error:
+  - `SECRET_KEY` is mandatory when debug is off.
+- `BuildError` from templates:
+  - Check `url_for("blueprint.endpoint")` names.
+- 404 on route:
   - Ensure blueprint is registered in `flask_app/__init__.py`.
-- Login redirect loops:
-  - Verify session cookies enabled and Flask secret key is set (already set by app factory).
-- Form submit shows session-expired message:
-  - Refresh page and submit again (CSRF token expired after session change).
+- CSRF/session-expired message on submit:
+  - Reload the page and resubmit.
 
+## 13) Agent Context
+- [AGENTS.md](AGENTS.md)
 
-## Roadmap / Future Plan
----
-#### Documentation Platform
-```
-A built-in documentation system will be added to the Flask application
-to support internal documentation, runbooks, and operational guides.
-
-The editor will provide a writing experience similar to platforms such
-as Medium, Notion, or Confluence.
-
-Editor Technology
-
-The editor will be implemented using Quill.js with customized typography
-and a simplified toolbar for documentation writing.
-
-Supported fonts
-
-- Aref Ruqaa (default reading font)
-- Mirza
-- Roboto
-
-Example editor configuration
-
-const Font = Quill.import('formats/font');
-Font.whitelist = ['mirza', 'roboto'];
-Quill.register(Font, true);
-
-const quill = new Quill('#editor', {
-  modules: {
-    toolbar: '#toolbar',
-  },
-  theme: 'snow',
-});
-
-Typography layout
-
-The editor will apply custom CSS to create a comfortable writing layout
-optimized for long-form documentation.
-
-Example styling
-
-#editor {
-  font-family: 'Aref Ruqaa';
-  font-size: 18px;
-  line-height: 1.7;
-  max-width: 720px;
-  margin: auto;
-}
-
-Core capabilities
-
-- Rich text editing using Quill.js
-- Custom typography optimized for long-form documentation
-- Font selector in the editor toolbar
-- Centered reading layout for improved readability
-- Tagging system for documentation categorization
-- Slug-based URLs for documentation pages
-
-Clipboard image support
-
-The editor will support direct screenshot pasting from the clipboard.
-
-Workflow
-
-paste image → upload to Flask endpoint → store in filesystem → embed image URL
-
-Image storage
-
-Images will be stored in the local filesystem:
-
-static/docs_attachments/
-
-Example HTML stored in database
-
-<img src="/static/docs_attachments/abc123.png">
-
-Documentation content will remain in PostgreSQL while image assets
-are stored on disk to avoid large base64 content inside the database.
-
-Documentation routes
-
-The following endpoints will be introduced:
-
-/docs
-documentation index
-
-/docs/<slug>
-view documentation page
-
-/docs/editor/<id>
-edit documentation page
-
-/docs/tag/<tag>
-filter documentation by tag
-```
-
----
-
-other plan
+## 14) Roadmap (Condensed)
+- Add documentation module (editor + slug/tag pages + attachment support).
+- Add change-management workflow (multi-step approvals + audit history).
+- Add production hardening (search/filter, pagination, notifications, optional object storage).
