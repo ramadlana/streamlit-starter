@@ -356,3 +356,104 @@ sudo nginx -t && sudo systemctl reload nginx
   - Verify session cookies enabled and Flask secret key is set (already set by app factory).
 - Form submit shows session-expired message:
   - Refresh page and submit again (CSRF token expired after session change).
+
+
+## Roadmap / Future Plan
+---
+#### Documentation Platform
+```
+A built-in documentation system will be added to the Flask application
+to support internal documentation, runbooks, and operational guides.
+
+The editor will provide a writing experience similar to platforms such
+as Medium, Notion, or Confluence.
+
+Editor Technology
+
+The editor will be implemented using Quill.js with customized typography
+and a simplified toolbar for documentation writing.
+
+Supported fonts
+
+- Aref Ruqaa (default reading font)
+- Mirza
+- Roboto
+
+Example editor configuration
+
+const Font = Quill.import('formats/font');
+Font.whitelist = ['mirza', 'roboto'];
+Quill.register(Font, true);
+
+const quill = new Quill('#editor', {
+  modules: {
+    toolbar: '#toolbar',
+  },
+  theme: 'snow',
+});
+
+Typography layout
+
+The editor will apply custom CSS to create a comfortable writing layout
+optimized for long-form documentation.
+
+Example styling
+
+#editor {
+  font-family: 'Aref Ruqaa';
+  font-size: 18px;
+  line-height: 1.7;
+  max-width: 720px;
+  margin: auto;
+}
+
+Core capabilities
+
+- Rich text editing using Quill.js
+- Custom typography optimized for long-form documentation
+- Font selector in the editor toolbar
+- Centered reading layout for improved readability
+- Tagging system for documentation categorization
+- Slug-based URLs for documentation pages
+
+Clipboard image support
+
+The editor will support direct screenshot pasting from the clipboard.
+
+Workflow
+
+paste image → upload to Flask endpoint → store in filesystem → embed image URL
+
+Image storage
+
+Images will be stored in the local filesystem:
+
+static/docs_attachments/
+
+Example HTML stored in database
+
+<img src="/static/docs_attachments/abc123.png">
+
+Documentation content will remain in PostgreSQL while image assets
+are stored on disk to avoid large base64 content inside the database.
+
+Documentation routes
+
+The following endpoints will be introduced:
+
+/docs
+documentation index
+
+/docs/<slug>
+view documentation page
+
+/docs/editor/<id>
+edit documentation page
+
+/docs/tag/<tag>
+filter documentation by tag
+```
+
+---
+
+other plan
