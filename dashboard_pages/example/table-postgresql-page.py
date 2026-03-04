@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 from sqlalchemy import text
-
+# import database connection
 from app_db import get_sql_engine
 
 # ===============================
@@ -16,12 +16,8 @@ def load_data():
         df = pd.DataFrame(result.fetchall(), columns=result.keys())
     return df
 
-
-
 st.set_page_config(layout="wide")
-st.title("PostgreSQL Admin Panel")
-
+st.title("PostgreSQL Data Normal Table")
 df = load_data()
-
 # Display st.dataframe(df, use_container_width=True)
 st.table(df)

@@ -16,11 +16,13 @@ sales_dashboard_page = st.Page("dashboard_pages/example/sales-dashboard.py", tit
 
 table_postgresql_page = st.Page("dashboard_pages/example/table-postgresql-page.py", title="PSQL Dummydata Display Page", icon=":material/database:")
 
+table_pagination_postgresql_page = st.Page("dashboard_pages/example/table-pagination-postgresql.py", title="PSQL Pagination Table", icon=":material/database:")
+
 # Navigation
 pg = st.navigation(
     {
         "Main Menu": [home_page],
-        "Example": [basic_page,streamlit_components_page, map_page, sales_dashboard_page, table_postgresql_page],
+        "Example": [basic_page,streamlit_components_page, map_page, sales_dashboard_page, table_postgresql_page, table_pagination_postgresql_page],
     }
 )
 
