@@ -16,13 +16,34 @@
         color: #1e40af;
         font-size: 0.88rem;
     }
+
+    /* Code blocks */
+    .ql-editor pre.ql-syntax {
+        font-family: Consolas, Monaco, "Courier New", monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    /* Inline code */
+    .ql-editor code {
+        font-family: Consolas, Monaco, "Courier New", monospace;
+    }
+
+    /* Toolbar code preview */
+    .ql-snow .ql-editor pre.ql-syntax {
+        font-family: Consolas, Monaco, "Courier New", monospace;
+    }
+
+    .ql-font-serif {
+        font-family: Georgia, "Times New Roman", serif;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="docs-shell docs-shell-reading">
     <div class="docs-reading-actions">
-        <a class="docs-back" href="{{ url_for('docs.docs_index') }}">All docs</a>
+        <a class="docs-back" href="{{ url_for('docs.docs_index') }}">Back</a>
     </div>
 
     {% with messages = get_flashed_messages() %}
@@ -57,7 +78,7 @@
             <div id="docs-toolbar">
                 <span class="ql-formats">
                     <select class="ql-font">
-                        <option value="serif" selected></option>
+                        <option value="inter" selected></option>
                         <option value="mirza"></option>
                         <option value="roboto"></option>
                     </select>
@@ -96,15 +117,41 @@
 
     (function () {
         const Font = Quill.import('formats/font');
-        Font.whitelist = ['serif', 'roboto', 'mirza'];
+        Font.whitelist = ['inter', 'roboto', 'mirza'];
         Quill.register(Font, true);
 
         const quill = new Quill('#editor', {
             theme: 'snow',
             modules: {
-                toolbar: '#docs-toolbar'
+                toolbar: '#docs-toolbar',
+                clipboard: {
+                    matchVisual: false
+                }
             },
             placeholder: 'Write documentation content here...'
+        });
+
+        quill.clipboard.addMatcher(Node.ELEMENT_NODE, function (node, delta) {
+
+            const isCode =
+                node.tagName === 'CODE' ||
+                node.tagName === 'PRE' ||
+                (node.parentNode && node.parentNode.tagName === 'PRE');
+
+            if (isCode) {
+                return delta; // keep formatting for code
+            }
+
+            delta.ops.forEach(op => {
+                if (op.attributes) {
+                    delete op.attributes.font;
+                    delete op.attributes.size;
+                    delete op.attributes.color;
+                    delete op.attributes.background;
+                }
+            });
+
+            return delta;
         });
 
         const initialHtml = {{ (doc.content_html if doc else '') | tojson
@@ -113,7 +160,7 @@
         quill.clipboard.dangerouslyPasteHTML(initialHtml);
     } else {
         // Default typing font for new content.
-        quill.format('font', 'serif');
+        quill.format('font', 'inter');
     }
 
     async function uploadClipboardImage(file) {

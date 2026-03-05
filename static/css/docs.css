@@ -140,8 +140,8 @@ body.docs-light .container {
 }
 
 .docs-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
+    background: rgba(148, 163, 184, 0.12);
+    border: 1px solid rgba(148, 163, 184, 0.12);
     border-radius: 16px;
     padding: 1.1rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -414,8 +414,6 @@ body.docs-light .container {
 .docs-prose ol,
 .docs-prose blockquote,
 .docs-prose pre {
-    font-family: serif;
-    font-size: 18px;
     margin-bottom: 1.1rem;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -583,10 +581,19 @@ body.docs-light select {
 
 /* Medium-like default writing style in editor (when no explicit font format is applied). */
 .docs-editor-clean .ql-snow .ql-editor {
-    font-family: 'serif', 'Inter';
+    font-family: 'Inter', 'serif';
     font-size: 15px;
     line-height: 1.58;
     letter-spacing: normal;
+}
+
+/* Paragraph spacing (THIS is what you need) */
+.docs-editor-clean .ql-editor p {
+    margin-bottom: 1em;
+}
+
+.docs-editor-clean .ql-editor p:last-child {
+    margin-bottom: 0;
 }
 
 .docs-editor-clean .ql-snow .ql-editor.ql-blank::before {
