@@ -101,9 +101,9 @@
     padding: 8px 10px;
     font-size: 0.9rem;
     border-radius: 10px;
-    background: rgba(15, 23, 42, 0.5);
-    border: 1px solid var(--glass-border);
-    color: white;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
 }
 
 .form-compact textarea {
@@ -172,4 +172,3 @@
         margin-top: 12px;
     }
 }
-

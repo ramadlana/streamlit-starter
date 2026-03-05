@@ -6,7 +6,7 @@ Use this file as the fast execution guide for this repo.
 - App type: Flask auth gateway + Streamlit dashboard wrapper
 - Primary DB: PostgreSQL only
 - Auth/session: Flask-Login + Flask-WTF CSRF
-- ORM: Flask-SQLAlchemy (`User`)
+- ORM: Flask-SQLAlchemy (`User`, `DocumentationPage`)
 - SQL access pattern: ORM for core entities, raw SQL for feature/reporting helpers
 - Python target: 3.10+
 
@@ -54,13 +54,16 @@ Minimum agent behavior:
 - `app_db/`
   - `base.py`: shared SQLAlchemy instance (`db`)
   - `config.py`: DB URI builder from env
-  - `models.py`: ORM models (`User`)
+  - `models.py`: ORM models (`User`, `DocumentationPage`)
+  - `user_roles.py`: role constants/normalization + startup role-column ensure/backfill
+  - `docs.py`: docs query + persistence helpers
+  - `docs_attachments.py`: docs attachment reference scan + orphan housekeeping helpers
   - `engine.py`: shared SQL engine for raw SQL features
   - `example_crud.py`: feature table bootstrap helper
 - `templates/`: Jinja pages and forms
 - `static/css/`: global + page CSS
 - `dashboard_pages/`: Streamlit pages
-- `scripts/`: operational utilities (`manage_admin.py`, etc.)
+- `scripts/`: operational utilities (`manage_admin.py`, `docs_attachments_housekeeping.py`, etc.)
 - Root entrypoints:
   - `run.py`
   - `auth_server.py`
@@ -77,8 +80,9 @@ Read these in order when starting a task:
 4. `flask_app/routes/admin.py`
 5. `flask_app/routes/example_crud.py`
 6. `flask_app/routes/dummydata_crud.py`
-7. `templates/base.html`
-8. `run.py`
+7. `flask_app/routes/docs.py`
+8. `templates/base.html`
+9. `run.py`
 
 ---
 
@@ -90,6 +94,7 @@ Read these in order when starting a task:
 - `admin`
 - `example_crud`
 - `dummydata_crud`
+- `docs`
 
 ### Route groups (high-level)
 - `home`
@@ -114,6 +119,15 @@ Read these in order when starting a task:
   - `/dummydata-crud/create`
   - `/dummydata-crud/edit/<item_id>`
   - `/dummydata-crud/delete/<item_id>`
+- `docs`
+  - `/docs`
+  - `/docs/<slug>`
+  - `/docs/editor/<id>`
+  - `/docs/tag/<tag>`
+  - `/docs/upload-image`
+  - `/docs/attachments/<filename>`
+  - `/docs/admin/attachments-housekeeping`
+  - `/docs/admin/delete/<id>`
 
 ---
 
@@ -155,6 +169,10 @@ Also:
   - `python3 scripts/manage_admin.py create <username> <email> <password>`
 - List users:
   - `python3 scripts/manage_admin.py list`
+- Docs attachments housekeeping (dry-run default):
+  - `python3 scripts/docs_attachments_housekeeping.py --include-legacy`
+- Docs attachments housekeeping apply (move orphans to trash):
+  - `python3 scripts/docs_attachments_housekeeping.py --apply --include-legacy`
 
 ---
 
@@ -236,6 +254,8 @@ For new code, import from `app_db`.
 - Missing CSRF token in templates will break form submissions.
 - `dummydata_crud` assumes `dummydata` table already exists.
 - `db.create_all()` runs in app factory; avoid relying on it for non-ORM raw SQL tables.
+- Docs uploads now write to `uploads/attachments/docs`; `/docs/attachments/<filename>` also falls back to legacy `uploads/attachments/changemanagement`.
+- User roles are `viewer`, `editor`, `approval1`, `approval2`, `admin`; role is the single source for authorization checks.
 
 ---
 
