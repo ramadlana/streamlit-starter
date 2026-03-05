@@ -13,7 +13,7 @@
 }
 
 .crud-panel {
-    background: var(--surface-color);
+    background: #ffffff;
     border: 1px solid var(--glass-border);
     border-radius: 16px;
     padding: 1rem 1.1rem;
@@ -61,7 +61,7 @@
     border-radius: 10px;
     background: rgba(0, 120, 212, 0.12);
     border: 1px solid rgba(0, 120, 212, 0.25);
-    color: var(--azure-light);
+    color: #0f172a;
 }
 
 .actions {
@@ -91,8 +91,8 @@
 }
 
 .btn-ghost:hover {
-    background: rgba(15, 23, 42, 0.7);
-    color: var(--text-primary);
+    background: #f8fafc;
+    color: #0f172a;
 }
 
 .form-compact input[type="text"],
@@ -142,7 +142,7 @@
     height: 22px;
     border-radius: 999px;
     border: 1px solid var(--glass-border);
-    background: rgba(15, 23, 42, 0.7);
+    background: #f8fafc;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -158,9 +158,9 @@
 }
 
 .cell-edit-icon:hover {
-    background: rgba(15, 23, 42, 0.95);
-    color: var(--azure-light);
-    border-color: rgba(125, 211, 252, 0.6);
+    background: #eef2ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
 }
 
 @media (max-width: 900px) {

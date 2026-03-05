@@ -31,6 +31,63 @@
         {% endif %}
 
         <div class="docs-content docs-prose ql-editor">{{ doc.content_html | safe }}</div>
+
+        <div class="docs-article-meta">
+            <span>Created by <strong>{{ creator_name }}</strong></span>
+            <span>
+                Created
+                <time
+                    class="js-local-datetime"
+                    datetime="{{ doc.created_at.isoformat() if doc.created_at else '' }}"
+                    data-fallback="{{ doc.created_at.strftime('%b %d, %Y %H:%M') if doc.created_at else 'Unknown' }}"
+                >{{ doc.created_at.strftime('%b %d, %Y %H:%M') if doc.created_at else 'Unknown' }}</time>
+            </span>
+            <span>
+                Updated
+                <time
+                    class="js-local-datetime"
+                    datetime="{{ doc.updated_at.isoformat() if doc.updated_at else '' }}"
+                    data-fallback="{{ doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}"
+                >{{ doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}</time>
+            </span>
+        </div>
     </article>
 </div>
+
+<script>
+    (function () {
+        const dateNodes = document.querySelectorAll('.js-local-datetime');
+        if (!dateNodes.length || typeof Intl === 'undefined') return;
+
+        const formatter = new Intl.DateTimeFormat(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            timeZoneName: 'short'
+        });
+
+        function toClientDate(rawValue) {
+            if (!rawValue) return null;
+            const normalized = rawValue.includes(' ') ? rawValue.replace(' ', 'T') : rawValue;
+            const hasTimezone = /[zZ]|[+\-]\d{2}:\d{2}$/.test(normalized);
+            const parseValue = hasTimezone ? normalized : normalized + 'Z';
+            const parsed = new Date(parseValue);
+            return Number.isNaN(parsed.getTime()) ? null : parsed;
+        }
+
+        dateNodes.forEach(function (node) {
+            const isoValue = node.getAttribute('datetime');
+            const parsed = toClientDate(isoValue);
+            if (!parsed) {
+                node.textContent = node.dataset.fallback || node.textContent;
+                return;
+            }
+            node.textContent = formatter.format(parsed);
+            node.setAttribute('title', parsed.toISOString());
+        });
+    })();
+</script>
 {% endblock %}

@@ -135,6 +135,10 @@ Rules:
 - `/docs/<slug>` (protected)
 - `/docs/editor/<id>` (protected, non-viewer roles)
 - `/docs/tag/<tag>` (protected)
+- `/docs/upload-image` (protected, non-viewer roles)
+- `/docs/attachments/<filename>` (protected)
+- `/docs/admin/attachments-housekeeping` (admin-only, POST)
+- `/docs/admin/delete/<id>` (protected, non-viewer roles, POST)
 
 ## 6) Project Layout
 ```text
@@ -149,6 +153,8 @@ Rules:
 │       ├── auth.py
 │       ├── home.py
 │       ├── admin.py
+│       ├── docs.py
+│       ├── permissions.py
 │       ├── example_crud.py
 │       └── dummydata_crud.py
 ├── app_db/
@@ -171,6 +177,7 @@ Rules:
 - Role is the single authorization source (`admin` is the privileged role).
 - Startup auto-ensures/backfills the `role` column for existing DBs.
 - `documentation_pages` stores docs content/slug/tags (ORM model `DocumentationPage`).
+- Docs read-page timestamps are rendered as human-readable values in the browser's local timezone.
 - `example_crud_items` is auto-created by `ensure_example_crud_table()`.
 - `dummydata` table is expected to exist already.
 
@@ -212,7 +219,7 @@ Before non-trivial implementation work, define/refine a spec in `SPECS.md` and e
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 ```
 - Use `@login_required` for protected routes.
-- Keep admin checks in route logic (`admin_required`).
+- Keep admin checks in route logic (`role_required("admin", ...)`).
 - Set stable `SECRET_KEY` across restarts.
 
 ## 10) Production (systemd + Nginx)

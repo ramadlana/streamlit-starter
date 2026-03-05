@@ -177,7 +177,7 @@ The app does not have an internal documentation workspace for operational runboo
 - Add docs index, viewer, and editor templates.
 - Add docs-specific stylesheet with centered 720px content column, 18px base size, 1.7 line-height.
 - Configure Quill toolbar for headers/basic formatting/lists/links/images/code-block/font selector.
-- Whitelist fonts to `mirza` and `roboto` in Quill config; use CSS to style reading surface default with Aref Ruqaa.
+- Whitelist fonts to `inter`, `mirza`, and `roboto` in Quill config; use CSS to style reading surface default with Aref Ruqaa.
 - Include tag input for comma-separated tags.
 - Include hidden CSRF token in editor POST form.
 
@@ -195,7 +195,7 @@ The app does not have an internal documentation workspace for operational runboo
 ### Acceptance Criteria
 - [x] `/docs`, `/docs/<slug>`, `/docs/editor/<id>`, and `/docs/tag/<tag>` routes exist and are login protected.
 - [x] Docs content persists in PostgreSQL via ORM model, and tag filter/list helper uses raw SQL in `app_db/docs.py`.
-- [x] Editor uses Quill with simplified toolbar including font selector limited to Mirza and Roboto.
+- [x] Editor uses Quill with simplified toolbar including font selector limited to Inter, Mirza, and Roboto.
 - [x] Reader/editor typography uses centered layout (~720px max), base font size 18px, and line-height 1.7 with Aref Ruqaa as default reading font.
 - [x] Pasted image workflow uploads image to `/docs/upload-image`, stores under `uploads/attachments/docs`, and embeds URL image (not base64) into editor content.
 - [x] Editor POST form contains CSRF hidden input.
@@ -206,6 +206,7 @@ The app does not have an internal documentation workspace for operational runboo
 - [x] Housekeeping is runnable from CLI and from an admin-only in-app action.
 - [x] Admin can delete docs from `/docs` using a modal confirmation flow.
 - [x] Docs authorization enforces read-only access for `viewer`, while `editor`, `approval1`, `approval2`, and `admin` can create/edit/delete docs.
+- [x] Docs read page shows creator identity and created/updated timestamps at the bottom of content.
 
 ### Verification Plan
 - Run:
@@ -236,10 +237,12 @@ Revert docs blueprint registration and docs-related files; remove `Documentation
 - 2026-03-05: Implemented shared orphan-attachment cleanup service, admin docs housekeeping endpoint, and CLI housekeeping script with dry-run/apply modes.
 - 2026-03-05: Expanded docs index admin controls to include document deletion with modal confirmation.
 - 2026-03-05: Expanded docs role-based permissions: viewer read-only, non-viewer roles can create/edit/delete docs.
+- 2026-03-05: Expanded docs read page to include footer metadata (created by, created at, updated at).
+- 2026-03-05: Updated docs read page timestamps to render as human-readable values in browser-local timezone via client-side formatting.
 
 ### Verification Evidence
 - Command output summary: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py` completed successfully with exit code 0.
-- Manual test summary: Code-level verification completed for required route definitions, CSRF form token presence, Quill font whitelist config, image paste upload path (`uploads/attachments/docs`), URL image embedding workflow, updated Medium-like reader/editor template + CSS structure, search ranking logic (title/slug matches ranked above content-only matches), docs index card preview extraction (10-word short content from summary/content), attachment housekeeping logic (orphan detection + admin/CLI entrypoints), admin docs deletion flow wiring (modal), and role-based docs permissions (`viewer` read-only; `editor`/`approval1`/`approval2`/`admin` can create/edit/delete). Live browser/manual interaction was not executed in this run.
+- Manual test summary: Code-level verification completed for required route definitions, CSRF form token presence, Quill font whitelist config, image paste upload path (`uploads/attachments/docs`), URL image embedding workflow, updated Medium-like reader/editor template + CSS structure, search ranking logic (title/slug matches ranked above content-only matches), docs index card preview extraction (10-word short content from summary/content), attachment housekeeping logic (orphan detection + admin/CLI entrypoints), admin docs deletion flow wiring (modal), role-based docs permissions (`viewer` read-only; `editor`/`approval1`/`approval2`/`admin` can create/edit/delete), docs footer metadata rendering (creator + created/updated timestamps), and browser-local human-readable datetime formatting on docs view. Live browser/manual interaction was not executed in this run.
 - Open follow-ups: Perform browser validation of housekeeping action behavior in a running PostgreSQL-backed environment and confirm expected orphan list before first apply run.
 
 ## SPEC-2026-03-05-user-roles: Expand User Roles With Backward-Compatible Admin Behavior
@@ -408,7 +411,7 @@ Revert `permissions.py` and docs route decorator refactor, restoring prior manua
 ### Metadata
 - Owner: Codex
 - Reviewers: N/A
-- Status: In Progress
+- Status: Done
 - Priority: P1
 - Target date: 2026-03-05
 - Related files: `app_db/models.py`, `app_db/user_roles.py`, `app_db/__init__.py`, `flask_app/routes/permissions.py`, `flask_app/routes/admin.py`, `flask_app/routes/docs.py`, `templates/base.html`, `templates/admin.html`, `templates/docs_index.html`, `scripts/manage_admin.py`
@@ -472,8 +475,134 @@ Restore prior role+`is_admin` compatibility code from git history.
 
 ### Change Log
 - 2026-03-05: Created role-only auth spec and began removing `is_admin` usage.
+- 2026-03-05: Completed role-only migration across model/routes/templates/scripts and removed active `is_admin` references.
 
 ### Verification Evidence
-- Command output summary: Pending implementation.
-- Manual test summary: Pending implementation.
-- Open follow-ups: None.
+- Command output summary: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py` completed successfully with exit code 0.
+- Manual test summary: Code-level verification confirms `is_admin` is no longer referenced in active app code (`app_db`, `flask_app`, `templates`, `scripts`), admin authorization is role-only (`admin`), and docs permissions remain unchanged functionally under role checks.
+- Open follow-ups: Run UI sanity checks on admin panel and docs flows against a fresh DB schema.
+
+## SPEC-2026-03-05-table-style-unification: Shared Compact Table Styling
+
+### Metadata
+- Owner: Codex
+- Reviewers: N/A
+- Status: Done
+- Priority: P2
+- Target date: 2026-03-05
+- Related files: `templates/admin.html`, `static/css/form_and_table.css`, `SPECS.md`
+
+### Problem Statement
+Table styling is inconsistent across pages. The admin table uses separate inline styles, while CRUD pages already use a compact shared table style that is preferred.
+
+### Goals
+- Make admin table use shared table CSS patterns from CRUD pages.
+- Keep table layout compact and responsive/snappy.
+
+### Non-Goals
+- Full redesign of modals or non-table page sections.
+- Data or route logic changes.
+
+### Constraints
+- Prefer shared CSS classes over per-page inline table styles.
+- Preserve existing admin actions and modal behavior.
+
+### Implementation Plan
+1. Wire admin page to include `form_and_table.css`.
+2. Refactor admin table markup to use shared classes (`crud-panel`, `crud-table-wrapper`, `crud-table`).
+3. Keep only minimal admin-specific styles for header and modals.
+4. Verify compile and update evidence.
+
+### Acceptance Criteria
+- [x] Admin table uses shared compact table styling from `form_and_table.css`.
+- [x] Table appears compact and consistent with `dummydata_crud` style.
+- [x] No admin action regressions (edit/delete modals still work).
+
+### Verification Plan
+- Run:
+- `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`
+- Manual checks:
+- Open `/admin` and confirm compact table spacing and scroll behavior.
+- Confirm edit/delete modal triggers still function.
+
+### Risks and Mitigations
+- Risk: class-name overlap may affect non-admin sections.
+- Mitigation: keep admin-specific overrides scoped to `.admin-container`.
+
+### Rollback Plan
+Revert `admin.html` table class refactor and restore previous inline table styles.
+
+### Change Log
+- 2026-03-05: Created spec for admin table style unification using shared CRUD CSS.
+- 2026-03-05: Refactored admin table to shared `crud-panel`/`crud-table-wrapper`/`crud-table` classes and wired shared CSS include.
+
+### Verification Evidence
+- Command output summary: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py` completed successfully with exit code 0.
+- Manual test summary: Code-level verification confirms admin table markup now uses shared compact table classes from `form_and_table.css`, and existing admin edit/delete modal JS hooks remain unchanged.
+- Open follow-ups: Visual check on `/admin` for final spacing preference (column widths and row density) against production data volume.
+
+## SPEC-2026-03-05-docs-sync: Rescan And Align Project Documentation
+
+### Metadata
+- Owner: Codex
+- Reviewers: N/A
+- Status: Done
+- Priority: P2
+- Target date: 2026-03-05
+- Related files: `AGENTS.md`, `README.md`, `SPECS.md`
+
+### Problem Statement
+After recent feature and authorization changes, project documentation drifted from code reality in a few areas (stack versioning, docs routes, and editor font details), which increases onboarding and maintenance risk.
+
+### Goals
+- Re-scan implementation files and align key documentation files with current behavior.
+- Keep updates limited to factual mismatches and avoid changing runtime behavior.
+
+### Non-Goals
+- Feature implementation changes.
+- Adding new architecture patterns beyond what already exists in code.
+
+### Constraints
+- Preserve existing spec history sections.
+- Keep updates concise and directly traceable to source code.
+
+### Current State Notes
+- `requirements.txt` pins Flask 3.1.2, while `AGENTS.md` still said Flask 2.x.
+- `README.md` docs route list did not include upload/attachments/admin docs endpoints.
+- Existing docs spec text referenced only Mirza/Roboto while editor currently whitelists Inter/Mirza/Roboto.
+
+### Proposed Design
+#### UI / Template changes
+- None.
+
+### Implementation Plan
+1. Re-scan route/runtime/version sources.
+2. Update `AGENTS.md` stack version statement.
+3. Update `README.md` docs route inventory and docs timestamp behavior note.
+4. Update spec text in `SPECS.md` to match current Quill font whitelist.
+
+### Acceptance Criteria
+- [x] `AGENTS.md` reflects Flask major version used by `requirements.txt`.
+- [x] `README.md` route inventory includes current docs endpoints in `flask_app/routes/docs.py`.
+- [x] `SPECS.md` docs-platform spec font details match `templates/docs_editor.html`.
+
+### Verification Plan
+- Run:
+- `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`
+- Code checks:
+- Compare updated docs text against `requirements.txt`, `flask_app/routes/docs.py`, and `templates/docs_editor.html`.
+
+### Risks and Mitigations
+- Risk: Overwriting intentional historical details.
+- Mitigation: only adjust objectively stale statements; keep historical spec sections intact.
+
+### Rollback Plan
+Revert documentation-only edits in `AGENTS.md`, `README.md`, and `SPECS.md`.
+
+### Change Log
+- 2026-03-05: Rescanned source files and aligned documentation with current implementation details.
+
+### Verification Evidence
+- Command output summary: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py` completed successfully with exit code 0.
+- Manual test summary: Verified documentation updates against code in `requirements.txt`, `flask_app/routes/docs.py`, and `templates/docs_editor.html`; no runtime files changed.
+- Open follow-ups: Optional pass to document Streamlit sample page inventory in more detail if needed for onboarding.

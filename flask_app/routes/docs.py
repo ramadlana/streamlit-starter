@@ -24,6 +24,7 @@ from app_db import (
     get_document_by_slug,
     list_documents,
     normalize_role,
+    User,
 )
 from app_db.docs_attachments import (
     cleanup_orphaned_files,
@@ -107,10 +108,12 @@ def docs_view(slug: str):
     if not doc:
         abort(404)
     tags = [tag for tag in (doc.tags_csv or "").split(",") if tag]
+    creator = db.session.get(User, doc.created_by)
     return render_template(
         "docs_view.html",
         doc=doc,
         tags=tags,
+        creator_name=creator.username if creator else "Unknown",
         can_manage_docs=_can_manage_docs(current_user),
     )
 

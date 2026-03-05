@@ -10,7 +10,7 @@ uploads/
 __pycache__/
 *.py[cod]
 *$py.class
-
+.DS_Store
 # uploaded files
 uploads/
 

@@ -36,7 +36,7 @@ Minimum agent behavior:
 - Home route (`/`) is login-protected and renders Streamlit URL into the template.
 
 ### Core stack
-- Flask 2.x
+- Flask 3.x
 - Flask-Login
 - Flask-WTF (`csrf` + per-form token)
 - Flask-SQLAlchemy
@@ -227,7 +227,7 @@ Every HTML `POST` form must include:
 
 ### Auth and authorization
 - Login state is managed by Flask-Login session.
-- Admin-only behavior is enforced in `flask_app/routes/admin.py` (`admin_required`).
+- Admin-only behavior is enforced by role-based checks (`role_required("admin", ...)`).
 - Protect non-public pages with `@login_required`.
 
 ---

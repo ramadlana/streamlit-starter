@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block title %}Admin Panel - Streamlit Starter{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form_and_table.css') }}">
+{% endblock %}
 
 {% block content %}
 <style>
@@ -16,36 +19,6 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 2rem;
-    }
-
-    .user-table {
-        width: 100%;
-        background: var(--surface-color);
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--glass-border);
-        border-radius: 20px;
-        overflow: hidden;
-        border-collapse: collapse;
-    }
-
-    .user-table th,
-    .user-table td {
-        padding: 1.25rem 1.5rem;
-        text-align: left;
-        border-bottom: 1px solid var(--glass-border);
-    }
-
-    .user-table th {
-        background: rgba(15, 23, 42, 0.4);
-        color: var(--text-secondary);
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.8rem;
-        letter-spacing: 0.05em;
-    }
-
-    .user-table tr:last-child td {
-        border-bottom: none;
     }
 
     .badge {
@@ -68,7 +41,7 @@
     }
 
     .action-btn {
-        background: transparent;
+        background: #ffffff;
         border: 1px solid var(--glass-border);
         color: var(--text-primary);
         padding: 6px 12px;
@@ -81,7 +54,7 @@
     }
 
     .action-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: #f8fafc;
     }
 
     .btn-delete {
@@ -101,15 +74,14 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(8px);
+        background: rgba(15, 23, 42, 0.35);
         z-index: 2000;
         align-items: center;
         justify-content: center;
     }
 
     .modal-content {
-        background: #1e293b;
+        background: #ffffff;
         border: 1px solid var(--glass-border);
         border-radius: 24px;
         padding: 2.5rem;
@@ -128,42 +100,48 @@
             User</button>
     </div>
 
-    <table class="user-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-                <td>
-                    {% if (user.role or 'viewer') == 'admin' %}
-                    <span class="badge badge-admin">admin</span>
-                    {% else %}
-                    <span class="badge badge-role">{{ user.role or 'viewer' }}</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <button class="action-btn edit-user-btn" data-id="{{ user.id }}" data-username="{{ user.username }}"
-                        data-email="{{ user.email }}"
-                        data-role="{{ user.role or 'viewer' }}">Edit</button>
-                    {% if user.id != current_user.id %}
-                    <button class="action-btn btn-delete delete-user-btn" data-id="{{ user.id }}"
-                        data-username="{{ user.username }}">Delete</button>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="crud-panel">
+        <div class="crud-table-wrapper">
+            <table class="crud-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if (user.role or 'viewer') == 'admin' %}
+                            <span class="badge badge-admin">admin</span>
+                            {% else %}
+                            <span class="badge badge-role">{{ user.role or 'viewer' }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn edit-user-btn" data-id="{{ user.id }}" data-username="{{ user.username }}"
+                                    data-email="{{ user.email }}"
+                                    data-role="{{ user.role or 'viewer' }}">Edit</button>
+                                {% if user.id != current_user.id %}
+                                <button class="action-btn btn-delete delete-user-btn" data-id="{{ user.id }}"
+                                    data-username="{{ user.username }}">Delete</button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <!-- Add User Modal -->
@@ -194,7 +172,7 @@
             </div>
             <div style="display: flex; gap: 10px;">
                 <button type="submit" class="btn">Create User</button>
-                <button type="button" class="btn" style="background: rgba(255,255,255,0.1);"
+                <button type="button" class="btn" style="background: #e2e8f0; color: #0f172a;"
                     onclick="closeModal('addModal')">Cancel</button>
             </div>
         </form>
@@ -229,7 +207,7 @@
             </div>
             <div style="display: flex; gap: 10px;">
                 <button type="submit" class="btn">Update User</button>
-                <button type="button" class="btn" style="background: rgba(255,255,255,0.1);"
+                <button type="button" class="btn" style="background: #e2e8f0; color: #0f172a;"
                     onclick="closeModal('editModal')">Cancel</button>
             </div>
         </form>
@@ -261,7 +239,7 @@
                 <button id="confirm_delete_btn" type="submit" class="btn"
                     style="background: var(--error-color); margin-top: 0; width: 100%;">Delete User</button>
             </form>
-            <button type="button" class="btn" style="background: rgba(255,255,255,0.1); margin-top: 0; flex: 1;"
+            <button type="button" class="btn" style="background: #e2e8f0; color: #0f172a; margin-top: 0; flex: 1;"
                 onclick="closeModal('deleteModal')">Cancel</button>
         </div>
     </div>
