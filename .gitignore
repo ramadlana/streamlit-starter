@@ -11,6 +11,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# uploaded files
+uploads/
+
 # SQLite Database
 instance/
 *.db
