@@ -6,6 +6,17 @@
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/docs.css') }}">
+<style>
+    .docs-tip {
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        border-radius: 8px;
+        padding: 0.6rem 0.8rem;
+        margin-bottom: 0.75rem;
+        color: #1e40af;
+        font-size: 0.88rem;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -22,25 +33,31 @@
     {% endif %}
     {% endwith %}
 
-    <form method="POST" action="{{ url_for('docs.docs_editor', doc_id=doc.id if doc else 0) }}" id="docs-form" class="docs-editor-form docs-editor-clean">
+    <form method="POST" action="{{ url_for('docs.docs_editor', doc_id=doc.id if doc else 0) }}" id="docs-form"
+        class="docs-editor-form docs-editor-clean">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" id="content_html" name="content_html">
 
         <label for="title">Title</label>
-        <input id="title" type="text" name="title" required value="{{ doc.title if doc else '' }}" placeholder="Document title">
+        <input id="title" type="text" name="title" required value="{{ doc.title if doc else '' }}"
+            placeholder="Document title">
 
         <input id="slug" type="hidden" name="slug" value="{{ doc.slug if doc else '' }}">
         <input id="summary" type="hidden" name="summary" value="{{ doc.summary if doc else '' }}">
 
         <label for="tags">Tags</label>
-        <input id="tags" type="text" name="tags" value="{{ doc.tags_csv if doc and doc.tags_csv else '' }}" placeholder="runbook, onboarding, incident">
+        <input id="tags" type="text" name="tags" value="{{ doc.tags_csv if doc and doc.tags_csv else '' }}"
+            placeholder="runbook, onboarding, incident">
 
         <label>Content</label>
+        <div class="docs-tip">
+            Tips: Copy and paste images directly from clipboard, web pages, or image files.
+        </div>
         <div class="docs-quill-stack">
             <div id="docs-toolbar">
                 <span class="ql-formats">
                     <select class="ql-font">
-                        <option value="inter" selected></option>
+                        <option value="serif" selected></option>
                         <option value="mirza"></option>
                         <option value="roboto"></option>
                     </select>
@@ -76,9 +93,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
 <script>
+
     (function () {
         const Font = Quill.import('formats/font');
-        Font.whitelist = ['inter', 'mirza', 'roboto'];
+        Font.whitelist = ['serif', 'roboto', 'mirza'];
         Quill.register(Font, true);
 
         const quill = new Quill('#editor', {
@@ -89,70 +107,84 @@
             placeholder: 'Write documentation content here...'
         });
 
-        const initialHtml = {{ (doc.content_html if doc else '') | tojson }};
-        if (initialHtml) {
-            quill.clipboard.dangerouslyPasteHTML(initialHtml);
-        } else {
-            // Default typing font for new content.
-            quill.format('font', 'inter');
+        const initialHtml = {{ (doc.content_html if doc else '') | tojson
+    }};
+    if (initialHtml) {
+        quill.clipboard.dangerouslyPasteHTML(initialHtml);
+    } else {
+        // Default typing font for new content.
+        quill.format('font', 'serif');
+    }
+
+    async function uploadClipboardImage(file) {
+        const tokenInput = document.querySelector('input[name="csrf_token"]');
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const res = await fetch({{ url_for('docs.docs_upload_image') | tojson }}, {
+        method: 'POST',
+            headers: {
+            'X-CSRFToken': tokenInput ? tokenInput.value : ''
+        },
+        body: formData
+    });
+    if (!res.ok) {
+        throw new Error('Image upload failed');
+    }
+    const payload = await res.json();
+    if (!payload.url) {
+        throw new Error('Image URL missing in response');
+    }
+    return payload.url;
         }
 
-        async function uploadClipboardImage(file) {
-            const tokenInput = document.querySelector('input[name="csrf_token"]');
-            const formData = new FormData();
-            formData.append('image', file);
-
-            const res = await fetch({{ url_for('docs.docs_upload_image') | tojson }}, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': tokenInput ? tokenInput.value : ''
-                },
-                body: formData
-            });
-            if (!res.ok) {
-                throw new Error('Image upload failed');
-            }
-            const payload = await res.json();
-            if (!payload.url) {
-                throw new Error('Image URL missing in response');
-            }
-            return payload.url;
+    quill.root.addEventListener('paste', async function (evt) {
+        const clipboard = evt.clipboardData;
+        if (!clipboard || !clipboard.items) {
+            return;
         }
 
-        quill.root.addEventListener('paste', async function (evt) {
-            const clipboard = evt.clipboardData;
-            if (!clipboard || !clipboard.items) {
-                return;
-            }
-
-            const imageItem = Array.from(clipboard.items).find(function (item) {
-                return item.type && item.type.indexOf('image/') === 0;
-            });
-
-            if (!imageItem) {
-                return;
-            }
-
+        const selection = quill.getSelection(true);
+        const activeFormats = selection ? quill.getFormat(selection.index, selection.length) : {};
+        const textPayload = clipboard.getData('text/plain');
+        if (activeFormats && activeFormats['code-block'] && textPayload) {
             evt.preventDefault();
-            const file = imageItem.getAsFile();
-            if (!file) {
-                return;
-            }
+            const insertIndex = selection ? selection.index : quill.getLength();
+            const replaceLength = selection ? selection.length : 0;
+            quill.deleteText(insertIndex, replaceLength, 'user');
+            quill.insertText(insertIndex, textPayload, 'user');
+            quill.setSelection(insertIndex + textPayload.length, 0, 'silent');
+            return;
+        }
 
-            try {
-                const imageUrl = await uploadClipboardImage(file);
-                const range = quill.getSelection(true);
-                const index = range ? range.index : quill.getLength();
-                quill.insertEmbed(index, 'image', imageUrl, 'user');
-                quill.setSelection(index + 1, 0, 'silent');
-            } catch (error) {
-                alert('Unable to upload pasted image.');
-            }
+        const imageItem = Array.from(clipboard.items).find(function (item) {
+            return item.type && item.type.indexOf('image/') === 0;
         });
 
-        document.getElementById('docs-form').addEventListener('submit', function () {
-            document.getElementById('content_html').value = quill.root.innerHTML;
-        });
-    })();
+        if (!imageItem) {
+            return;
+        }
+
+        evt.preventDefault();
+        const file = imageItem.getAsFile();
+        if (!file) {
+            return;
+        }
+
+        try {
+            const imageUrl = await uploadClipboardImage(file);
+            const range = quill.getSelection(true);
+            const index = range ? range.index : quill.getLength();
+            quill.insertEmbed(index, 'image', imageUrl, 'user');
+            quill.setSelection(index + 1, 0, 'silent');
+        } catch (error) {
+            alert('Unable to upload pasted image.');
+        }
+    });
+
+    document.getElementById('docs-form').addEventListener('submit', function () {
+        document.getElementById('content_html').value = quill.root.innerHTML;
+    });
+    }) ();
 </script>
 {% endblock %}

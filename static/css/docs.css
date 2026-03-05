@@ -167,7 +167,9 @@ body.docs-light .container {
 
 .docs-card h2 a {
     color: #0f172a;
+    font-size: 17px;
     text-decoration: none;
+    font-weight: bold;
 }
 
 .docs-meta {
@@ -364,6 +366,7 @@ body.docs-light .container {
     color: #0f172a;
     max-width: 100%;
     overflow-x: hidden;
+    padding: unset;
 }
 
 .docs-hero-meta {
@@ -411,6 +414,8 @@ body.docs-light .container {
 .docs-prose ol,
 .docs-prose blockquote,
 .docs-prose pre {
+    font-family: serif;
+    font-size: 18px;
     margin-bottom: 1.1rem;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -436,6 +441,41 @@ body.docs-light .container {
 .docs-prose li {
     overflow-wrap: anywhere;
     word-break: break-word;
+}
+
+.docs-prose code {
+    font-family: 'Roboto', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.1rem 0.35rem;
+    font-size: 0.92em;
+}
+
+.docs-prose pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    overflow-x: auto;
+
+    font-family: "JetBrains Mono", "Fira Code", "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre;
+    tab-size: 4;
+}
+
+.docs-prose pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: inherit;
+}
+
+.ql-editor .ql-code-block-container,
+.ql-editor .ql-code-block {
+    tab-size: 4;
 }
 
 .docs-prose img,
@@ -543,7 +583,7 @@ body.docs-light select {
 
 /* Medium-like default writing style in editor (when no explicit font format is applied). */
 .docs-editor-clean .ql-snow .ql-editor {
-    font-family: 'Inter', sans-serif;
+    font-family: 'serif', 'Inter';
     font-size: 15px;
     line-height: 1.58;
     letter-spacing: normal;

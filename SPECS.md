@@ -913,3 +913,41 @@ The docs index currently fetches up to 200 rows in one query and renders them al
 - Command output summary: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py` completed successfully with exit code 0.
 - Manual test summary: Code-level verification completed for paginated SQL query pattern, route query param handling, and docs index pagination/dropdown rendering logic. Browser interaction not executed in this run.
 - Open follow-ups: Optional browser smoke test for pagination UX and page-size switching behavior.
+
+## SPEC-2026-03-05-docs-code-rendering: Preserve code formatting from editor to viewer
+
+### Metadata
+- Owner: Codex
+- Reviewers: N/A
+- Status: Done
+- Priority: P1
+- Target date: 2026-03-05
+- Related files: `templates/docs_view.html`, `static/css/docs.css`
+
+### Problem Statement
+Code/Code Block formatting authored in the Quill editor was not visually represented on the docs viewer page, causing documentation snippets to appear as plain text.
+
+### Goals
+- Ensure docs viewer loads the required Quill presentation styles for rendered content.
+- Add explicit readable code styles for inline code and blocks in docs prose.
+
+### Acceptance Criteria
+- [x] `docs_view.html` includes Quill Snow stylesheet so `.ql-*` markup from saved HTML is styled.
+- [x] Inline code and code blocks are visually distinct in docs viewer.
+
+### Verification Plan
+- Run:
+- `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`
+- Manual/code checks:
+- Confirm `docs_view.html` includes `quill.snow.css`.
+- Confirm `docs.css` has dedicated `.docs-prose code` and `.docs-prose pre` styles.
+
+### Change Log
+- 2026-03-05: Added viewer-side Quill stylesheet and code block/inline code prose styles.
+- 2026-03-05: Expanded scope to preserve pasted tab indentation when pasting plain text into Quill code blocks in docs editor.
+- 2026-03-05: Added editor paste handler for code-block context and tab-size styling for code blocks.
+
+### Verification Evidence
+- Command output summary: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py` completed successfully with exit code 0.
+- Manual test summary: Code-level verification completed for viewer CSS includes, prose code style rules, and editor code-block paste handler preserving plain-text indentation payload. Browser interaction not executed in this run.
+- Open follow-ups: Browser smoke test to confirm pasted tab indentation is preserved in editor code blocks and reflected in `/docs/<slug>`.
