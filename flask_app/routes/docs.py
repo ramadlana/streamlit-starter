@@ -38,6 +38,7 @@ bp = Blueprint("docs", __name__)
 ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 TAG_RE = re.compile(r"<[^>]+>")
 DOCS_MANAGE_ROLES = {"editor", "approval1", "approval2", "admin"}
+DOCS_PER_PAGE_OPTIONS = (12, 24, 48, 96)
 
 
 def _preview_text(summary, content_html, max_words=10):
@@ -66,6 +67,51 @@ def _can_manage_docs(user) -> bool:
     return normalize_role(getattr(user, "role", "viewer")) in DOCS_MANAGE_ROLES
 
 
+def _parse_positive_int(raw_value, default_value):
+    try:
+        parsed = int(raw_value)
+    except (TypeError, ValueError):
+        return default_value
+    return parsed if parsed > 0 else default_value
+
+
+def _build_pagination(page, total_pages):
+    if total_pages <= 1:
+        return []
+
+    pages = [1, total_pages]
+    for candidate in range(page - 2, page + 3):
+        if 1 < candidate < total_pages:
+            pages.append(candidate)
+    ordered = sorted(set(pages))
+
+    tokens = []
+    prev = None
+    for item in ordered:
+        if prev is not None and item - prev > 1:
+            tokens.append(None)
+        tokens.append(item)
+        prev = item
+    return tokens
+
+
+def _pagination_context(page_data):
+    total = page_data["total"]
+    per_page = page_data["per_page"]
+    page = page_data["page"]
+    total_pages = max(1, (total + per_page - 1) // per_page)
+    safe_page = min(max(1, page), total_pages)
+    return {
+        "page": safe_page,
+        "per_page": per_page,
+        "total": total,
+        "total_pages": total_pages,
+        "has_prev": safe_page > 1,
+        "has_next": safe_page < total_pages,
+        "pages": _build_pagination(safe_page, total_pages),
+    }
+
+
 
 def _attachments_dir() -> Path:
     return get_docs_attachments_dir()
@@ -75,13 +121,20 @@ def _attachments_dir() -> Path:
 @login_required
 def docs_index():
     search = (request.args.get("q") or "").strip()
-    rows = list_documents(search=search)
+    page = _parse_positive_int(request.args.get("page"), 1)
+    per_page_raw = _parse_positive_int(request.args.get("per_page"), DOCS_PER_PAGE_OPTIONS[0])
+    per_page = per_page_raw if per_page_raw in DOCS_PER_PAGE_OPTIONS else DOCS_PER_PAGE_OPTIONS[0]
+    page_data = list_documents(search=search, page=page, per_page=per_page)
     return render_template(
         "docs_index.html",
-        docs=_decorate_docs(rows),
+        docs=_decorate_docs(page_data["items"]),
         query=search,
         active_tag="",
         can_manage_docs=_can_manage_docs(current_user),
+        per_page_options=DOCS_PER_PAGE_OPTIONS,
+        pagination=_pagination_context(page_data),
+        pagination_endpoint="docs.docs_index",
+        pagination_kwargs={},
     )
 
 
@@ -91,13 +144,21 @@ def docs_by_tag(tag: str):
     safe_tag = (tag or "").strip().lower()
     if not safe_tag:
         return redirect(url_for("docs.docs_index"))
-    rows = list_documents(tag=safe_tag)
+    search = (request.args.get("q") or "").strip()
+    page = _parse_positive_int(request.args.get("page"), 1)
+    per_page_raw = _parse_positive_int(request.args.get("per_page"), DOCS_PER_PAGE_OPTIONS[0])
+    per_page = per_page_raw if per_page_raw in DOCS_PER_PAGE_OPTIONS else DOCS_PER_PAGE_OPTIONS[0]
+    page_data = list_documents(search=search, tag=safe_tag, page=page, per_page=per_page)
     return render_template(
         "docs_index.html",
-        docs=_decorate_docs(rows),
-        query="",
+        docs=_decorate_docs(page_data["items"]),
+        query=search,
         active_tag=safe_tag,
         can_manage_docs=_can_manage_docs(current_user),
+        per_page_options=DOCS_PER_PAGE_OPTIONS,
+        pagination=_pagination_context(page_data),
+        pagination_endpoint="docs.docs_by_tag",
+        pagination_kwargs={"tag": safe_tag},
     )
 
 

@@ -606,3 +606,310 @@ Revert documentation-only edits in `AGENTS.md`, `README.md`, and `SPECS.md`.
 - Command output summary: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py` completed successfully with exit code 0.
 - Manual test summary: Verified documentation updates against code in `requirements.txt`, `flask_app/routes/docs.py`, and `templates/docs_editor.html`; no runtime files changed.
 - Open follow-ups: Optional pass to document Streamlit sample page inventory in more detail if needed for onboarding.
+
+## SPEC-2026-03-05-docs-view-meta: Localized metadata footer for docs viewer
+
+### Metadata
+- Owner: Codex
+- Reviewers: N/A
+- Status: In Progress
+- Priority: P2
+- Target date: 2026-03-05
+- Related files: `templates/docs_view.html`, `static/css/docs.css`
+
+### Problem Statement
+The documentation viewer currently places tags beside the summary and leaves the created/updated timestamps plus creator info in the footer, which disconnects them from the hero and presents raw server datetimes that ignore the reader’s timezone. Without a clear divider, the transition between the hero and the body content feels abrupt.
+
+### Goals
+- Render the creator along with the created and updated timestamps plus the tag chips directly below the title/summary (before the document body) so they’re top-of-page context.
+- Keep timestamp text localized and human-friendly by using the user’s browser/OS timezone.
+- Add a visible separator between this metadata strip and the main document content.
+- Surface a delete control with confirmation inside the docs viewer so managers no longer need the card-level modal.
+
+### Non-Goals
+- Rework the docs index cards or any Streamlit views.
+- Alter the underlying data model or introduce new metadata fields.
+
+### Constraints
+- Keep the change scoped to `templates/docs_view.html` and `static/css/docs.css` (plus any lightweight JS helper added under `static/`).
+- Continue to rely on server-provided ISO timestamps for formatting, with the client doing the timezone conversion.
+- No backend or database changes.
+
+### Current State Notes
+- Tags currently render near the summary inside `.docs-hero-tags`.
+- Footer metadata mixes created/updated timestamps without relation to tags.
+- Inline script is already formatting timestamps but uses a technical format and handles both created/updated nodes.
+
+### Proposed Design
+#### UI / Template changes
+- Keep the hero header (title + summary) but add a metadata strip underneath that shows localized created/updated datetimes and the tag chips before any rich content appears.
+- Continue using `<time class="js-local-datetime">` with `datetime`/`data-fallback`, letting the existing client formatter handle localization.
+- Insert a subtle divider after the metadata strip and before `doc.content_html`.
+- Add an inline delete form/button (with CSRF + confirmation) to the hero actions so admins can delete the document directly from this view.
+
+#### Streamlit changes (if any)
+- None.
+
+### Implementation Plan
+1. Update `templates/docs_view.html` to build a hero metadata strip (dates + tags) below the title/summary, add the separator, and ensure timestamps keep using the local formatter markup.
+2. Adjust `static/css/docs.css` to style the metadata strip, inline tags, and the separator so the hero still feels cohesive.
+3. Verify template renders correctly and that timestamps format in the browser before marking this spec done.
+
+### Acceptance Criteria
+- [ ] Created/Updated timestamps and tags sit in a metadata strip directly below the hero title/summary (above the separator) and display localized times.
+- [ ] The timestamps use the user’s local browser/OS timezone and a readable format.
+- [ ] There is a visible separator between the metadata strip and the document body content.
+- [ ] A delete control with confirmation appears in the hero actions when `can_manage_docs` is `True`, matching the previous index behavior.
+
+### Verification Plan
+- Commands to run:
+- `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`
+- Manual checks to perform:
+- Load a docs viewer in the browser, confirm the footer contains tags + localized updated time, and see the separator before the body.
+- Negative tests (unauthorized/invalid input):
+- Not applicable (template-only change).
+
+### Risks and Mitigations
+- There is a risk that moving tags to the footer will change layout expectations on smaller screens.
+- Mitigation: Keep stacking order responsive and reuse existing tag styles so the change is primarily positional.
+
+### Rollback Plan
+Revert `templates/docs_view.html` and `static/css/docs.css` if the layout needs to go back to the original hero placement.
+
+### Change Log
+- 2026-03-05: Initial spec creation to capture the docs viewer metadata update request.
+
+### Verification Evidence
+- Command output summary: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py` completed successfully with exit code 0.
+- Manual test summary: Not run (requires browser rendering); schedule a manual smoke check after deploying the docs viewer.
+- Open follow-ups: Visual confirmation of the footer/tag placement and localized timestamps in the browser.
+
+## SPEC-2026-03-05-docs-index-cards: Localized metadata and divider on docs list cards
+
+### Metadata
+- Owner: Codex
+- Reviewers: N/A
+- Status: In Progress
+- Priority: P2
+- Target date: 2026-03-05
+- Related files: `templates/docs_index.html`, `static/css/docs.css`
+
+### Problem Statement
+Each documentation card on `/docs` currently surfaces the raw `updated_at` timestamp near the top, and tags sit directly below the summary, so readers must scan upward to find when a document last changed. Without a visual separation after the title, the card feels cluttered, and the delete button/modal—
+which only works through an index-level modal—is mixing metadata with controls that should live in the document detail view.
+
+### Goals
+- Display the `updated_at` timestamp in a human-friendly way that respects the reader's local browser/OS timezone.
+- Move the timestamp and tag chips to the bottom of the card so they serve as contextual metadata for the preview.
+- Insert a separator between the title and the preview content so the hierarchy is clearer.
+- Remove the delete button/modal from the card because deletion now occurs inside the docs viewer (see the viewer spec).
+
+### Non-Goals
+- Touch other pages (docs viewer, Streamlit) or change backend data.
+- Display tools (e.g., delete) within the new metadata row.
+
+### Constraints
+- Keep the change limited to `templates/docs_index.html` and `static/css/docs.css`.
+- Continue relying on server-provided ISO timestamps (`doc.updated_at.isoformat()`) for locale formatting on the client.
+- No new backend data fields.
+
+### Current State Notes
+- Cards currently show `Updated {{ doc.updated_at }}` above the preview text.
+- Tags render right after the preview and before the delete button.
+- There is no divider between the title and the preview snippet.
+
+### Proposed Design
+#### API / Route changes
+- None.
+
+#### UI / Template changes
+- Wrap the card title in a header block, insert a divider, and keep the preview text between the divider and footer.
+- Add a footer row containing the localized updated timestamp and tag chips.
+- Add a client-side script that formats every `.docs-card-updated .js-local-datetime` node via `Intl.DateTimeFormat`.
+- Remove the index-level delete button/modal and its helper script since deletion now occurs on the docs viewer.
+
+#### Streamlit changes (if any)
+- None.
+
+### Implementation Plan
+1. Update `templates/docs_index.html` so each card has a divider, optional preview text, and a footer that contains localized `updated_at` plus tags.
+2. Add the metadata formatter script to the bottom of `templates/docs_index.html` and remove the index-level delete modal logic.
+3. Style the new divider/footer structure and ensure tags align right within `static/css/docs.css`.
+
+### Acceptance Criteria
+- [ ] Each docs card shows a separator between the title and the preview text (if present).
+- [ ] The `updated_at` timestamp appears at the bottom of the card, is formatted through the browser's timezone, and is accompanied by the tag chips.
+- [ ] Tags still behave as links and are styled consistently within the footer area.
+- [ ] The cards no longer expose a delete button or modal; deletion occurs from the docs viewer.
+
+### Verification Plan
+- Commands to run:
+- `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`
+- Manual checks to perform:
+- Open `/docs` in a browser and confirm the cards show the separator, the localized timestamp at the bottom, and the tags within the footer.
+
+### Risks and Mitigations
+- Risk: Footer layout might wrap awkwardly for cards without tags.
+- Mitigation: Make footer flex-wrap and allow graceful stacking.
+
+### Rollback Plan
+Revert `templates/docs_index.html` and `static/css/docs.css` to their previous structure if needed.
+
+### Change Log
+- 2026-03-05: Added initial spec for docs index card metadata localization and divider.
+
+### Verification Evidence
+- Command output summary: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py` completed successfully with exit code 0.
+- Manual test summary: Pending (requires browser rendering to confirm updated cards).
+- Open follow-ups: Visual confirmation of the divider, localized timestamp, and bottom tags when viewing `/docs`.
+
+## SPEC-2026-03-05-reusable-modal-system: Reusable Modal CSS/HTML Pattern
+
+### Metadata
+- Owner: Codex
+- Reviewers: N/A
+- Status: Done
+- Priority: P2
+- Target date: 2026-03-05
+- Related files: `templates/admin.html`, `templates/base.html`, `templates/components/modal.html`, `static/css/base.css`, `templates/docs_view.html`
+
+### Problem Statement
+Modal markup and styling are currently embedded in `templates/admin.html`, so other pages cannot reuse the same look and behavior efficiently. This causes duplication and inconsistent modal UI patterns.
+
+### Goals
+- Promote the current `admin.html` delete modal look into a reusable modal design system.
+- Provide reusable HTML and JS helpers so future pages can open/close consistent modals with minimal code.
+
+### Non-Goals
+- Migrating all confirmation prompts in every template to modals in this change.
+- Changing backend routes or form handling behavior.
+
+### Constraints
+- Keep the existing visual baseline based on `templates/admin.html` delete modal style.
+- Preserve current admin add/edit/delete modal functionality.
+- Keep CSRF behavior unchanged for existing POST forms.
+
+### Current State Notes
+- `templates/admin.html` defines `.modal` and `.modal-content` inline with inline utility styles.
+- Modal JS helpers (`showModal`, `closeModal`) and outside-click handling are local to `admin.html`.
+- No shared modal component exists in `templates/components` or global CSS.
+
+### Proposed Design
+#### API / Route changes
+- None.
+
+#### Data model / SQL changes
+- None.
+
+#### UI / Template changes
+- Add shared modal CSS primitives in `static/css/base.css`.
+- Add reusable modal markup macro in `templates/components/modal.html`.
+- Refactor `templates/admin.html` to use the shared macro/classes and remove inline modal CSS duplication.
+- Add global modal JS helpers in `templates/base.html` (`window.AppModal.open/close/closeAll`) with consistent outside-click and Escape-to-close behavior.
+
+#### Streamlit changes (if any)
+- None.
+
+### Implementation Plan
+1. Add reusable modal CSS tokens/classes based on current admin delete modal styling.
+2. Add Jinja macro component for modal wrapper structure.
+3. Wire global modal helper script in base template.
+4. Refactor admin modals to consume macro/classes and existing behavior.
+5. Run compile verification and record evidence.
+
+### Acceptance Criteria
+- [x] Shared modal CSS exists in global stylesheet and is not duplicated inline in `admin.html`.
+- [x] Reusable modal HTML macro/component exists and is used by admin modals.
+- [x] Modal open/close behavior is reusable from global JS helpers and supports backdrop click + Escape key.
+- [x] Admin add/edit/delete modal flows keep working with unchanged routes and CSRF fields.
+- [x] Docs view delete action uses the shared modal instead of `confirm(...)`, preserving the same delete route and CSRF form.
+
+### Verification Plan
+- Run:
+- `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`
+- Manual/code checks:
+- Confirm `templates/admin.html` uses shared modal macro/classes (no inline modal CSS block).
+- Confirm admin modal buttons trigger global open/close helpers and backdrop/Escape close behavior.
+- Confirm admin delete form action wiring and CSRF hidden input remain present.
+
+### Risks and Mitigations
+- Risk: Template macro usage could break existing modal content structure.
+- Mitigation: Keep macro wrapper minimal and preserve inner form markup IDs/actions.
+- Risk: Global JS might interfere with non-modal click handlers.
+- Mitigation: Scope handlers to `.app-modal` elements and explicit API calls.
+
+### Rollback Plan
+Revert shared modal macro/CSS/JS additions and restore previous inline modal implementation in `admin.html`.
+
+### Change Log
+- 2026-03-05: Created reusable modal system spec based on admin delete modal baseline.
+- 2026-03-05: Implemented shared modal CSS primitives, reusable template macro, and global modal open/close helpers; refactored admin add/edit/delete modals to use shared system.
+- 2026-03-05: Scope update to apply shared modal system to docs view delete confirmation flow.
+- 2026-03-05: Refactored docs view delete action to open shared modal confirmation using the reusable modal macro and global AppModal helpers.
+
+### Verification Evidence
+- Command output summary: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py` completed successfully with exit code 0.
+- Manual test summary: Code-level verification completed for shared modal class usage, global helper wiring, admin modal trigger/actions, docs view delete modal wiring (route + CSRF preserved), and `confirm(...)` removal from docs view. Live browser interaction was not executed in this run.
+- Open follow-ups: Optional browser smoke test to validate backdrop/Escape close interactions manually.
+
+## SPEC-2026-03-05-docs-index-pagination: Efficient paginated docs list with adjustable page size
+
+### Metadata
+- Owner: Codex
+- Reviewers: N/A
+- Status: Done
+- Priority: P1
+- Target date: 2026-03-05
+- Related files: `app_db/docs.py`, `flask_app/routes/docs.py`, `templates/docs_index.html`, `static/css/docs.css`
+
+### Problem Statement
+The docs index currently fetches up to 200 rows in one query and renders them all, which is less efficient as data grows and provides no page navigation or user control for list density.
+
+### Goals
+- Add server-side pagination for docs index and tag-filter pages.
+- Allow users to adjust max rows per page via dropdown.
+- Provide clear pagination UI (`< Previous`, page numbers with ellipsis, `Next >`) while preserving active filters/search.
+
+### Non-Goals
+- Changing docs schema or adding database indexes.
+- Infinite-scroll behavior.
+
+### Constraints
+- Keep query efficient with SQL `LIMIT` and `OFFSET`.
+- Preserve existing search/tag filtering behavior and route paths.
+
+### Proposed Design
+#### API / Route changes
+- Keep existing routes (`/docs`, `/docs/tag/<tag>`) and add query params: `page` and `per_page`.
+
+#### Data model / SQL changes
+- Update `list_documents` to run:
+  - a `COUNT(*)` query for total matches
+  - a paginated data query with `LIMIT :limit_value OFFSET :offset_value`
+
+#### UI / Template changes
+- Add per-page dropdown in search row.
+- Add pagination bar with previous/next controls, page chips, and ellipsis.
+- Preserve `q`, `tag`, and `per_page` across page links.
+
+### Acceptance Criteria
+- [x] Docs listing queries are paginated in SQL (no fixed high-row fetch) and return total count + current page rows.
+- [x] `/docs` and `/docs/tag/<tag>` accept and apply `page` + `per_page` query params safely.
+- [x] `docs_index.html` provides adjustable per-page dropdown and pagination controls in the requested style.
+- [x] Pagination links preserve active filters/search parameters.
+
+### Verification Plan
+- Run:
+- `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`
+- Manual/code checks:
+- Confirm `list_documents` uses count + paginated query.
+- Confirm docs index template renders previous/page/next controls and per-page selector.
+- Confirm pagination links include preserved `q`, `per_page`, and `tag` context.
+
+### Change Log
+- 2026-03-05: Added server-side pagination and adjustable per-page controls for docs index/tag pages with updated UI.
+
+### Verification Evidence
+- Command output summary: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py` completed successfully with exit code 0.
+- Manual test summary: Code-level verification completed for paginated SQL query pattern, route query param handling, and docs index pagination/dropdown rendering logic. Browser interaction not executed in this run.
+- Open follow-ups: Optional browser smoke test for pagination UX and page-size switching behavior.

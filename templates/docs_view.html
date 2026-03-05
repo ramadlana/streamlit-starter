@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "components/modal.html" import modal %}
 
 {% block title %}{{ doc.title }}{% endblock %}
 {% block body_class %}docs-light{% endblock %}
@@ -10,49 +11,89 @@
 {% block content %}
 <div class="docs-shell docs-shell-reading">
     <div class="docs-reading-actions">
-        <a class="docs-back" href="{{ url_for('docs.docs_index') }}">All docs</a>
+        <a class="docs-back" href="{{ url_for('docs.docs_index') }}">&larr; Back to All Docs</a>
         {% if can_manage_docs %}
-        <a class="docs-inline-action" href="{{ url_for('docs.docs_editor', doc_id=doc.id) }}">Edit</a>
+        <div class="docs-reading-inline-actions">
+            <a class="docs-inline-action" href="{{ url_for('docs.docs_editor', doc_id=doc.id) }}">Edit</a>
+            <form method="POST" action="{{ url_for('docs.docs_admin_delete_document', doc_id=doc.id) }}"
+                class="docs-reading-delete">
+                <button type="button" class="docs-inline-action docs-inline-action-danger"
+                    onclick="AppModal.open('deleteDocModal')">
+                    Delete
+                </button>
+            </form>
+        </div>
         {% endif %}
     </div>
 
     <article class="docs-reading docs-reading-clean">
-        <h1 class="docs-hero-title">{{ doc.title }}</h1>
-        {% if doc.summary and doc.summary|trim|lower != 'none' %}
-        <p class="docs-summary docs-hero-summary">{{ doc.summary }}</p>
-        {% endif %}
+        <header class="docs-hero">
+            <h1 class="docs-hero-title">{{ doc.title }}</h1>
+            {% if doc.summary and doc.summary|trim|lower != 'none' %}
+            <p class="docs-summary docs-hero-summary">{{ doc.summary }}</p>
+            {% endif %}
+            <div class="docs-hero-meta">
+                <span class="docs-hero-creator">Created by <strong>{{ creator_name }}</strong></span>
+                <div class="docs-hero-meta-dates">
+                    <span>
+                        Created
+                        <time class="js-local-datetime"
+                            datetime="{{ doc.created_at.isoformat() if doc.created_at else '' }}"
+                            data-fallback="{{ doc.created_at.strftime('%b %d, %Y %H:%M') if doc.created_at else 'Unknown' }}">{{
+                            doc.created_at.strftime('%b %d, %Y %H:%M') if doc.created_at else 'Unknown' }}</time>
+                    </span>
+                    <span>
+                        Updated
+                        <time class="js-local-datetime"
+                            datetime="{{ doc.updated_at.isoformat() if doc.updated_at else '' }}"
+                            data-fallback="{{ doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}">{{
+                            doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}</time>
+                    </span>
+                </div>
+                {% if tags %}
+                <div class="docs-tags docs-hero-tags docs-hero-tags-inline">
+                    {% for tag in tags %}
+                    <a class="docs-tag" href="{{ url_for('docs.docs_by_tag', tag=tag) }}">#{{ tag }}</a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </header>
 
-        {% if tags %}
-        <div class="docs-tags docs-hero-tags">
-            {% for tag in tags %}
-            <a class="docs-tag" href="{{ url_for('docs.docs_by_tag', tag=tag) }}">#{{ tag }}</a>
-            {% endfor %}
-        </div>
-        {% endif %}
+        <div class="docs-hero-divider" aria-hidden="true"></div>
 
         <div class="docs-content docs-prose ql-editor">{{ doc.content_html | safe }}</div>
-
-        <div class="docs-article-meta">
-            <span>Created by <strong>{{ creator_name }}</strong></span>
-            <span>
-                Created
-                <time
-                    class="js-local-datetime"
-                    datetime="{{ doc.created_at.isoformat() if doc.created_at else '' }}"
-                    data-fallback="{{ doc.created_at.strftime('%b %d, %Y %H:%M') if doc.created_at else 'Unknown' }}"
-                >{{ doc.created_at.strftime('%b %d, %Y %H:%M') if doc.created_at else 'Unknown' }}</time>
-            </span>
-            <span>
-                Updated
-                <time
-                    class="js-local-datetime"
-                    datetime="{{ doc.updated_at.isoformat() if doc.updated_at else '' }}"
-                    data-fallback="{{ doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}"
-                >{{ doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}</time>
-            </span>
-        </div>
     </article>
 </div>
+
+{% if can_manage_docs %}
+{% call modal('deleteDocModal', 'modal-compact') %}
+<div style="text-align: center;">
+    <div class="app-modal-danger-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18"></path>
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+            <line x1="10" y1="11" x2="10" y2="17"></line>
+            <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+    </div>
+    <h2>Delete this document?</h2>
+    <p class="app-modal-body-muted">
+        You are about to delete <strong>{{ doc.title }}</strong>. This action cannot be undone.
+    </p>
+    <div class="app-modal-actions">
+        <form method="POST" action="{{ url_for('docs.docs_admin_delete_document', doc_id=doc.id) }}" style="flex: 1;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn" style="background: var(--error-color); width: 100%;">Delete</button>
+        </form>
+        <button type="button" class="btn" style="background: #e2e8f0; color: #0f172a; flex: 1;"
+            onclick="AppModal.close('deleteDocModal')">Cancel</button>
+    </div>
+</div>
+{% endcall %}
+{% endif %}
 
 <script>
     (function () {
@@ -61,11 +102,10 @@
 
         const formatter = new Intl.DateTimeFormat(undefined, {
             year: 'numeric',
-            month: 'short',
-            day: '2-digit',
-            hour: '2-digit',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
             minute: '2-digit',
-            second: '2-digit',
             timeZoneName: 'short'
         });
 

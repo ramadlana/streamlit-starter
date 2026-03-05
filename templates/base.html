@@ -60,6 +60,49 @@
 
     <script>
         (function () {
+            function getModal(modalId) {
+                if (!modalId) return null;
+                return document.getElementById(modalId);
+            }
+
+            function open(modalId) {
+                const modal = getModal(modalId);
+                if (!modal) return;
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+            }
+
+            function close(modalId) {
+                const modal = getModal(modalId);
+                if (!modal) return;
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+
+            function closeAll() {
+                document.querySelectorAll('.app-modal.is-open').forEach(function (modal) {
+                    modal.classList.remove('is-open');
+                    modal.setAttribute('aria-hidden', 'true');
+                });
+            }
+
+            window.AppModal = { open, close, closeAll };
+
+            document.addEventListener('click', function (evt) {
+                if (evt.target.classList.contains('app-modal')) {
+                    evt.target.classList.remove('is-open');
+                    evt.target.setAttribute('aria-hidden', 'true');
+                }
+            });
+
+            document.addEventListener('keydown', function (evt) {
+                if (evt.key === 'Escape') {
+                    closeAll();
+                }
+            });
+        })();
+
+        (function () {
             const dropdown = document.querySelector('.nav-dropdown');
             if (!dropdown) return;
 

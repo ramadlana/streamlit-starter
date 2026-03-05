@@ -86,9 +86,11 @@ def create_or_update_document(
     return page
 
 
-def list_documents(search: str = "", tag: str = ""):
+def list_documents(search: str = "", tag: str = "", *, page: int = 1, per_page: int = 12):
     search_term = (search or "").strip().lower()
     tag_term = (tag or "").strip().lower()
+    safe_page = max(1, int(page or 1))
+    safe_per_page = max(1, min(100, int(per_page or 12)))
 
     where_clauses = []
     params = {}
@@ -119,16 +121,37 @@ def list_documents(search: str = "", tag: str = ""):
     if where_clauses:
         where_sql = "WHERE " + " AND ".join(where_clauses)
 
-    query = text(
+    count_query = text(
+        f"""
+        SELECT count(*) AS total
+        FROM documentation_pages
+        {where_sql}
+        """
+    )
+
+    data_query = text(
         f"""
         SELECT id, title, slug, summary, content_html, tags_csv, created_at, updated_at
         FROM documentation_pages
         {where_sql}
         ORDER BY {order_by_sql}
-        LIMIT 200
+        LIMIT :limit_value
+        OFFSET :offset_value
         """
     )
 
     with get_sql_engine().connect() as conn:
-        result = conn.execute(query, params)
-        return result.mappings().all()
+        total = conn.execute(count_query, params).scalar_one()
+        total_pages = max(1, (int(total or 0) + safe_per_page - 1) // safe_per_page)
+        safe_page = min(safe_page, total_pages)
+        offset = (safe_page - 1) * safe_per_page
+        result = conn.execute(
+            data_query,
+            {**params, "limit_value": safe_per_page, "offset_value": offset},
+        )
+        return {
+            "items": result.mappings().all(),
+            "total": int(total or 0),
+            "page": safe_page,
+            "per_page": safe_per_page,
+        }

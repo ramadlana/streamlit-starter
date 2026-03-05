@@ -15,7 +15,9 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 16px;
 }
 
 body {
@@ -249,4 +251,62 @@ input:focus {
     height: calc(100vh - 60px);
     border: none;
     border-radius: 0;
+}
+
+/* Shared modal primitives */
+.app-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.35);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+}
+
+.app-modal.is-open {
+    display: flex;
+}
+
+.app-modal-content {
+    background: #ffffff;
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 500px;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+}
+
+.app-modal-content.modal-compact {
+    max-width: 400px;
+}
+
+.app-modal-danger-icon {
+    background: rgba(244, 63, 94, 0.1);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.app-modal-body-muted {
+    color: var(--text-secondary);
+    margin: 1rem 0 2rem;
+}
+
+.app-modal-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.app-modal-actions .btn {
+    margin-top: 0;
 }
