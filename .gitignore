@@ -3,6 +3,9 @@
 venv/
 ENV/
 
+# Uploads
+uploads/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

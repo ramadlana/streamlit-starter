@@ -48,6 +48,19 @@ docker run -d \
   postgres:16
 ```
 
+For Demo / Dev purposes, dummy table in postgresql:
+```sql
+CREATE TABLE public.dummydata (
+  id serial NOT NULL,
+  name text NOT NULL,
+  email text NOT NULL,
+  created_at timestamp without time zone NULL DEFAULT now()
+);
+
+ALTER TABLE public.dummydata
+ADD CONSTRAINT dummydata_pkey PRIMARY KEY (id);
+```
+
 ### 3.3 Configure environment
 Use either `DATABASE_URL` or full `DB_*` variables.
 
@@ -107,6 +120,7 @@ Rules:
 - `admin`
 - `example_crud`
 - `dummydata_crud`
+- `docs`
 
 ### Core routes
 - `/login`
@@ -117,6 +131,10 @@ Rules:
 - `/admin` (admin-only)
 - `/example-crud` (protected)
 - `/dummydata-crud` (protected)
+- `/docs` (protected)
+- `/docs/<slug>` (protected)
+- `/docs/editor/<id>` (protected, non-viewer roles)
+- `/docs/tag/<tag>` (protected)
 
 ## 6) Project Layout
 ```text
@@ -138,7 +156,10 @@ Rules:
 │   ├── config.py
 │   ├── engine.py
 │   ├── models.py
-│   └── example_crud.py
+│   ├── user_roles.py
+│   ├── example_crud.py
+│   ├── docs.py
+│   └── docs_attachments.py
 ├── templates/
 ├── dashboard_pages/
 └── scripts/
@@ -146,6 +167,10 @@ Rules:
 
 ## 7) Database Notes
 - `User` table is managed through SQLAlchemy (`db.create_all()` in app factory).
+- `User` includes role model: `viewer`, `editor`, `approval1`, `approval2`, `admin`.
+- Role is the single authorization source (`admin` is the privileged role).
+- Startup auto-ensures/backfills the `role` column for existing DBs.
+- `documentation_pages` stores docs content/slug/tags (ORM model `DocumentationPage`).
 - `example_crud_items` is auto-created by `ensure_example_crud_table()`.
 - `dummydata` table is expected to exist already.
 
@@ -267,6 +292,8 @@ server {
 - Run production wiring: `python3 run.py --prod`
 - List users: `python3 scripts/manage_admin.py list`
 - Create/promote admin: `python3 scripts/manage_admin.py create <username> <email> <password>`
+- Docs attachments housekeeping dry-run: `python3 scripts/docs_attachments_housekeeping.py --include-legacy`
+- Docs attachments housekeeping apply: `python3 scripts/docs_attachments_housekeeping.py --apply --include-legacy`
 - Cleanup occupied ports: `python3 scripts/kill_ports.py`
 - Validation compile: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`
 
@@ -289,6 +316,6 @@ server {
 - [SPECS.md](SPECS.md)
 
 ## 14) Roadmap (Condensed)
-- Add documentation module (editor + slug/tag pages + attachment support).
-- Add change-management workflow (multi-step approvals + audit history).
+- Extend docs workflow with approval lifecycle and audit history by role.
 - Add production hardening (search/filter, pagination, notifications, optional object storage).
+- Add tests for docs role permissions and attachment housekeeping.

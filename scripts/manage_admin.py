@@ -12,10 +12,11 @@ def create_admin(username, email, password):
         user = User.query.filter_by(username=username).first()
         if user:
             print(f"User {username} already exists. Promoting to admin and resetting password...")
-            user.is_admin = True
+            user.set_role("admin")
             user.set_password(password)
         else:
-            user = User(username=username, email=email, is_admin=True)
+            user = User(username=username, email=email)
+            user.set_role("admin")
             user.set_password(password)
             db.session.add(user)
         
@@ -27,8 +28,9 @@ def list_users():
         users = User.query.all()
         print("\n--- User List ---")
         for u in users:
-            status = "[ADMIN]" if u.is_admin else "[USER]"
-            print(f"ID: {u.id} | Username: {u.username} | Email: {u.email} | Status: {status}")
+            role = (u.role or "viewer").lower()
+            status = "[ADMIN]" if role == "admin" else "[USER]"
+            print(f"ID: {u.id} | Username: {u.username} | Email: {u.email} | Role: {role} | Status: {status}")
         print("-----------------\n")
 
 if __name__ == "__main__":

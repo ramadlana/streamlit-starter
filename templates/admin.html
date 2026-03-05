@@ -61,7 +61,7 @@
         border: 1px solid var(--accent-color);
     }
 
-    .badge-user {
+    .badge-role {
         background: rgba(148, 163, 184, 0.1);
         color: var(--text-secondary);
         border: 1px solid var(--glass-border);
@@ -145,16 +145,16 @@
                 <td>{{ user.username }}</td>
                 <td>{{ user.email }}</td>
                 <td>
-                    {% if user.is_admin %}
-                    <span class="badge badge-admin">Admin</span>
+                    {% if (user.role or 'viewer') == 'admin' %}
+                    <span class="badge badge-admin">admin</span>
                     {% else %}
-                    <span class="badge badge-user">User</span>
+                    <span class="badge badge-role">{{ user.role or 'viewer' }}</span>
                     {% endif %}
                 </td>
                 <td>
                     <button class="action-btn edit-user-btn" data-id="{{ user.id }}" data-username="{{ user.username }}"
                         data-email="{{ user.email }}"
-                        data-isadmin="{{ 'true' if user.is_admin else 'false' }}">Edit</button>
+                        data-role="{{ user.role or 'viewer' }}">Edit</button>
                     {% if user.id != current_user.id %}
                     <button class="action-btn btn-delete delete-user-btn" data-id="{{ user.id }}"
                         data-username="{{ user.username }}">Delete</button>
@@ -184,9 +184,13 @@
                 <label>Temporary Password</label>
                 <input type="password" name="password" required>
             </div>
-            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                <input type="checkbox" name="is_admin" style="width: auto;">
-                <label style="margin-bottom: 0;">Grant Admin Privileges</label>
+            <div class="form-group">
+                <label>Role</label>
+                <select name="role" required>
+                    {% for role in roles %}
+                    <option value="{{ role }}" {% if role == 'viewer' %}selected{% endif %}>{{ role }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div style="display: flex; gap: 10px;">
                 <button type="submit" class="btn">Create User</button>
@@ -215,9 +219,13 @@
                 <label>New Password (leave blank to keep current)</label>
                 <input type="password" name="password">
             </div>
-            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                <input type="checkbox" name="is_admin" id="edit_is_admin" style="width: auto;">
-                <label style="margin-bottom: 0;">Is Admin</label>
+            <div class="form-group">
+                <label>Role</label>
+                <select name="role" id="edit_role" required>
+                    {% for role in roles %}
+                    <option value="{{ role }}">{{ role }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div style="display: flex; gap: 10px;">
                 <button type="submit" class="btn">Update User</button>
@@ -274,11 +282,11 @@
             const id = button.getAttribute('data-id');
             const username = button.getAttribute('data-username');
             const email = button.getAttribute('data-email');
-            const isAdmin = button.getAttribute('data-isadmin') === 'true';
+            const role = button.getAttribute('data-role') || 'viewer';
 
             document.getElementById('edit_username').value = username;
             document.getElementById('edit_email').value = email;
-            document.getElementById('edit_is_admin').checked = isAdmin;
+            document.getElementById('edit_role').value = role;
             document.getElementById('editForm').action = "/admin/edit/" + id;
             showModal('editModal');
         });
