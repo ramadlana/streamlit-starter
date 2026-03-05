@@ -17,6 +17,7 @@
             <a href="/">Home</a>
             {% if current_user.is_authenticated %}
             <a href="{{ url_for('docs.docs_index') }}">Docs</a>
+            <!-- only show editor menu if user is admin or editor or approval1 or approval2 -->
             {% set can_open_editor_menu = current_user.role == "admin" or (current_user.role in ['editor', 'approval1',
             'approval2']) %}
             {% if can_open_editor_menu %}
