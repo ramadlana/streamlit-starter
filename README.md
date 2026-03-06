@@ -198,7 +198,7 @@ Detailed repo map and read-first order: **[docs/AGENTS.md](docs/AGENTS.md)**.
 - **Docs:** `/docs`, `/docs/<slug>`, `/docs/editor/<id>`, etc.
 - **Streamlit iframe:** `/iframe-app-streamlit`
 
-Full route list, blueprints, and how to protect or restrict by role: **[docs/FRAMEWORK_GUIDE.md](docs/FRAMEWORK_GUIDE.md)**.
+Full route list, blueprints, and how to protect or restrict by role: **[docs/FRAMEWORK_REFERENCE.md](docs/FRAMEWORK_REFERENCE.md)**.
 
 ---
 
@@ -233,11 +233,9 @@ Full route list, blueprints, and how to protect or restrict by role: **[docs/FRA
 | **[docs/PROMPTING_GUIDE.md](docs/PROMPTING_GUIDE.md)** | Prompt templates and placeholders for adding new features (follow AGENTS.md). |
 | **[docs/CLEAN_FRAMEWORK.md](docs/CLEAN_FRAMEWORK.md)** | Remove all demo features (example/dummydata CRUD, docs, iframe-app-streamlit, Streamlit example pages) for a minimal framework. |
 | **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** | **Production only:** server setup, systemd, Nginx, env file, troubleshooting. |
-| **[docs/FRAMEWORK_GUIDE.md](docs/FRAMEWORK_GUIDE.md)** | Auth, roles, protecting pages, adding Flask/Streamlit pages, CSRF, nav by role, CRUD pattern, DB patterns, CSS quick reference. |
+| **[docs/FRAMEWORK_REFERENCE.md](docs/FRAMEWORK_REFERENCE.md)** | Architecture diagrams, design system (HTML/CSS), and user guide: auth, roles, protecting pages, adding Flask/Streamlit pages, CSRF, nav by role, CRUD pattern, DB patterns, CSS reference. |
 | **[docs/AGENTS.md](docs/AGENTS.md)** | Repo map, route/blueprint inventory, playbooks (add route, CRUD, Streamlit page), security rules, for contributors and automation. |
-| **[docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)** | HTML/CSS standards, base template, components and classes when building or changing UI. |
 | **[docs/SPECS.md](docs/SPECS.md)** | Spec-driven workflow for non-trivial changes; template and status. |
-| **[docs/ARCHITECTURE_DIAGRAM.md](docs/ARCHITECTURE_DIAGRAM.md)** | Architecture diagrams (runtime, auth flow, dev vs prod). |
 
 ---
 
@@ -245,8 +243,8 @@ Full route list, blueprints, and how to protect or restrict by role: **[docs/FRA
 
 - **Missing PostgreSQL configuration** — Set `DATABASE_URL` or all `DB_*` vars; ensure the database and user exist.
 - **Port in use** — On Linux/macOS run `python3 scripts/kill_ports.py`. On Windows, stop the process using the port or set different `FLASK_PORT` / `STREAMLIT_PORT`.
-- **Session / CSRF issues** — Use a stable `SECRET_KEY`; every POST form needs the CSRF token (see [docs/FRAMEWORK_GUIDE.md](docs/FRAMEWORK_GUIDE.md)).
-- **404 or BuildError** — Check blueprint registration in `flask_app/__init__.py` and `url_for("blueprint.endpoint")` names. See [docs/FRAMEWORK_GUIDE.md](docs/FRAMEWORK_GUIDE.md#common-mistakes-when-adding-pages).
+- **Session / CSRF issues** — Use a stable `SECRET_KEY`; every POST form needs the CSRF token (see [docs/FRAMEWORK_REFERENCE.md](docs/FRAMEWORK_REFERENCE.md)).
+- **404 or BuildError** — Check blueprint registration in `flask_app/__init__.py` and `url_for("blueprint.endpoint")` names. See [docs/FRAMEWORK_REFERENCE.md](docs/FRAMEWORK_REFERENCE.md#common-mistakes-when-adding-pages) (common mistakes).
 
 Production issues: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#4-troubleshooting)**.
 

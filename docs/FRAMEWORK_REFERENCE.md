@@ -1,47 +1,420 @@
-# User Guide — Internal Web Framework
+# Framework Reference — Architecture, Design & User Guide
 
-This guide explains how to use this framework to build authenticated, role-protected Flask pages and Streamlit dashboards for your internal tools.
+This document merges **Architecture Diagrams**, **Design System**, and **Framework Guide** into a single reference for the Flask auth gateway + Streamlit dashboard starter kit.
 
-**New to this project?** When adding a **new Flask page**, follow [Section 7](#7-adding-a-new-protected-flask-page) and do all four steps (blueprint file, template, register in `flask_app/__init__.py`, nav link). When adding a **new Streamlit page**, follow [Section 11](#11-adding-a-new-streamlit-dashboard-page) (create the page file, then register it in `dashboard_app.py`). If something doesn’t work, check [Common mistakes when adding pages](#common-mistakes-when-adding-pages). To **remove all demo features** (example CRUD, docs, iframe-app-streamlit, Streamlit example pages) for a minimal framework, see **[CLEAN_FRAMEWORK.md](CLEAN_FRAMEWORK.md)** (in this `docs/` folder).
+**New to this project?** When adding a **new Flask page**, follow [Section 19 (User Guide)](#19-adding-a-new-protected-flask-page) and do all four steps. When adding a **new Streamlit page**, follow [Section 23 (User Guide)](#23-adding-a-new-streamlit-dashboard-page). To **remove all demo features** for a minimal framework, see **[CLEAN_FRAMEWORK.md](CLEAN_FRAMEWORK.md)**.
 
 ---
 
 ## Table of Contents
 
-1. [Architecture Overview](#1-architecture-overview)
-2. [Authentication (Login / Signup / Logout)](#2-authentication)
-3. [Protecting Pages with `@login_required`](#3-protecting-pages-with-login_required)
-4. [Roles & Authorization](#4-roles--authorization)
-5. [Using the `@role_required` Decorator](#5-using-the-role_required-decorator)
-6. [Adding a New Role](#6-adding-a-new-role)
-7. [Adding a New Protected Flask Page](#7-adding-a-new-protected-flask-page)
-8. [Adding a Role-Restricted Page](#8-adding-a-role-restricted-page)
-9. [CSRF Protection on Forms](#9-csrf-protection-on-forms)
-10. [Embedding Streamlit via iframe (Protected Dashboard)](#10-embedding-streamlit-via-iframe)
-11. [Adding a New Streamlit Dashboard Page](#11-adding-a-new-streamlit-dashboard-page) — [Common mistakes](#common-mistakes-when-adding-pages)
-12. [Navigation Bar — Showing/Hiding Links by Role](#12-navigation-bar--showinghiding-links-by-role)
-13. [Managing Users (Admin Panel & CLI)](#13-managing-users)
-14. [Adding a Full CRUD Feature](#14-adding-a-full-crud-feature)
-15. [Database Access Patterns](#15-database-access-patterns)
-16. [Environment Variables](#16-environment-variables)
-17. [Base CSS & Style Guide](#17-base-css--style-guide)
+**Part I — Architecture & Diagrams**
+1. [Runtime & process layout](#1-runtime--process-layout)
+2. [Request flow: user → login → app](#2-request-flow-user--login--app)
+3. [Flask app structure (create_app)](#3-flask-app-structure-create_app)
+4. [Data & database](#4-data--database)
+5. [Streamlit multipage navigation](#5-streamlit-multipage-navigation)
+6. [Dev vs prod (Streamlit URL)](#6-dev-vs-prod-streamlit-url)
+7. [Architecture summary](#architecture-summary)
+
+**Part II — Design System**
+8. [Design principles](#8-design-principles)
+9. [Page structure](#9-page-structure)
+10. [Components and classes](#10-components-and-classes)
+11. [Naming conventions](#11-naming-conventions)
+12. [Checklist for new pages](#12-checklist-for-new-pages)
+
+**Part III — User Guide**
+- [13. Architecture overview (key dirs)](#13-architecture-overview-key-dirs)
+- [14. Authentication](#14-authentication)
+- [15. Protecting pages with @login_required](#15-protecting-pages-with-login_required)
+- [16. Roles & authorization](#16-roles--authorization)
+- [17. Using @role_required](#17-using-the-role_required-decorator)
+- [18. Adding a new role](#18-adding-a-new-role)
+- [19. Adding a new protected Flask page](#19-adding-a-new-protected-flask-page)
+- [20. Adding a role-restricted page](#20-adding-a-role-restricted-page)
+- [21. CSRF protection on forms](#21-csrf-protection-on-forms)
+- [22. Embedding Streamlit via iframe](#22-embedding-streamlit-via-iframe)
+- [23. Adding a new Streamlit dashboard page](#23-adding-a-new-streamlit-dashboard-page)
+- [24. Navigation bar — showing/hiding links by role](#24-navigation-bar--showinghiding-links-by-role)
+- [25. Managing users](#25-managing-users)
+- [26. Adding a full CRUD feature](#26-adding-a-full-crud-feature)
+- [27. Database access patterns](#27-database-access-patterns)
+- [28. Environment variables](#28-environment-variables)
+- [29. Base CSS & style guide](#29-base-css--style-guide)
+- [30. Quick reference — decorators & templates](#30-quick-reference--decorators--templates)
 
 ---
 
-## 1. Architecture Overview
+# Part I — Architecture & Diagrams
+
+How the Flask auth gateway + Streamlit dashboard boilerplate works.
+
+---
+
+## 1. Runtime & process layout
+
+```mermaid
+flowchart TB
+    subgraph entry["Entry point"]
+        RUN["run.py"]
+    end
+
+    RUN --> cleanup["cleanup_ports()"]
+    RUN --> config["get_config_ports()\nFLASK_PORT / STREAMLIT_PORT"]
+    RUN --> streamlit_cmd["Streamlit subprocess"]
+    RUN --> flask_cmd["Flask subprocess\n(auth_server.py)"]
+
+    subgraph processes["Two processes"]
+        subgraph flask["Flask app (e.g. :5001)"]
+            AUTH["auth_server.py"]
+            CREATE["create_app()"]
+            AUTH --> CREATE
+        end
+        subgraph streamlit["Streamlit app (e.g. :8501)"]
+            DASH["dashboard_app.py"]
+            PAGES["dashboard_pages/*.py"]
+            DASH --> PAGES
+        end
+    end
+
+    streamlit_cmd --> streamlit
+    flask_cmd --> flask
+
+    RUN -.->|"--prod"| basePath["Streamlit baseUrlPath\n/streamlit/"]
+```
+
+- **run.py** starts both servers and (in `--prod`) configures Streamlit for the `/streamlit/` proxy path.
+- **Flask** is the auth/session gateway; **Streamlit** is the dashboard UI, either on its own port (dev) or under Nginx (prod).
+
+---
+
+## 2. Request flow: user → login → app
+
+```mermaid
+sequenceDiagram
+    participant U as User / Browser
+    participant F as Flask (auth gateway)
+    participant DB as PostgreSQL
+    participant S as Streamlit
+
+    U->>F: GET /
+    alt not logged in
+        F->>U: Redirect /login
+        U->>F: GET /login
+        F->>U: login form
+        U->>F: POST /login (username, password)
+        F->>DB: User lookup + check_password
+        DB-->>F: user
+        F->>F: login_user() → session
+        F->>U: Redirect /
+    end
+
+    F->>U: 200 home.html (or redirect)
+
+    opt Open dashboard
+        U->>F: GET /iframe-app-streamlit
+        F->>F: @login_required
+        F->>U: 200 iframe_app_streamlit.html
+        note over U: iframe src = streamlit_url
+        U->>S: GET streamlit_url (dev: :8501, prod: /streamlit/)
+        S->>U: Streamlit app (multipage)
+    end
+```
+
+- All protected routes go through Flask; session is Flask-Login.
+- Streamlit is loaded inside an iframe; in dev the iframe points to `http://localhost:8501`, in prod to `/streamlit/`.
+
+---
+
+## 3. Flask app structure (create_app)
+
+```mermaid
+flowchart LR
+    subgraph create_app["create_app() in flask_app/__init__.py"]
+        config["Config\nSECRET_KEY, DB URI"]
+        ext["Extensions\n(db, csrf, login_manager)"]
+        ctx["Context processors\n(csrf_token, editor_menu, allow_signup)"]
+        err["CSRF error handler"]
+        blueprints["Register blueprints"]
+        init_db["db.create_all()\nensure_user_role_column\nensure_app_settings_table"]
+    end
+
+    config --> ext
+    ext --> ctx
+    ctx --> err
+    err --> blueprints
+    blueprints --> init_db
+```
+
+```mermaid
+flowchart TB
+    subgraph blueprints["Blueprints"]
+        home["home\n/"]
+        auth["auth\n/login, /signup, /logout,\n/change-password, /auth-check"]
+        admin["admin\n/admin, /admin/settings\n/admin/add|edit|delete"]
+        example_crud["example_crud\n/example-crud/*"]
+        dummydata_crud["dummydata_crud\n/dummydata-crud/*"]
+        docs["docs\n/docs, /docs/<slug>\n/docs/editor, /docs/upload-image\n/docs/attachments/*"]
+        iframe["iframe_app_streamlit\n/iframe-app-streamlit"]
+    end
+
+    create_app --> blueprints
+```
+
+- One Flask app; blueprints provide routes. Auth is enforced with `@login_required` and role checks where needed.
+
+---
+
+## 4. Data & database
+
+```mermaid
+flowchart TB
+    subgraph app_db["app_db"]
+        config["config.py\nbuild_database_uri()"]
+        base["base.py\n(db)"]
+        models["models.py\nUser, DocumentationPage"]
+        engine["engine.py\nget_sql_engine()"]
+        roles["user_roles.py"]
+        settings["app_settings.py"]
+        docs_db["docs.py"]
+        example["example_crud.py"]
+    end
+
+    subgraph usage["Usage"]
+        routes["Flask routes"]
+        scripts["scripts/"]
+    end
+
+    config --> base
+    config --> engine
+    base --> models
+    models --> roles
+    base --> settings
+    base --> docs_db
+    base --> example
+
+    routes --> app_db
+    scripts --> app_db
+
+    app_db --> PG[(PostgreSQL)]
+```
+
+- **ORM** (Flask-SQLAlchemy): `User`, `DocumentationPage`; core CRUD and auth.
+- **Raw SQL** (engine from `app_db.config`): reporting, complex queries, feature tables (e.g. dummydata).
+- DB URI comes only from `app_db/config.py` (env: `DATABASE_URL` or `DB_*`).
+
+---
+
+## 5. Streamlit multipage navigation
+
+```mermaid
+flowchart TB
+    subgraph streamlit_app["dashboard_app.py"]
+        nav["st.navigation()"]
+        home_p["Home"]
+        basic["Basic Page"]
+        map_p["Map Page"]
+        components["Streamlit Components"]
+        sales["Sales Dashboard"]
+        table["PSQL Dummydata"]
+        table_pag["PSQL Pagination Table"]
+    end
+
+    nav --> Main["Main Menu"]
+    nav --> Example["Example"]
+
+    Main --> home_p
+    Example --> basic
+    Example --> components
+    Example --> map_p
+    Example --> sales
+    Example --> table
+    Example --> table_pag
+
+    home_p --> home_file["dashboard_pages/home.py"]
+    basic --> basic_file["dashboard_pages/example/basic.py"]
+    table --> table_file["dashboard_pages/example/table-postgresql-page.py"]
+```
+
+- Streamlit runs as a separate process; pages live under `dashboard_pages/`. Business logic and DB access stay in `app_db`/Flask; Streamlit focuses on UI.
+
+---
+
+## 6. Dev vs prod (Streamlit URL)
+
+```mermaid
+flowchart LR
+    subgraph dev["Development"]
+        U1[User]
+        F1[Flask :5001]
+        S1[Streamlit :8501]
+        U1 --> F1
+        U1 --> S1
+        F1 -->|iframe src| S1
+    end
+
+    subgraph prod["Production (--prod)"]
+        U2[User]
+        Nginx[Nginx]
+        F2[Flask]
+        S2[Streamlit]
+        U2 --> Nginx
+        Nginx --> F2
+        Nginx -->|/streamlit/| S2
+        F2 -->|iframe src /streamlit/| Nginx
+    end
+```
+
+- **Dev:** User hits Flask; Flask serves HTML with an iframe to `http://localhost:STREAMLIT_PORT`. User (or iframe) talks to Streamlit on that port.
+- **Prod:** Nginx fronts both; Streamlit is mounted at `/streamlit/`; Flask serves pages that embed iframe `src="/streamlit/"`.
+
+---
+
+## Architecture summary
+
+| Layer            | Responsibility                                      |
+|-----------------|------------------------------------------------------|
+| **run.py**      | Start Flask + Streamlit; port cleanup; prod base path |
+| **Flask**       | Auth (Flask-Login), CSRF, session, all HTML routes   |
+| **Streamlit**   | Dashboard UI (multipage), no auth (gated by Flask)   |
+| **app_db**      | PostgreSQL: ORM (User, docs) + raw SQL helpers      |
+| **Templates**   | Jinja; base.html; CSRF on every POST form           |
+
+All access to the app is through Flask first; the dashboard is shown via an iframe to Streamlit (direct in dev, via `/streamlit/` in prod).
+
+---
+
+# Part II — Design System
+
+HTML and CSS standards for the Flask-based internal tool framework. Use when adding or changing pages so the repo stays consistent.
+
+---
+
+## 8. Design principles
+
+- **Single stylesheet**: All styles live in `static/css/base.css`. Do not add new CSS files or inline `<style>` blocks in templates.
+- **Extend base**: Every page extends `templates/base.html` and fills `{% block content %}` (and optionally `title`, `body_class`, `extra_css`).
+- **Use design tokens**: Prefer CSS variables from `:root` (e.g. `var(--accent-color)`, `var(--radius)`) and existing utility/component classes instead of hardcoded colors or one-off styles.
+- **No duplication**: Reuse existing classes (e.g. `btn`, `form-control`, `crud-panel`) rather than redefining the same look in templates.
+
+---
+
+## 9. Page structure
+
+### 9.1 Base template
+
+- **Logo**: `.logo` in the navbar — default text is "Internal Tool". Change it in `base.html` when branding your app.
+- **Flash messages**: Rendered once in `base.html` via `{% block flash_messages %}`. Child templates must **not** repeat flash markup; override the block only if a page needs a different placement or styling.
+- **Scripts**: Nav toggle and `AppModal` are in `base.html`. Page-specific JS stays in the page template at the bottom of `{% block content %}`.
+
+### 9.2 Body classes
+
+Set `{% block body_class %}` for layout:
+
+| Class | Use |
+|-------|-----|
+| *(none)* | Centered content (e.g. login card). |
+| `content-top` | Full-width, top-aligned (CRUD, admin, list pages). |
+| `docs-light` | Docs section: light background, left-aligned content. |
+| `page-dashboard` | Home/dashboard: full-height iframe, no padding. |
+
+Use a single class or space-separated list, e.g. `content-top page-dashboard` for the dashboard.
+
+### 9.3 Blocks
+
+- **title**: Page title (browser tab). Keep short, e.g. "Login", "Admin Panel".
+- **content**: Main HTML for the page.
+- **extra_css**: Optional; only for extra stylesheets (e.g. Quill). Do not put inline CSS here.
+- **body_class**: Optional; see above.
+- **flash_messages**: Optional override; usually leave as default.
+
+---
+
+## 10. Components and classes
+
+### 10.1 Buttons
+
+- **Primary**: `btn btn-primary` (or `btn` alone; primary is default for submit).
+- **Secondary / cancel**: `btn btn-secondary`.
+- **Ghost**: `btn btn-ghost`.
+- **Danger**: `btn btn-danger`.
+- **Sizing**: `btn-small` for compact; `w-auto` for non-full-width, `w-100` for full width.
+
+Use these instead of inline `style="background: ..."`.
+
+### 10.2 Forms
+
+- **Group**: `form-group` wraps label + control.
+- **Label**: `form-label` on `<label>`; use `for` and matching `id` on inputs.
+- **Inputs**: `form-control` on `<input>`, `<textarea>`, `<select>`; add `form-select` on `<select>`.
+- **No inline styles** on form elements; use utility classes (e.g. `mt-2`, `d-none`).
+
+### 10.3 Layout and utilities
+
+- **Flex**: `d-flex`, `justify-content-between`, `align-items-center`, `gap-3`, etc. (see `base.css` and [Base CSS & style guide](#29-base-css--style-guide) in this document).
+- **Spacing**: `m-0`, `mt-2`, `mb-3`, `p-4`, etc.
+- **Text**: `text-muted`, `text-center`, `text-danger`, `small`.
+- **Visibility**: `d-none` to hide (toggle via JS with `classList.add/remove('d-none')`).
+
+### 10.4 CRUD pages
+
+- **Container**: `crud-container` (or `admin-container` for admin).
+- **Header**: `crud-header` with `h1` and `p.subtitle`.
+- **Panel**: `crud-panel` for each card; panel title: `h3.crud-panel-title`.
+- **Table**: `crud-table-wrapper` > `table.crud-table`; action cells use `.actions` with `btn btn-small btn-ghost` / `btn btn-small btn-danger`.
+- **Form**: `form-compact` with `form-group`, `form-label`, `form-control`; submit `btn btn-primary`.
+
+### 10.5 Modals
+
+- Use the macro: `{% from "components/modal.html" import modal %}` and `{% call modal('id') %}...{% endcall %}`.
+- Content: `app-modal-content`, `app-modal-actions`, `app-modal-danger-icon`, `app-modal-body-muted` (all in `base.css`).
+- Open/close via `AppModal.open('id')` and `AppModal.close('id')`.
+
+### 10.6 Alerts and flash
+
+- **Success / error in content**: Prefer `alert alert-success` or `alert alert-danger` for in-page messages.
+- **Flash**: Styled automatically in base; uses `.flash-message` inside `.flash-messages`. For error emphasis, backend can flash and front-end will show it in the standard block.
+
+---
+
+## 11. Naming conventions
+
+- **CSS**: Use kebab-case (e.g. `crud-panel-title`, `app-modal-actions`). Prefix feature-specific blocks (e.g. `docs-*`, `crud-*`, `admin-*`) to avoid clashes.
+- **Templates**: `snake_case.html` for pages; `components/modal.html` for shared partials.
+- **IDs**: Use kebab-case or snake_case for form fields and JS hooks (e.g. `item-name`, `edit_username`).
+
+---
+
+## 12. Checklist for new pages
+
+1. Extend `base.html` and set `{% block title %}` and, if needed, `{% block body_class %}`.
+2. Use only classes from `base.css`; no inline styles or new `<style>` tags.
+3. All POST forms include `{% csrf_token() %}` in a hidden input.
+4. Buttons use `btn` + variant; forms use `form-group`, `form-label`, `form-control`.
+5. Do not add a duplicate flash block; base already shows flashed messages.
+6. For modals, use `components/modal.html` and `AppModal`.
+
+**References:** [AGENTS.md](AGENTS.md) — Repo map, routes, and change playbooks. **static/css/base.css** — Single source of truth; sections are commented (e.g. "CRUD", "Admin", "Dashboard").
+
+---
+
+# Part III — User Guide
+
+How to use this framework to build authenticated, role-protected Flask pages and Streamlit dashboards.
+
+---
+
+## 13. Architecture overview (key dirs)
 
 The app runs **two processes** started by `run.py`:
-
 
 | Process       | File               | Default Port | Purpose                                            |
 | ------------- | ------------------ | ------------ | -------------------------------------------------- |
 | **Flask**     | `auth_server.py`   | `5001`       | Authentication gateway, HTML pages, API            |
 | **Streamlit** | `dashboard_app.py` | `8501`       | Data dashboards (embedded inside Flask via iframe) |
 
-
-In **development**, users visit `http://localhost:5001`. The home page loads the Streamlit dashboard inside an iframe pointing to `localhost:8501`.
-
-In **production** (`python3 run.py --prod`), Streamlit is reverse-proxied behind `/streamlit/` (typically via Nginx), so the iframe URL becomes `/streamlit/` instead.
+In **development**, users visit `http://localhost:5001`. The home page loads the Streamlit dashboard inside an iframe pointing to `localhost:8501`. In **production** (`python3 run.py --prod`), Streamlit is reverse-proxied behind `/streamlit/` (typically via Nginx).
 
 ### Key directories
 
@@ -57,7 +430,7 @@ scripts/                ← CLI utilities (manage_admin, etc.)
 
 ---
 
-## 2. Authentication
+## 14. Authentication
 
 Authentication is handled by **Flask-Login**. The implementation lives in `flask_app/routes/auth.py`.
 
@@ -69,7 +442,6 @@ Authentication is handled by **Flask-Login**. The implementation lives in `flask
 
 ### Built-in auth routes
 
-
 | Route              | Method   | What it does                                                                                  |
 | ------------------ | -------- | --------------------------------------------------------------------------------------------- |
 | `/login`           | GET/POST | Login form + credential check                                                                 |
@@ -77,7 +449,6 @@ Authentication is handled by **Flask-Login**. The implementation lives in `flask
 | `/logout`          | GET      | Logs out the current user                                                                     |
 | `/change-password` | GET/POST | Change password form (logged-in users only)                                                   |
 | `/auth-check`      | GET      | Returns `200 Authenticated` or `401 Unauthorized`                                             |
-
 
 ### User loader (required by Flask-Login)
 
@@ -89,8 +460,6 @@ Authentication is handled by **Flask-Login**. The implementation lives in `flask
 def load_user(user_id: str):
     return db.session.get(User, int(user_id))
 ```
-
-This callback tells Flask-Login how to reload a user from the session. It is already configured — you do not need to change it.
 
 ### Login flow
 
@@ -118,7 +487,7 @@ def login():
 
 ---
 
-## 3. Protecting Pages with `@login_required`
+## 15. Protecting pages with @login_required
 
 Any route that should only be accessible to logged-in users must use the `@login_required` decorator from Flask-Login.
 
@@ -151,25 +520,24 @@ bp = Blueprint("my_feature", __name__)
 @bp.route("/my-feature")
 @login_required
 def my_feature_page():
-    return render_template("my_feature.html")
+    return render_template("my_feature/index.html")
 ```
 
 > **Rule**: Always place `@login_required` directly **after** the `@bp.route(...)` decorator.
 
 ---
 
-## 4. Roles & Authorization
+## 16. Roles & authorization
 
 ### Available roles
 
 Defined in `app_db/user_roles.py`:
 
-> **FRAMEWORK CODE** — `app_db/user_roles.py` — modify only when adding a new role (see [Section 6](#6-adding-a-new-role)).
+> **FRAMEWORK CODE** — `app_db/user_roles.py` — modify only when adding a new role (see [Section 18](#18-adding-a-new-role)).
 
 ```python
 ROLE_CHOICES = ("viewer", "editor", "approval1", "approval2", "admin")
 ```
-
 
 | Role        | Typical permissions                          |
 | ----------- | -------------------------------------------- |
@@ -178,7 +546,6 @@ ROLE_CHOICES = ("viewer", "editor", "approval1", "approval2", "admin")
 | `approval1` | Same as editor (used for approval workflows) |
 | `approval2` | Same as editor (used for approval workflows) |
 | `admin`     | Full access; user management, housekeeping   |
-
 
 ### How roles are stored
 
@@ -204,7 +571,7 @@ db.session.commit()
 
 ---
 
-## 5. Using the `@role_required` Decorator
+## 17. Using the role_required decorator
 
 The framework provides a `role_required` decorator in `flask_app/routes/permissions.py`.
 
@@ -255,7 +622,7 @@ def docs_editor(doc_id: int):
     ...
 ```
 
-### Shortcut — `admin_required`
+### Shortcut — admin_required
 
 > **YOUR CODE** — use this shortcut when you only need admin access.
 
@@ -283,9 +650,9 @@ def my_view():
 
 ---
 
-## 6. Adding a New Role
+## 18. Adding a new role
 
-### Step 1 — Update `ROLE_CHOICES`
+### Step 1 — Update ROLE_CHOICES
 
 > **YOUR CODE** — edit the existing file `app_db/user_roles.py` to add your new role.
 
@@ -297,11 +664,7 @@ ROLE_CHOICES = ("viewer", "editor", "approval1", "approval2", "admin")
 ROLE_CHOICES = ("viewer", "editor", "approval1", "approval2", "manager", "admin")
 ```
 
-`ALLOWED_ROLES` is derived from `ROLE_CHOICES` automatically (framework handles this):
-
-```python
-ALLOWED_ROLES = set(ROLE_CHOICES)
-```
+`ALLOWED_ROLES` is derived from `ROLE_CHOICES` automatically (framework handles this).
 
 ### Step 2 — Use the new role in routes
 
@@ -315,7 +678,7 @@ def manager_dashboard():
     return render_template("manager_dashboard.html")
 ```
 
-### Step 3 — Update nav visibility in `templates/base.html`
+### Step 3 — Update nav visibility in templates/base.html
 
 > **YOUR CODE** — add this inside the authenticated block in `templates/base.html`.
 
@@ -337,9 +700,9 @@ python3 scripts/manage_admin.py create <username> <email> <password>
 
 ---
 
-## 7. Adding a New Protected Flask Page
+## 19. Adding a new protected Flask page
 
-Full step-by-step for a new feature page visible to all logged-in users. Follow the checklist so you don’t miss a step.
+Full step-by-step for a new feature page visible to all logged-in users. Follow the checklist so you don't miss a step.
 
 ### Checklist (do all 4 steps)
 
@@ -349,8 +712,6 @@ Full step-by-step for a new feature page visible to all logged-in users. Follow 
 | 2 | Create the HTML template | `templates/my_feature/index.html` (create folder `my_feature` if needed) |
 | 3 | **Import** the blueprint and **register** it in the app | `flask_app/__init__.py` |
 | 4 | Add a link in the nav bar | `templates/base.html` |
-
----
 
 ### Step 1 — Create the blueprint
 
@@ -370,9 +731,7 @@ def my_feature_page():
 ```
 
 - **Imports:** `Blueprint`, `render_template` from `flask`; `login_required` from `flask_login`.
-- **Blueprint name:** `"my_feature"` — you’ll use it in `url_for("my_feature.my_feature_page")` and when registering.
-
----
+- **Blueprint name:** `"my_feature"` — you'll use it in `url_for("my_feature.my_feature_page")` and when registering.
 
 ### Step 2 — Create the template
 
@@ -390,8 +749,6 @@ Create the folder `templates/my_feature/` and the file `templates/my_feature/ind
 ```
 
 The path in `render_template("my_feature/index.html")` must match this path under `templates/`.
-
----
 
 ### Step 3 — Register the blueprint in the app
 
@@ -415,11 +772,9 @@ with app.app_context():
 
 If you only add `register_blueprint` but forget the **import**, the app will crash on startup with `NameError: name 'my_feature_bp' is not defined`.
 
----
-
 ### Step 4 — Add a nav link
 
-In `templates/base.html`, add your link **inside** the `{% if current_user.is_authenticated %}` block (e.g. after the “Docs” link):
+In `templates/base.html`, add your link **inside** the `{% if current_user.is_authenticated %}` block (e.g. after the "Docs" link):
 
 ```html
 <a href="{{ url_for('my_feature.my_feature_page') }}">My Feature</a>
@@ -427,19 +782,17 @@ In `templates/base.html`, add your link **inside** the `{% if current_user.is_au
 
 Use the blueprint name and function name: `url_for("my_feature.my_feature_page")`. Wrong names here cause 404 or build errors.
 
----
-
 ### Verify
 
 1. Restart the app: `python3 run.py`
 2. Log in and open `http://localhost:5001/my-feature` — the page should load.
-3. Click “My Feature” in the nav — it should go to the same page.
+3. Click "My Feature" in the nav — it should go to the same page.
 
 ---
 
-## 8. Adding a Role-Restricted Page
+## 20. Adding a role-restricted page
 
-Same as [Section 7](#7-adding-a-new-protected-flask-page), but you add `@role_required` and show the nav link only to certain roles. Do all four steps from Section 7, and use the following for the route and nav.
+Same as [Section 19](#19-adding-a-new-protected-flask-page), but you add `@role_required` and show the nav link only to certain roles. Do all four steps from Section 19, and use the following for the route and nav.
 
 ### Route (include all imports)
 
@@ -459,7 +812,7 @@ def reports():
     return render_template("reports/index.html")
 ```
 
-- **Don’t forget:** `from flask_app.routes.permissions import role_required`
+- **Don't forget:** `from flask_app.routes.permissions import role_required`
 - Decorator order: `@bp.route` → `@login_required` → `@role_required` → `def ...`
 
 ### Nav link (only visible to allowed roles)
@@ -474,7 +827,7 @@ In `templates/base.html`, add the link **inside** `{% if current_user.is_authent
 
 ---
 
-## 9. CSRF Protection on Forms
+## 21. CSRF protection on forms
 
 Every `POST` form **must** include a CSRF token. The framework uses Flask-WTF's `CSRFProtect`.
 
@@ -507,7 +860,7 @@ def inject_csrf_token():
 
 ---
 
-## 10. Embedding Streamlit via iframe
+## 22. Embedding Streamlit via iframe
 
 The home page (`/`) demonstrates the iframe-protection pattern: Flask authenticates the user, then renders a full-screen Streamlit iframe.
 
@@ -570,9 +923,9 @@ def internal_tool():
 
 ---
 
-## 11. Adding a New Streamlit Dashboard Page
+## 23. Adding a new Streamlit dashboard page
 
-Two steps: create the page file, then register it in `dashboard_app.py`. If the new page doesn’t show up, you usually forgot Step 2 or used the wrong path.
+Two steps: create the page file, then register it in `dashboard_app.py`. If the new page doesn't show up, you usually forgot Step 2 or used the wrong path.
 
 ### Checklist
 
@@ -580,8 +933,6 @@ Two steps: create the page file, then register it in `dashboard_app.py`. If the 
 |------|------------|------|
 | 1 | Create the Streamlit page script (must import `streamlit`) | `dashboard_pages/my_dashboard.py` |
 | 2 | Add a `st.Page(...)` variable and add it to the navigation in `dashboard_app.py` | `dashboard_app.py` |
-
----
 
 ### Step 1 — Create the page module
 
@@ -596,9 +947,7 @@ st.write("Hello from the new dashboard page.")
 
 - **Required:** `import streamlit as st` at the top. Without it, the page may fail when opened.
 
----
-
-### Step 2 — Register in `dashboard_app.py`
+### Step 2 — Register in dashboard_app.py
 
 Edit `dashboard_app.py`. You need **two** changes.
 
@@ -628,23 +977,19 @@ pg = st.navigation(
 )
 ```
 
-If you add the `st.Page(...)` but **don’t** add it to one of the lists in `st.navigation(...)`, the page won’t appear in the sidebar.
-
----
+If you add the `st.Page(...)` but **don't** add it to one of the lists in `st.navigation(...)`, the page won't appear in the sidebar.
 
 ### Verify
 
 1. Restart the app: `python3 run.py`
 2. Log in and open the home page (Streamlit iframe).
-3. In the Streamlit sidebar you should see “My Dashboard” under the group you used (e.g. “Main Menu”). Click it — your title and text should appear.
+3. In the Streamlit sidebar you should see "My Dashboard" under the group you used (e.g. "Main Menu"). Click it — your title and text should appear.
 
 The Streamlit dashboard is already protected by the Flask `@login_required` on the home route; no extra auth is needed in the Streamlit script.
 
----
-
 ### Common mistakes when adding pages
 
-Use this list if a new page doesn’t work or the app won’t start.
+Use this list if a new page doesn't work or the app won't start.
 
 **Flask (new route / blueprint)**
 
@@ -652,27 +997,27 @@ Use this list if a new page doesn’t work or the app won’t start.
 |--------|--------|-----|
 | `NameError: name 'my_feature_bp' is not defined` | Blueprint used in `register_blueprint` but not imported | In `flask_app/__init__.py` add: `from flask_app.routes.my_feature import bp as my_feature_bp` |
 | 404 when opening `/my-feature` | Blueprint not registered, or wrong URL | Ensure `app.register_blueprint(my_feature_bp)` is inside `create_app()` and the route path is correct |
-| `TemplateNotFound` | Template path doesn’t match `render_template(...)` | Create `templates/my_feature/index.html` if you use `render_template("my_feature/index.html")` |
+| `TemplateNotFound` | Template path doesn't match `render_template(...)` | Create `templates/my_feature/index.html` if you use `render_template("my_feature/index.html")` |
 | Nav link 404 or build error | Wrong blueprint or function name in `url_for` | Use `url_for("my_feature.my_feature_page")` — same names as in the blueprint and the `def` |
-| “Access denied” or role page not visible | Forgot `role_required` import or wrong decorator order | Add `from flask_app.routes.permissions import role_required` and use order: `@bp.route` → `@login_required` → `@role_required` |
+| "Access denied" or role page not visible | Forgot `role_required` import or wrong decorator order | Add `from flask_app.routes.permissions import role_required` and use order: `@bp.route` → `@login_required` → `@role_required` |
 
 **Streamlit (new dashboard page)**
 
 | Problem | Cause | Fix |
 |--------|--------|-----|
-| New page doesn’t appear in sidebar | Page not added to `st.navigation(...)` | Add `my_dashboard_page` to one of the lists, e.g. `"Main Menu": [home_page, my_dashboard_page]` |
-| Blank page or “File not found” | Wrong path in `st.Page(...)` | Use `"dashboard_pages/my_dashboard.py"` (with `dashboard_pages/`, forward slashes) |
+| New page doesn't appear in sidebar | Page not added to `st.navigation(...)` | Add `my_dashboard_page` to one of the lists, e.g. `"Main Menu": [home_page, my_dashboard_page]` |
+| Blank page or "File not found" | Wrong path in `st.Page(...)` | Use `"dashboard_pages/my_dashboard.py"` (with `dashboard_pages/`, forward slashes) |
 | Error when opening the page | Missing `import streamlit as st` in the page file | Put `import streamlit as st` at the top of `dashboard_pages/my_dashboard.py` |
 
 **Forms (Flask)**
 
 | Problem | Cause | Fix |
 |--------|--------|-----|
-| “Your session expired” on submit | CSRF token missing in the form | In the form add: `<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">` |
+| "Your session expired" on submit | CSRF token missing in the form | In the form add: `<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">` |
 
 ---
 
-## 12. Navigation Bar — Showing/Hiding Links by Role
+## 24. Navigation bar — showing/hiding links by role
 
 The nav bar in `templates/base.html` uses Jinja conditionals to show links based on the user's role.
 
@@ -728,7 +1073,7 @@ The nav bar in `templates/base.html` uses Jinja conditionals to show links based
 
 ---
 
-## 13. Managing Users
+## 25. Managing users
 
 ### Via the Admin Panel (browser)
 
@@ -749,11 +1094,11 @@ python3 scripts/manage_admin.py list
 
 ---
 
-## 14. Adding a Full CRUD Feature
+## 26. Adding a full CRUD feature
 
 The framework includes two CRUD examples you can copy as a starting pattern.
 
-### Using ORM (`example_crud` pattern — raw SQL)
+### Using ORM (example_crud pattern — raw SQL)
 
 See `flask_app/routes/example_crud.py`. This uses raw SQL via `get_sql_engine()` and is suitable for feature-scoped tables.
 
@@ -883,198 +1228,7 @@ def delete_item(item_id):
 
 ### Template example with Edit/Delete actions
 
-> **YOUR CODE** — create `templates/my_crud.html` to display the table with action buttons.
-
-```html
-{% extends "base.html" %}
-
-{% block title %}My CRUD{% endblock %}
-
-{% block content %}
-
-<div class="crud-container">
-    <div class="crud-header">
-        <div>
-            <h1>My CRUD</h1>
-            <p class="subtitle">Manage items in the my_table table.</p>
-        </div>
-    </div>
-
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    {% for message in messages %}
-    <div class="flash-message">{{ message }}</div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <div class="crud-grid">
-        <!-- Column 1: Items table -->
-        <div class="crud-panel">
-            <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);">
-                Items
-            </h3>
-            <div class="crud-table-wrapper">
-                <table class="crud-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Column 1 (Name)</th>
-                            <th>Column 2 (Description)</th>
-                            <th>Actions</th>
-                            <th>Created</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in items %}
-                        <tr>
-                            <td>{{ item.id }}</td>
-                            <td title="{{ item.name }}">{{ item.name }}</td>
-                            <td title="{{ item.description or '' }}">
-                                {% if item.description %}
-                                    {{ item.description[:80] }}{% if item.description|length > 80 %}…{% endif %}
-                                {% else %}
-                                    <span style="color: var(--text-secondary); opacity: 0.7;">No description</span>
-                                {% endif %}
-                            </td>
-                        
-                            <!-- ACTION COLUMN with Edit and Delete buttons -->
-                            <td>
-                                <div class="actions">
-                                    <!-- Edit button (opens form on the right) -->
-                                    <button
-                                        type="button"
-                                        class="btn btn-small btn-ghost row-edit-btn"
-                                        data-id="{{ item.id }}"
-                                        data-name="{{ item.name }}"
-                                        data-description="{{ item.description or '' }}"
-                                    >
-                                        Edit
-                                    </button>
-                                    
-                                    <!-- Delete button (submits DELETE form) -->
-                                    <form method="POST" action="{{ url_for('my_crud.delete_item', item_id=item.id) }}"
-                                        onsubmit="return confirm('Delete this item?');">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <button class="btn btn-small btn-danger" type="submit">Delete</button>
-                                    </form>
-                                </div>
-                            </td>
-                            <td>{{ item.created_at }}</td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="5" style="color: var(--text-secondary);">No rows yet.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Column 2: Create/Edit form -->
-        <div class="crud-panel">
-            <h3 id="item-form-title" style="font-size: 0.95rem; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);">
-                New Item
-            </h3>
-            <form
-                id="item-form"
-                class="form-compact"
-                method="POST"
-                action="{{ url_for('my_crud.create_item') }}"
-                data-create-url="{{ url_for('my_crud.create_item') }}"
-                data-edit-url-prefix="/my-crud/edit/"
-            >
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" id="item-id" value="">
-                
-                <!-- Column 1 input -->
-                <div class="form-group">
-                    <label>Column 1 (Name)</label>
-                    <input type="text" name="name" id="item-name" required />
-                </div>
-                
-                <!-- Column 2 input -->
-                <div class="form-group" style="margin-bottom: 0.75rem;">
-                    <label>Column 2 (Description)</label>
-                    <textarea name="description" id="item-description" placeholder="Optional description"></textarea>
-                </div>
-                
-                <button class="btn" type="submit" id="item-submit">Create item</button>
-                <button
-                    type="button"
-                    class="btn btn-ghost"
-                    id="item-cancel-edit"
-                    style="width: 100%; margin-top: 0.5rem; display: none;"
-                >
-                    Cancel edit
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-    (function () {
-        const form = document.getElementById('item-form');
-        if (!form) return;
-
-        const titleEl = document.getElementById('item-form-title');
-        const idInput = document.getElementById('item-id');
-        const nameInput = document.getElementById('item-name');
-        const descInput = document.getElementById('item-description');
-        const submitBtn = document.getElementById('item-submit');
-        const cancelBtn = document.getElementById('item-cancel-edit');
-
-        const createUrl = form.getAttribute('data-create-url');
-        const editUrlPrefix = form.getAttribute('data-edit-url-prefix');
-
-        // Switch to CREATE mode
-        function setCreateMode() {
-            idInput.value = '';
-            form.action = createUrl;
-            submitBtn.textContent = 'Create item';
-            titleEl.textContent = 'New Item';
-            cancelBtn.style.display = 'none';
-            nameInput.value = '';
-            descInput.value = '';
-        }
-
-        // Switch to EDIT mode (populates form with existing data)
-        function setEditMode(itemId, name, description) {
-            idInput.value = itemId;
-            nameInput.value = name || '';
-            descInput.value = description || '';
-            form.action = (editUrlPrefix || '/my-crud/edit/') + itemId;
-            submitBtn.textContent = 'Update item';
-            titleEl.textContent = 'Edit Item';
-            cancelBtn.style.display = 'block';
-            nameInput.focus();
-            nameInput.select();
-        }
-
-        // Handle Edit button clicks in the action column
-        document.addEventListener('click', function (evt) {
-            const btn = evt.target.closest('.row-edit-btn');
-            if (!btn) return;
-            const itemId = btn.getAttribute('data-id');
-            const name = btn.getAttribute('data-name') || '';
-            const description = btn.getAttribute('data-description') || '';
-            if (!itemId) return;
-            setEditMode(itemId, name, description);
-        });
-
-        // Cancel edit button
-        cancelBtn.addEventListener('click', function () {
-            setCreateMode();
-        });
-
-        // Ensure initial state is create mode
-        setCreateMode();
-    })();
-</script>
-{% endblock %}
-```
+> **YOUR CODE** — create `templates/my_crud.html` to display the table with action buttons. Use classes from the [Design System](#10-components-and-classes) (e.g. `crud-container`, `crud-panel`, `form-compact`, `btn`, `form-control`) and include the CSRF token in every POST form. See existing CRUD templates (e.g. `example_crud.html`, `dummydata_crud.html`) for the full pattern including row Edit/Delete buttons and form mode switching via JavaScript.
 
 **How it works:**
 
@@ -1086,7 +1240,7 @@ def delete_item(item_id):
 
 ---
 
-## 15. Database Access Patterns
+## 27. Database access patterns
 
 ### ORM (Flask-SQLAlchemy)
 
@@ -1131,8 +1285,7 @@ Always sourced from `app_db/config.py` via environment variables. Never hardcode
 
 ---
 
-## 16. Environment Variables
-
+## 28. Environment variables
 
 | Variable         | Required | Default        | Purpose                                         |
 | ---------------- | -------- | -------------- | ----------------------------------------------- |
@@ -1146,23 +1299,17 @@ Always sourced from `app_db/config.py` via environment variables. Never hardcode
 | `FLASK_PORT`     | No       | `5001`         | Flask server port                               |
 | `STREAMLIT_PORT` | No       | `8501`         | Streamlit server port                           |
 
-
- Provide either `DATABASE_URL` **or** all five `DB_`* variables.
+Provide either `DATABASE_URL` **or** all five `DB_*` variables.
 
 ---
 
-## 17. Base CSS & Style Guide
+## 29. Base CSS & style guide
 
-> **See also:** [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) (in this folder) for HTML/CSS standards, page structure, and a checklist for new pages.
+See [Part II — Design System](#part-ii--design-system) above for principles, page structure, and component checklist. This section is the full class reference.
 
-`static/css/base.css` is the **only** stylesheet for all HTML pages (auth, admin, docs, CRUD, etc.). It is loaded by `templates/base.html` and includes layout, components, docs styles, and CRUD/form-and-table styles in one file. It provides Bootstrap-like class names so you can build consistent UIs without adding page-specific CSS.
-
-Every template that extends `templates/base.html` already loads `base.css`. You do not need `{% block extra_css %}` unless loading a third-party asset (e.g. Quill for the docs editor). Use the classes below in any Jinja template.
+`static/css/base.css` is the **only** stylesheet for all HTML pages (auth, admin, docs, CRUD, etc.). It is loaded by `templates/base.html` and includes layout, components, docs styles, and CRUD/form-and-table styles in one file.
 
 ### Design tokens (CSS variables)
-
-Use these in custom CSS or to keep values consistent:
-
 
 | Variable           | Typical value | Use for                                |
 | ------------------ | ------------- | -------------------------------------- |
@@ -1175,13 +1322,9 @@ Use these in custom CSS or to keep values consistent:
 | `--error-color`    | `#dc2626`     | Danger buttons, errors                 |
 | `--transition`     | `0.15s ease`  | Hover/focus transitions                |
 
-
----
-
 ### Buttons
 
-Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto`** for inline buttons.
-
+Use **`.btn`** plus a variant. Buttons are full-width by default; add **`.w-auto`** for inline buttons.
 
 | Class                                  | Use                                      |
 | -------------------------------------- | ---------------------------------------- |
@@ -1190,9 +1333,8 @@ Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto
 | `btn btn-secondary` or `btn btn-ghost` | Secondary / cancel                       |
 | `btn btn-danger`                       | Delete, destructive action               |
 | `btn btn-small`                        | Smaller height for table row actions     |
-| `btn w-auto`                           | Don’t stretch to full width              |
+| `btn w-auto`                           | Don't stretch to full width              |
 | `btn w-100`                            | Full width (explicit)                    |
-
 
 **Examples:**
 
@@ -1203,17 +1345,13 @@ Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto
 <button type="submit" class="btn btn-danger btn-small">Delete</button>
 ```
 
----
-
 ### Forms
-
 
 | Class          | Element                       | Use                                       |
 | -------------- | ----------------------------- | ----------------------------------------- |
 | `form-group`   | `div`                         | Wraps label + input; adds bottom margin   |
 | `form-label`   | `label`                       | Label above input (muted, 0.875rem)       |
 | `form-control` | `input`, `select`, `textarea` | Styled field (border, radius, focus ring) |
-
 
 **Examples:**
 
@@ -1238,18 +1376,14 @@ Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto
 
 **Note:** Plain `<input>` (without a class) is also styled globally. Use `form-control` when you want the same look on `<select>` and `<textarea>` or when you prefer explicit classes.
 
----
-
 ### Cards
-
 
 | Class         | Use                                              |
 | ------------- | ------------------------------------------------ |
 | `card`        | Container (white background, border, 8px radius) |
 | `card-header` | Optional title area with bottom border           |
 | `card-body`   | Main content (optional wrapper)                  |
-| `card-footer` | Optional footer with top border                  |
-
+| `card-footer` | Optional footer with top border                 |
 
 **Example:**
 
@@ -1263,10 +1397,7 @@ Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto
 </div>
 ```
 
----
-
 ### Alerts (flash / messages)
-
 
 | Class           | Use                        |
 | --------------- | -------------------------- |
@@ -1275,7 +1406,6 @@ Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto
 | `alert-success` | Success (green tint)       |
 | `alert-info`    | Info (blue tint)           |
 
-
 **Example:**
 
 ```html
@@ -1283,10 +1413,7 @@ Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto
 <div class="alert alert-success">Saved successfully.</div>
 ```
 
----
-
 ### Layout & flexbox
-
 
 | Class                     | Effect                        |
 | ------------------------- | ----------------------------- |
@@ -1298,14 +1425,13 @@ Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto
 | `flex-row`                | `flex-direction: row`         |
 | `flex-column`             | `flex-direction: column`      |
 | `flex-wrap`               | `flex-wrap: wrap`             |
-| `flex-grow-1`             | `flex-grow: 1`                |
+| `flex-grow-1`             | `flex-grow: 1`                 |
 | `align-items-center`      | Align items vertically center |
 | `align-items-start`       | Align items to start          |
 | `justify-content-between` | Space between                 |
 | `justify-content-center`  | Center horizontally           |
 | `justify-content-end`     | Align to end                  |
 | `gap-1` … `gap-5`         | Gap 0.25rem … 1.5rem          |
-
 
 **Example:**
 
@@ -1316,10 +1442,7 @@ Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto
 </div>
 ```
 
----
-
 ### Spacing
-
 
 | Class                      | Effect                           |
 | -------------------------- | -------------------------------- |
@@ -1330,11 +1453,7 @@ Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto
 | `me-1`, `me-2`             | margin-right                     |
 | `p-0`, `p-2`, `p-3`, `p-4` | padding 0, 0.5rem, 0.75rem, 1rem |
 
-
----
-
 ### Text
-
 
 | Class          | Effect              |
 | -------------- | ------------------- |
@@ -1345,18 +1464,13 @@ Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto
 | `text-primary` | Primary text color  |
 | `small`        | font-size: 0.875rem |
 
-
----
-
 ### Row / Col (simple grid)
-
 
 | Class      | Use                     |
 | ---------- | ----------------------- |
 | `row`      | Flex container with gap |
 | `col`      | Flex child (grows)      |
 | `col-auto` | Flex child (no grow)    |
-
 
 **Example:**
 
@@ -1367,29 +1481,27 @@ Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto
 </div>
 ```
 
----
-
 ### Summary — quick reference
-
 
 | Need                | Classes                                                     |
 | ------------------- | ----------------------------------------------------------- |
 | Primary button      | `btn btn-primary` or `btn`                                  |
-| Secondary button    | `btn btn-secondary w-auto`                                  |
-| Danger button       | `btn btn-danger`                                            |
-| Input               | `form-control` (or plain `input`)                           |
-| Label               | `form-label`                                                |
-| Group label + input | `form-group`                                                |
-| Card                | `card` + optional `card-header`, `card-body`, `card-footer` |
-| Error message       | `alert alert-danger`                                        |
-| Flex row, spaced    | `d-flex justify-content-between align-items-center gap-3`   |
-| Muted text          | `text-muted`                                                |
-| No margin           | `m-0` or `mt-0`, `mb-0`                                     |
-
+| Secondary button   | `btn btn-secondary w-auto`                                 |
+| Danger button      | `btn btn-danger`                                            |
+| Input              | `form-control` (or plain `input`)                           |
+| Label              | `form-label`                                                |
+| Group label + input| `form-group`                                                |
+| Card               | `card` + optional `card-header`, `card-body`, `card-footer` |
+| Error message      | `alert alert-danger`                                        |
+| Flex row, spaced   | `d-flex justify-content-between align-items-center gap-3`    |
+| Muted text         | `text-muted`                                                |
+| No margin          | `m-0` or `mt-0`, `mb-0`                                     |
 
 ---
 
-## Quick Reference — Decorator Cheat Sheet
+## 30. Quick reference — decorators & templates
+
+### Decorator cheat sheet
 
 > **YOUR CODE** — copy-paste these patterns into your own blueprint files.
 
@@ -1430,9 +1542,7 @@ def editor_page(): ...
 def secret(): ...
 ```
 
----
-
-## Quick Reference — Template Cheat Sheet
+### Template cheat sheet
 
 > **YOUR CODE** — use these snippets in your own templates.
 
@@ -1458,4 +1568,3 @@ def secret(): ...
 <!-- Embed an internal tool in an iframe -->
 <iframe src="{{ tool_url }}" style="width:100%; height:calc(100vh - 60px); border:none;"></iframe>
 ```
-

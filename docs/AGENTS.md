@@ -66,8 +66,7 @@ Minimum agent behavior:
   - `engine.py`: shared SQL engine for raw SQL features
   - `example_crud.py`: feature table bootstrap helper (no `dummydata.py`; that table is expected to exist)
 - `templates/`: Jinja pages (extend `base.html`; no inline styles). Includes `base.html`, `home.html`, `login.html`, `signup.html`, `admin.html`, `docs_index.html`, `docs_view.html`, `docs_editor.html`, `example_crud.html`, `dummydata_crud.html`, `iframe_app_streamlit.html`, `change_password.html`, `components/modal.html`
-- `static/css/`: `base.css` only (single stylesheet; see `DESIGN_SYSTEM.md`)
-- `DESIGN_SYSTEM.md`: HTML/CSS standards and component reference for the starter kit
+- `static/css/`: `base.css` only (single stylesheet; see `FRAMEWORK_REFERENCE.md` Part II — Design System)
 - `dashboard_pages/`: Streamlit page modules (e.g. `home.py`, `example/*.py`). Registered in `dashboard_app.py` via `st.Page(...)` and `st.navigation(...)`.
 - `scripts/`: `manage_admin.py`, `kill_ports.py`, `docs_attachments_housekeeping.py`
 - Root entrypoints:
@@ -89,7 +88,7 @@ Read these in order when starting a task:
 7. `flask_app/routes/docs.py`
 8. `templates/base.html`
 9. `run.py`
-10. `DESIGN_SYSTEM.md` (when adding or changing templates/CSS)
+10. `FRAMEWORK_REFERENCE.md` (when adding or changing templates/CSS — Part II Design System, Part III § Base CSS)
 
 ---
 
@@ -258,7 +257,7 @@ For new code, import from `app_db`.
 - If renaming blueprints or endpoints, update **all** `url_for(...)` usages.
 - Keep docs aligned when structure changes:
   - `README.md` (root)
-  - `AGENTS.md`, `DEPLOYMENT.md`, `FRAMEWORK_GUIDE.md` (in docs/)
+  - `AGENTS.md`, `DEPLOYMENT.md`, `FRAMEWORK_REFERENCE.md` (in docs/)
 - To remove all demo features (example/dummydata CRUD, docs, iframe-app-streamlit, Streamlit examples) and get a minimal framework, follow **`CLEAN_FRAMEWORK.md`** (in this folder).
 
 ---
@@ -285,7 +284,7 @@ python3 -m compileall -q app_db flask_app auth_server.py scripts models.py
 Recommended if available:
 - `pytest`
 
-When changing templates/CSS, follow `DESIGN_SYSTEM.md`:
+When changing templates/CSS, follow `FRAMEWORK_REFERENCE.md` (Design System & Base CSS):
 - Single stylesheet (`base.css`); no new CSS files or inline `<style>` in templates
 - Use standard classes (`btn`, `form-control`, `crud-panel-title`, etc.); no duplicate flash blocks
 

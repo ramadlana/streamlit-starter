@@ -21,9 +21,9 @@ Then implement. Must-do:
 - Flask: new blueprint → import + register in flask_app/__init__.py; @login_required or @role_required as needed; url_for("blueprint.endpoint"); every POST form has csrf_token.
 - CRUD: DB logic in app_db/<feature>.py (ORM or get_sql_engine per AGENTS §9); nav in templates/base.html if user-facing.
 - Streamlit: new file under dashboard_pages/ with "import streamlit as st"; register in dashboard_app.py (st.Page + add to st.navigation).
-- Templates: extend base.html, use base.css classes only ([DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)), no inline styles.
+- Templates: extend base.html, use base.css classes only ([FRAMEWORK_REFERENCE.md](FRAMEWORK_REFERENCE.md) — Design System), no inline styles.
 
-Run compileall when done. Update README/AGENTS/DEPLOYMENT/FRAMEWORK_GUIDE if routes or structure change.
+Run compileall when done. Update README/AGENTS/DEPLOYMENT/FRAMEWORK_REFERENCE if routes or structure change.
 ```
 
 ---
@@ -74,7 +74,7 @@ Follow AGENTS.md §8 "Add a Streamlit page". Create dashboard_pages/<name>.py wi
 ## See also
 
 - [AGENTS.md](AGENTS.md) — Repo map, playbooks, route inventory, security rules
-- [FRAMEWORK_GUIDE.md](FRAMEWORK_GUIDE.md) — Auth, roles, adding pages (beginner-friendly)
+- [FRAMEWORK_REFERENCE.md](FRAMEWORK_REFERENCE.md) — Architecture, design system, auth, roles, adding pages (beginner-friendly)
 - [CLEAN_FRAMEWORK.md](CLEAN_FRAMEWORK.md) — Remove all demo features for a minimal framework
 - [SPECS.md](SPECS.md) — Spec-driven workflow for non-trivial changes
 - [../README.md](../README.md) — Quick start, routes, project layout

@@ -22,7 +22,7 @@ This guide removes **every demo/example feature** so you have a minimal framewor
 5. [app_db](#5-app_db) — Remove example_crud, docs, docs_attachments; remove `DocumentationPage` from models and `app_db/__init__.py`.
 6. [Streamlit](#6-streamlit) — Remove `dashboard_pages/example/` and `dashboard_pages/pages/`; simplify `dashboard_app.py` to only the Home page.
 7. [Scripts](#7-scripts) — Remove or keep `docs_attachments_housekeeping.py` (optional).
-8. [Documentation](#8-documentation) — Update README, docs/AGENTS, docs/FRAMEWORK_GUIDE, docs/PROMPTING_GUIDE.
+8. [Documentation](#8-documentation) — Update README, docs/AGENTS, docs/FRAMEWORK_REFERENCE, docs/PROMPTING_GUIDE.
 9. [Optional DB cleanup](#9-optional-database-cleanup) — Drop tables that are no longer used.
 
 ---
@@ -177,7 +177,7 @@ Update these so they no longer describe removed features:
 
 - **README.md** (root) — Routes section: remove mentions of `/example-crud`, `/dummydata-crud`, `/docs`, `/iframe-app-streamlit`. Database notes: remove `example_crud_items`, `documentation_pages` / docs. Documentation table: links point to `docs/` (e.g. docs/CLEAN_FRAMEWORK.md).
 - **AGENTS.md** — Repo map: remove example_crud, dummydata_crud, docs, iframe_app_streamlit from routes and templates; remove app_db docs/example_crud; update route inventory and read-first order so they don’t reference removed blueprints.
-- **FRAMEWORK_GUIDE.md** — Remove or replace examples that use docs, iframe_app_streamlit, example_crud, dummydata_crud (e.g. Editor Menu, docs routes). Keep the generic “add a Flask page / CRUD / Streamlit page” playbooks.
+- **FRAMEWORK_REFERENCE.md** — Remove or replace examples that use docs, iframe_app_streamlit, example_crud, dummydata_crud (e.g. Editor Menu, docs routes). Keep the generic “add a Flask page / CRUD / Streamlit page” playbooks.
 - **PROMPTING_GUIDE.md** — No change needed (it references AGENTS.md and playbooks; those still apply).
 
 ---

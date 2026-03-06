@@ -263,4 +263,4 @@ sudo systemctl restart streamgatekeeper
 
 - [../README.md](../README.md) — development quick start, routes, project layout
 - [AGENTS.md](AGENTS.md) — repo map and playbooks for contributors
-- [FRAMEWORK_GUIDE.md](FRAMEWORK_GUIDE.md) — auth, roles, adding pages
+- [FRAMEWORK_REFERENCE.md](FRAMEWORK_REFERENCE.md) — auth, roles, adding pages, architecture, design system

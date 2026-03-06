@@ -1,4 +1,4 @@
-/* Internal Tool Framework — single stylesheet. See DESIGN_SYSTEM.md and FRAMEWORK_GUIDE.md § Base CSS. */
+/* Internal Tool Framework — single stylesheet. See docs/FRAMEWORK_REFERENCE.md (Design System & Base CSS). */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Roboto:wght@400;500;700&family=Mirza:wght@400;600&display=swap');
 
@@ -1948,7 +1948,7 @@ body.docs-light select:focus {
 
 /* ==========================================================================
    Base CSS — Bootstrap-like components & utilities (use on any page)
-   See FRAMEWORK_GUIDE.md § Base CSS & Style Guide
+   See docs/FRAMEWORK_REFERENCE.md § Base CSS & Style Guide
    ========================================================================== */
 
 /* ---- Buttons (Shadcn primary/secondary/ghost/danger) ---- */
