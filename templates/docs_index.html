@@ -3,39 +3,37 @@
 {% block title %}Documentation{% endblock %}
 {% block body_class %}docs-light{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/docs.css') }}">
-{% endblock %}
-
 {% block content %}
 <div class="docs-shell">
-    <div class="docs-topbar">
-        <h1>Documentation</h1>
+    <header class="docs-topbar">
+        <h1 class="docs-topbar-title">Documentation</h1>
         <div class="docs-actions">
-            {% if can_manage_docs %}
-            <a class="docs-btn" href="{{ url_for('docs.docs_editor', doc_id=0) }}">New Document</a>
-            {% endif %}
             {% if current_user.role == "admin" %}
-            <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}"
-                class="docs-housekeeping-form">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="mode" value="dry-run">
-                <input type="hidden" name="include_legacy" value="1">
-                <input type="hidden" name="min_age_minutes" value="0">
-                <button type="submit" class="docs-btn docs-btn-secondary">Housekeeping Dry Run</button>
-            </form>
-            <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}"
-                class="docs-housekeeping-form"
-                onsubmit="return confirm('Apply housekeeping now? Orphan files will be moved to trash.');">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="mode" value="apply">
-                <input type="hidden" name="include_legacy" value="1">
-                <input type="hidden" name="min_age_minutes" value="0">
-                <button type="submit" class="docs-btn docs-btn-secondary">Housekeeping Apply</button>
-            </form>
+            <div class="docs-actions-admin">
+                <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}"
+                    class="docs-housekeeping-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="mode" value="dry-run">
+                    <input type="hidden" name="include_legacy" value="1">
+                    <input type="hidden" name="min_age_minutes" value="0">
+                    <button type="submit" class="docs-btn docs-btn-ghost">Housekeeping Dry Run</button>
+                </form>
+                <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}"
+                    class="docs-housekeeping-form"
+                    onsubmit="return confirm('Apply housekeeping now? Orphan files will be moved to trash.');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="mode" value="apply">
+                    <input type="hidden" name="include_legacy" value="1">
+                    <input type="hidden" name="min_age_minutes" value="0">
+                    <button type="submit" class="docs-btn docs-btn-ghost">Housekeeping Apply</button>
+                </form>
+            </div>
+            {% endif %}
+            {% if can_manage_docs %}
+            <a class="docs-btn docs-btn-primary" href="{{ url_for('docs.docs_editor', doc_id=0) }}">New Document</a>
             {% endif %}
         </div>
-    </div>
+    </header>
 
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -70,25 +68,22 @@
         {% for doc in docs %}
         <article class="docs-card">
             <header class="docs-card-header">
-                <h2><a href="{{ url_for('docs.docs_view', slug=doc.slug) }}">{{ doc.title }}</a></h2>
+                <h2 class="docs-card-title"><a href="{{ url_for('docs.docs_view', slug=doc.slug) }}">{{ doc.title }}</a></h2>
             </header>
 
-            <div class="docs-card-divider" aria-hidden="true"></div>
-
             {% if doc.preview_text %}
-            <p class="docs-summary docs-card-preview">{{ doc.preview_text }}</p>
+            <p class="docs-card-preview">{{ doc.preview_text }}</p>
             {% endif %}
 
             <footer class="docs-card-footer">
-                <span class="docs-card-updated">
-                    Updated
-                    <time class="js-local-datetime"
+                <div class="docs-card-meta-item">
+                    <span class="docs-card-meta-label">Updated</span>
+                    <time class="docs-card-meta-value js-local-datetime"
                         datetime="{{ doc.updated_at.isoformat() if doc.updated_at else '' }}"
-                        data-fallback="{{ doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}">{{
-                        doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}</time>
-                </span>
+                        data-fallback="{{ doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}">{{ doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}</time>
+                </div>
                 {% if doc.tags_csv %}
-                <div class="docs-tags docs-card-tags">
+                <div class="docs-card-tags">
                     {% for tag in doc.tags_csv.split(',') %}
                     <a class="docs-tag" href="{{ url_for('docs.docs_by_tag', tag=tag) }}">#{{ tag }}</a>
                     {% endfor %}
@@ -138,7 +133,7 @@
 
 <script>
     (function () {
-        const dateNodes = document.querySelectorAll('.docs-card-updated .js-local-datetime');
+        const dateNodes = document.querySelectorAll('.docs-card-footer .js-local-datetime');
         if (!dateNodes.length || typeof Intl === 'undefined') return;
 
         const formatter = new Intl.DateTimeFormat(undefined, {

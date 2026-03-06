@@ -61,7 +61,7 @@ Minimum agent behavior:
   - `engine.py`: shared SQL engine for raw SQL features
   - `example_crud.py`: feature table bootstrap helper
 - `templates/`: Jinja pages and forms
-- `static/css/`: global + page CSS
+- `static/css/`: `base.css` only (global, docs, CRUD styles merged)
 - `dashboard_pages/`: Streamlit pages
 - `scripts/`: operational utilities (`manage_admin.py`, `docs_attachments_housekeeping.py`, etc.)
 - Root entrypoints:

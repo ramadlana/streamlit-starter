@@ -1,6 +1,6 @@
 # User Guide — Internal Web Framework
 
-This guide explains how to use this framework to build authenticated, role-protected Flask pages and Streamlit dashboards for your internal tools.
+This guide explains how to use this framework to build authenticated, role-protected Flask pages and Streamlit dashboards for your internal tools
 
 ---
 
@@ -8,7 +8,7 @@ This guide explains how to use this framework to build authenticated, role-prote
 
 1. [Architecture Overview](#1-architecture-overview)
 2. [Authentication (Login / Signup / Logout)](#2-authentication)
-3. [Protecting Pages with `@login_required`](#3-protecting-pages-with-login_required)
+3. [Protecting Pages with `@login_required](#3-protecting-pages-with-login_required)`
 4. [Roles & Authorization](#4-roles--authorization)
 5. [Using the `@role_required` Decorator](#5-using-the-role_required-decorator)
 6. [Adding a New Role](#6-adding-a-new-role)
@@ -22,6 +22,7 @@ This guide explains how to use this framework to build authenticated, role-prote
 14. [Adding a Full CRUD Feature](#14-adding-a-full-crud-feature)
 15. [Database Access Patterns](#15-database-access-patterns)
 16. [Environment Variables](#16-environment-variables)
+17. [Base CSS & Style Guide](#17-base-css--style-guide)
 
 ---
 
@@ -29,10 +30,12 @@ This guide explains how to use this framework to build authenticated, role-prote
 
 The app runs **two processes** started by `run.py`:
 
-| Process | File | Default Port | Purpose |
-|---------|------|-------------|---------|
-| **Flask** | `auth_server.py` | `5001` | Authentication gateway, HTML pages, API |
-| **Streamlit** | `dashboard_app.py` | `8501` | Data dashboards (embedded inside Flask via iframe) |
+
+| Process       | File               | Default Port | Purpose                                            |
+| ------------- | ------------------ | ------------ | -------------------------------------------------- |
+| **Flask**     | `auth_server.py`   | `5001`       | Authentication gateway, HTML pages, API            |
+| **Streamlit** | `dashboard_app.py` | `8501`       | Data dashboards (embedded inside Flask via iframe) |
+
 
 In **development**, users visit `http://localhost:5001`. The home page loads the Streamlit dashboard inside an iframe pointing to `localhost:8501`.
 
@@ -64,12 +67,14 @@ Authentication is handled by **Flask-Login**. The implementation lives in `flask
 
 ### Built-in auth routes
 
-| Route | Method | What it does |
-|-------|--------|--------------|
-| `/login` | GET/POST | Login form + credential check |
-| `/signup` | GET/POST | Self-service registration (default role: `viewer`) |
-| `/logout` | GET | Logs out the current user |
-| `/auth-check` | GET | Returns `200 Authenticated` or `401 Unauthorized` |
+
+| Route         | Method   | What it does                                       |
+| ------------- | -------- | -------------------------------------------------- |
+| `/login`      | GET/POST | Login form + credential check                      |
+| `/signup`     | GET/POST | Self-service registration (default role: `viewer`) |
+| `/logout`     | GET      | Logs out the current user                          |
+| `/auth-check` | GET      | Returns `200 Authenticated` or `401 Unauthorized`  |
+
 
 ### User loader (required by Flask-Login)
 
@@ -162,13 +167,15 @@ Defined in `app_db/user_roles.py`:
 ROLE_CHOICES = ("viewer", "editor", "approval1", "approval2", "admin")
 ```
 
-| Role | Typical permissions |
-|------|-------------------|
-| `viewer` | Read-only access; default for new sign-ups |
-| `editor` | Can create/edit docs and access editor menus |
+
+| Role        | Typical permissions                          |
+| ----------- | -------------------------------------------- |
+| `viewer`    | Read-only access; default for new sign-ups   |
+| `editor`    | Can create/edit docs and access editor menus |
 | `approval1` | Same as editor (used for approval workflows) |
 | `approval2` | Same as editor (used for approval workflows) |
-| `admin` | Full access; user management, housekeeping |
+| `admin`     | Full access; user management, housekeeping   |
+
 
 ### How roles are stored
 
@@ -766,10 +773,6 @@ def delete_item(item_id):
 
 {% block title %}My CRUD{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/form_and_table.css') }}">
-{% endblock %}
-
 {% block content %}
 
 <div class="crud-container">
@@ -1013,19 +1016,257 @@ Always sourced from `app_db/config.py` via environment variables. Never hardcode
 
 ## 16. Environment Variables
 
-| Variable | Required | Default | Purpose |
-|----------|----------|---------|---------|
-| `DATABASE_URL` | Yes* | — | Full PostgreSQL connection string |
-| `DB_USER` | Yes* | — | PostgreSQL user (alternative to `DATABASE_URL`) |
-| `DB_PASSWORD` | Yes* | — | PostgreSQL password |
-| `DB_HOST` | Yes* | — | PostgreSQL host |
-| `DB_PORT` | Yes* | — | PostgreSQL port |
-| `DB_NAME` | Yes* | — | PostgreSQL database name |
-| `SECRET_KEY` | Prod | `dev-only-...` | Flask secret key (required in production) |
-| `FLASK_PORT` | No | `5001` | Flask server port |
-| `STREAMLIT_PORT` | No | `8501` | Streamlit server port |
 
-\* Provide either `DATABASE_URL` **or** all five `DB_*` variables.
+| Variable         | Required | Default        | Purpose                                         |
+| ---------------- | -------- | -------------- | ----------------------------------------------- |
+| `DATABASE_URL`   | Yes*     | —              | Full PostgreSQL connection string               |
+| `DB_USER`        | Yes*     | —              | PostgreSQL user (alternative to `DATABASE_URL`) |
+| `DB_PASSWORD`    | Yes*     | —              | PostgreSQL password                             |
+| `DB_HOST`        | Yes*     | —              | PostgreSQL host                                 |
+| `DB_PORT`        | Yes*     | —              | PostgreSQL port                                 |
+| `DB_NAME`        | Yes*     | —              | PostgreSQL database name                        |
+| `SECRET_KEY`     | Prod     | `dev-only-...` | Flask secret key (required in production)       |
+| `FLASK_PORT`     | No       | `5001`         | Flask server port                               |
+| `STREAMLIT_PORT` | No       | `8501`         | Streamlit server port                           |
+
+
+ Provide either `DATABASE_URL` **or** all five `DB_`* variables.
+
+---
+
+## 17. Base CSS & Style Guide
+
+`**static/css/base.css*`* is the **only** stylesheet for all HTML pages (auth, admin, docs, CRUD, etc.). It is loaded by `templates/base.html` and includes layout, components, docs styles, and CRUD/form-and-table styles in one file. It provides Bootstrap-like class names so you can build consistent UIs without adding page-specific CSS.
+
+Every template that extends `templates/base.html` already loads `base.css`. You do not need `{% block extra_css %}` unless loading a third-party asset (e.g. Quill for the docs editor). Use the classes below in any Jinja template.
+
+### Design tokens (CSS variables)
+
+Use these in custom CSS or to keep values consistent:
+
+
+| Variable           | Typical value | Use for                                |
+| ------------------ | ------------- | -------------------------------------- |
+| `--radius`         | `8px`         | Border radius (buttons, inputs, cards) |
+| `--input-height`   | `2.5rem`      | Height of buttons and text inputs      |
+| `--glass-border`   | `#e2e8f0`     | Default border color                   |
+| `--text-primary`   | `#0f172a`     | Main text                              |
+| `--text-secondary` | `#64748b`     | Muted text                             |
+| `--accent-color`   | `#0078d4`     | Primary actions, links                 |
+| `--error-color`    | `#dc2626`     | Danger buttons, errors                 |
+| `--transition`     | `0.15s ease`  | Hover/focus transitions                |
+
+
+---
+
+### Buttons
+
+Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto**` for inline buttons.
+
+
+| Class                                  | Use                                      |
+| -------------------------------------- | ---------------------------------------- |
+| `btn`                                  | Base (required); default is primary blue |
+| `btn btn-primary`                      | Primary action (same as `btn`)           |
+| `btn btn-secondary` or `btn btn-ghost` | Secondary / cancel                       |
+| `btn btn-danger`                       | Delete, destructive action               |
+| `btn btn-small`                        | Smaller height for table row actions     |
+| `btn w-auto`                           | Don’t stretch to full width              |
+| `btn w-100`                            | Full width (explicit)                    |
+
+
+**Examples:**
+
+```html
+<button type="submit" class="btn btn-primary">Save</button>
+<button type="button" class="btn btn-secondary w-auto">Cancel</button>
+<a href="{{ url_for('something') }}" class="btn btn-primary w-auto">New Item</a>
+<button type="submit" class="btn btn-danger btn-small">Delete</button>
+```
+
+---
+
+### Forms
+
+
+| Class          | Element                       | Use                                       |
+| -------------- | ----------------------------- | ----------------------------------------- |
+| `form-group`   | `div`                         | Wraps label + input; adds bottom margin   |
+| `form-label`   | `label`                       | Label above input (muted, 0.875rem)       |
+| `form-control` | `input`, `select`, `textarea` | Styled field (border, radius, focus ring) |
+
+
+**Examples:**
+
+```html
+<div class="form-group">
+    <label for="name" class="form-label">Name</label>
+    <input type="text" id="name" name="name" class="form-control" placeholder="Enter name">
+</div>
+
+<div class="form-group">
+    <label for="role" class="form-label">Role</label>
+    <select id="role" name="role" class="form-control form-select">
+        <option value="viewer">Viewer</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label for="notes" class="form-label">Notes</label>
+    <textarea id="notes" name="notes" class="form-control" rows="4"></textarea>
+</div>
+```
+
+**Note:** Plain `<input>` (without a class) is also styled globally. Use `form-control` when you want the same look on `<select>` and `<textarea>` or when you prefer explicit classes.
+
+---
+
+### Cards
+
+
+| Class         | Use                                              |
+| ------------- | ------------------------------------------------ |
+| `card`        | Container (white background, border, 8px radius) |
+| `card-header` | Optional title area with bottom border           |
+| `card-body`   | Main content (optional wrapper)                  |
+| `card-footer` | Optional footer with top border                  |
+
+
+**Example:**
+
+```html
+<div class="card">
+    <div class="card-header">Card title</div>
+    <div class="card-body">
+        <p>Content here.</p>
+    </div>
+    <div class="card-footer">Footer text</div>
+</div>
+```
+
+---
+
+### Alerts (flash / messages)
+
+
+| Class           | Use                        |
+| --------------- | -------------------------- |
+| `alert`         | Base (padding, radius)     |
+| `alert-danger`  | Error / warning (red tint) |
+| `alert-success` | Success (green tint)       |
+| `alert-info`    | Info (blue tint)           |
+
+
+**Example:**
+
+```html
+<div class="alert alert-danger">Invalid username or password.</div>
+<div class="alert alert-success">Saved successfully.</div>
+```
+
+---
+
+### Layout & flexbox
+
+
+| Class                     | Effect                        |
+| ------------------------- | ----------------------------- |
+| `d-flex`                  | `display: flex`               |
+| `d-block`                 | `display: block`              |
+| `d-inline-flex`           | `display: inline-flex`        |
+| `d-none`                  | `display: none`               |
+| `d-grid`                  | `display: grid`               |
+| `flex-row`                | `flex-direction: row`         |
+| `flex-column`             | `flex-direction: column`      |
+| `flex-wrap`               | `flex-wrap: wrap`             |
+| `flex-grow-1`             | `flex-grow: 1`                |
+| `align-items-center`      | Align items vertically center |
+| `align-items-start`       | Align items to start          |
+| `justify-content-between` | Space between                 |
+| `justify-content-center`  | Center horizontally           |
+| `justify-content-end`     | Align to end                  |
+| `gap-1` … `gap-5`         | Gap 0.25rem … 1.5rem          |
+
+
+**Example:**
+
+```html
+<div class="d-flex justify-content-between align-items-center gap-3">
+    <h1 class="mb-0">Page title</h1>
+    <a href="..." class="btn btn-primary w-auto">New</a>
+</div>
+```
+
+---
+
+### Spacing
+
+
+| Class                      | Effect                           |
+| -------------------------- | -------------------------------- |
+| `m-0`                      | margin: 0                        |
+| `mt-1` … `mt-5`            | margin-top 0.25rem … 1.5rem      |
+| `mb-1` … `mb-5`            | margin-bottom 0.25rem … 1.5rem   |
+| `ms-1`, `ms-2`             | margin-left                      |
+| `me-1`, `me-2`             | margin-right                     |
+| `p-0`, `p-2`, `p-3`, `p-4` | padding 0, 0.5rem, 0.75rem, 1rem |
+
+
+---
+
+### Text
+
+
+| Class          | Effect              |
+| -------------- | ------------------- |
+| `text-muted`   | Muted color         |
+| `text-center`  | text-align: center  |
+| `text-end`     | text-align: right   |
+| `text-danger`  | Error/danger color  |
+| `text-primary` | Primary text color  |
+| `small`        | font-size: 0.875rem |
+
+
+---
+
+### Row / Col (simple grid)
+
+
+| Class      | Use                     |
+| ---------- | ----------------------- |
+| `row`      | Flex container with gap |
+| `col`      | Flex child (grows)      |
+| `col-auto` | Flex child (no grow)    |
+
+
+**Example:**
+
+```html
+<div class="row">
+    <div class="col"><input class="form-control" placeholder="Search"></div>
+    <div class="col-auto"><button class="btn btn-primary">Search</button></div>
+</div>
+```
+
+---
+
+### Summary — quick reference
+
+
+| Need                | Classes                                                     |
+| ------------------- | ----------------------------------------------------------- |
+| Primary button      | `btn btn-primary` or `btn`                                  |
+| Secondary button    | `btn btn-secondary w-auto`                                  |
+| Danger button       | `btn btn-danger`                                            |
+| Input               | `form-control` (or plain `input`)                           |
+| Label               | `form-label`                                                |
+| Group label + input | `form-group`                                                |
+| Card                | `card` + optional `card-header`, `card-body`, `card-footer` |
+| Error message       | `alert alert-danger`                                        |
+| Flex row, spaced    | `d-flex justify-content-between align-items-center gap-3`   |
+| Muted text          | `text-muted`                                                |
+| No margin           | `m-0` or `mt-0`, `mb-0`                                     |
+
 
 ---
 
@@ -1095,3 +1336,4 @@ def secret(): ...
 <!-- Embed an internal tool in an iframe -->
 <iframe src="{{ tool_url }}" style="width:100%; height:calc(100vh - 60px); border:none;"></iframe>
 ```
+
