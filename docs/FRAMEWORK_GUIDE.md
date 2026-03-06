@@ -1,6 +1,8 @@
 # User Guide — Internal Web Framework
 
-This guide explains how to use this framework to build authenticated, role-protected Flask pages and Streamlit dashboards for your internal tools
+This guide explains how to use this framework to build authenticated, role-protected Flask pages and Streamlit dashboards for your internal tools.
+
+**New to this project?** When adding a **new Flask page**, follow [Section 7](#7-adding-a-new-protected-flask-page) and do all four steps (blueprint file, template, register in `flask_app/__init__.py`, nav link). When adding a **new Streamlit page**, follow [Section 11](#11-adding-a-new-streamlit-dashboard-page) (create the page file, then register it in `dashboard_app.py`). If something doesn’t work, check [Common mistakes when adding pages](#common-mistakes-when-adding-pages). To **remove all demo features** (example CRUD, docs, iframe-app-streamlit, Streamlit example pages) for a minimal framework, see **[CLEAN_FRAMEWORK.md](CLEAN_FRAMEWORK.md)** (in this `docs/` folder).
 
 ---
 
@@ -8,7 +10,7 @@ This guide explains how to use this framework to build authenticated, role-prote
 
 1. [Architecture Overview](#1-architecture-overview)
 2. [Authentication (Login / Signup / Logout)](#2-authentication)
-3. [Protecting Pages with `@login_required](#3-protecting-pages-with-login_required)`
+3. [Protecting Pages with `@login_required`](#3-protecting-pages-with-login_required)
 4. [Roles & Authorization](#4-roles--authorization)
 5. [Using the `@role_required` Decorator](#5-using-the-role_required-decorator)
 6. [Adding a New Role](#6-adding-a-new-role)
@@ -16,7 +18,7 @@ This guide explains how to use this framework to build authenticated, role-prote
 8. [Adding a Role-Restricted Page](#8-adding-a-role-restricted-page)
 9. [CSRF Protection on Forms](#9-csrf-protection-on-forms)
 10. [Embedding Streamlit via iframe (Protected Dashboard)](#10-embedding-streamlit-via-iframe)
-11. [Adding a New Streamlit Dashboard Page](#11-adding-a-new-streamlit-dashboard-page)
+11. [Adding a New Streamlit Dashboard Page](#11-adding-a-new-streamlit-dashboard-page) — [Common mistakes](#common-mistakes-when-adding-pages)
 12. [Navigation Bar — Showing/Hiding Links by Role](#12-navigation-bar--showinghiding-links-by-role)
 13. [Managing Users (Admin Panel & CLI)](#13-managing-users)
 14. [Adding a Full CRUD Feature](#14-adding-a-full-crud-feature)
@@ -39,7 +41,7 @@ The app runs **two processes** started by `run.py`:
 
 In **development**, users visit `http://localhost:5001`. The home page loads the Streamlit dashboard inside an iframe pointing to `localhost:8501`.
 
-In **production** (`python3 run.py --prod`), Streamlit is reverse-proxied behind `/dashboard-app/` (typically via Nginx), so the iframe URL becomes `/dashboard-app/` instead.
+In **production** (`python3 run.py --prod`), Streamlit is reverse-proxied behind `/streamlit/` (typically via Nginx), so the iframe URL becomes `/streamlit/` instead.
 
 ### Key directories
 
@@ -68,13 +70,13 @@ Authentication is handled by **Flask-Login**. The implementation lives in `flask
 ### Built-in auth routes
 
 
-| Route             | Method   | What it does                                       |
-| ----------------- | -------- | -------------------------------------------------- |
-| `/login`          | GET/POST | Login form + credential check                      |
-| `/signup`         | GET/POST | Self-service registration (default role: `viewer`); can be disabled by admin in Site settings |
-| `/logout`         | GET      | Logs out the current user                          |
-| `/change-password` | GET/POST | Change password form (logged-in users only)        |
-| `/auth-check`     | GET      | Returns `200 Authenticated` or `401 Unauthorized`  |
+| Route              | Method   | What it does                                                                                  |
+| ------------------ | -------- | --------------------------------------------------------------------------------------------- |
+| `/login`           | GET/POST | Login form + credential check                                                                 |
+| `/signup`          | GET/POST | Self-service registration (default role: `viewer`); can be disabled by admin in Site settings |
+| `/logout`          | GET      | Logs out the current user                                                                     |
+| `/change-password` | GET/POST | Change password form (logged-in users only)                                                   |
+| `/auth-check`      | GET      | Returns `200 Authenticated` or `401 Unauthorized`                                             |
 
 
 ### User loader (required by Flask-Login)
@@ -337,11 +339,22 @@ python3 scripts/manage_admin.py create <username> <email> <password>
 
 ## 7. Adding a New Protected Flask Page
 
-Full step-by-step for a new feature page visible to all logged-in users.
+Full step-by-step for a new feature page visible to all logged-in users. Follow the checklist so you don’t miss a step.
+
+### Checklist (do all 4 steps)
+
+| Step | What to do | File |
+|------|------------|------|
+| 1 | Create the blueprint file with route and **all imports** | `flask_app/routes/my_feature.py` |
+| 2 | Create the HTML template | `templates/my_feature/index.html` (create folder `my_feature` if needed) |
+| 3 | **Import** the blueprint and **register** it in the app | `flask_app/__init__.py` |
+| 4 | Add a link in the nav bar | `templates/base.html` |
+
+---
 
 ### Step 1 — Create the blueprint
 
-> **YOUR CODE** — create a new file `flask_app/routes/my_feature.py`.
+Create a new file `flask_app/routes/my_feature.py`. Copy the block below **exactly** (imports are required).
 
 ```python
 from flask import Blueprint, render_template
@@ -356,9 +369,14 @@ def my_feature_page():
     return render_template("my_feature/index.html")
 ```
 
+- **Imports:** `Blueprint`, `render_template` from `flask`; `login_required` from `flask_login`.
+- **Blueprint name:** `"my_feature"` — you’ll use it in `url_for("my_feature.my_feature_page")` and when registering.
+
+---
+
 ### Step 2 — Create the template
 
-> **YOUR CODE** — create a new file `templates/my_feature/index.html`.
+Create the folder `templates/my_feature/` and the file `templates/my_feature/index.html`:
 
 ```html
 {% extends "base.html" %}
@@ -371,37 +389,68 @@ def my_feature_page():
 {% endblock %}
 ```
 
-### Step 3 — Register the blueprint
+The path in `render_template("my_feature/index.html")` must match this path under `templates/`.
 
-> **YOUR CODE** — add these lines to the existing `flask_app/__init__.py`.
+---
+
+### Step 3 — Register the blueprint in the app
+
+Edit `flask_app/__init__.py`. You need **two** changes.
+
+**3a) Add the import** at the top with the other blueprint imports (e.g. after `iframe_app_streamlit_bp`):
 
 ```python
+from flask_app.routes.iframe_app_streamlit import bp as iframe_app_streamlit_bp
 from flask_app.routes.my_feature import bp as my_feature_bp
-
-# Inside create_app(), add:
-app.register_blueprint(my_feature_bp)
 ```
+
+**3b) Register the blueprint** inside `create_app()`, after the other `app.register_blueprint(...)` lines:
+
+```python
+app.register_blueprint(iframe_app_streamlit_bp)
+app.register_blueprint(my_feature_bp)
+
+with app.app_context():
+```
+
+If you only add `register_blueprint` but forget the **import**, the app will crash on startup with `NameError: name 'my_feature_bp' is not defined`.
+
+---
 
 ### Step 4 — Add a nav link
 
-> **YOUR CODE** — add this to `templates/base.html`, inside the `{% if current_user.is_authenticated %}` block.
+In `templates/base.html`, add your link **inside** the `{% if current_user.is_authenticated %}` block (e.g. after the “Docs” link):
 
 ```html
 <a href="{{ url_for('my_feature.my_feature_page') }}">My Feature</a>
 ```
 
+Use the blueprint name and function name: `url_for("my_feature.my_feature_page")`. Wrong names here cause 404 or build errors.
+
+---
+
+### Verify
+
+1. Restart the app: `python3 run.py`
+2. Log in and open `http://localhost:5001/my-feature` — the page should load.
+3. Click “My Feature” in the nav — it should go to the same page.
+
 ---
 
 ## 8. Adding a Role-Restricted Page
 
-Same as above, but add `@role_required` and conditionally show the nav link.
+Same as [Section 7](#7-adding-a-new-protected-flask-page), but you add `@role_required` and show the nav link only to certain roles. Do all four steps from Section 7, and use the following for the route and nav.
 
-### Route
+### Route (include all imports)
 
-> **YOUR CODE** — write this in your own blueprint file.
+In your blueprint file (e.g. `flask_app/routes/my_feature.py`) you need **all** of these imports if you add a role-restricted route:
 
 ```python
+from flask import Blueprint, render_template
+from flask_login import login_required
 from flask_app.routes.permissions import role_required
+
+bp = Blueprint("my_feature", __name__)
 
 @bp.route("/reports")
 @login_required
@@ -410,12 +459,14 @@ def reports():
     return render_template("reports/index.html")
 ```
 
+- **Don’t forget:** `from flask_app.routes.permissions import role_required`
+- Decorator order: `@bp.route` → `@login_required` → `@role_required` → `def ...`
+
 ### Nav link (only visible to allowed roles)
 
-> **YOUR CODE** — add this to `templates/base.html`.
+In `templates/base.html`, add the link **inside** `{% if current_user.is_authenticated %}` and wrap it in a role check:
 
 ```html
-<!-- templates/base.html -->
 {% if current_user.role in ['editor', 'admin'] %}
 <a href="{{ url_for('my_feature.reports') }}">Reports</a>
 {% endif %}
@@ -472,7 +523,7 @@ def index():
     streamlit_port = os.environ.get("STREAMLIT_PORT", "8501")
     streamlit_url = f"http://localhost:{streamlit_port}"
     if not current_app.debug:
-        streamlit_url = "/dashboard-app/"
+        streamlit_url = "/streamlit/"
     return render_template("index.html", streamlit_url=streamlit_url)
 ```
 
@@ -492,7 +543,7 @@ def index():
 
 - The `@login_required` on the Flask route ensures only authenticated users see the iframe.
 - Streamlit itself has **no authentication** — it is protected because it is only reachable through the authenticated Flask shell.
-- In production, Nginx proxies `/dashboard-app/` to the Streamlit port, and Streamlit is not exposed directly.
+- In production, Nginx proxies `/streamlit/` to the Streamlit port, and Streamlit is not exposed directly.
 
 ### Embedding another internal tool the same way
 
@@ -521,9 +572,20 @@ def internal_tool():
 
 ## 11. Adding a New Streamlit Dashboard Page
 
+Two steps: create the page file, then register it in `dashboard_app.py`. If the new page doesn’t show up, you usually forgot Step 2 or used the wrong path.
+
+### Checklist
+
+| Step | What to do | File |
+|------|------------|------|
+| 1 | Create the Streamlit page script (must import `streamlit`) | `dashboard_pages/my_dashboard.py` |
+| 2 | Add a `st.Page(...)` variable and add it to the navigation in `dashboard_app.py` | `dashboard_app.py` |
+
+---
+
 ### Step 1 — Create the page module
 
-> **YOUR CODE** — create a new file `dashboard_pages/my_dashboard.py`.
+Create a new file `dashboard_pages/my_dashboard.py`:
 
 ```python
 import streamlit as st
@@ -532,28 +594,81 @@ st.title("My Dashboard")
 st.write("Hello from the new dashboard page.")
 ```
 
+- **Required:** `import streamlit as st` at the top. Without it, the page may fail when opened.
+
+---
+
 ### Step 2 — Register in `dashboard_app.py`
 
-> **YOUR CODE** — add these lines to the existing `dashboard_app.py`.
+Edit `dashboard_app.py`. You need **two** changes.
+
+**2a) Add a page definition** (with the other `st.Page(...)` definitions). Use the path **relative to the project root**, with forward slashes:
 
 ```python
-# Add page definition
+# Page Definitions
+home_page = st.Page("dashboard_pages/home.py", title="Home", icon=":material/home:")
+# ... other pages ...
 my_dashboard_page = st.Page(
     "dashboard_pages/my_dashboard.py",
     title="My Dashboard",
     icon=":material/bar_chart:",
 )
+```
 
-# Add to navigation group
+- **Path:** `"dashboard_pages/my_dashboard.py"` — not `"my_dashboard.py"` and not `"dashboard_pages\my_dashboard.py"`. Wrong path = page not found or blank.
+
+**2b) Add the page to the navigation** — put `my_dashboard_page` in one of the lists inside `st.navigation(...)`:
+
+```python
 pg = st.navigation(
     {
         "Main Menu": [home_page, my_dashboard_page],
-        "Example": [basic_page, ...],
+        "Example": [basic_page, streamlit_components_page, map_page, ...],
     }
 )
 ```
 
-The Streamlit dashboard is already protected by the Flask `@login_required` on the home route — no extra auth needed.
+If you add the `st.Page(...)` but **don’t** add it to one of the lists in `st.navigation(...)`, the page won’t appear in the sidebar.
+
+---
+
+### Verify
+
+1. Restart the app: `python3 run.py`
+2. Log in and open the home page (Streamlit iframe).
+3. In the Streamlit sidebar you should see “My Dashboard” under the group you used (e.g. “Main Menu”). Click it — your title and text should appear.
+
+The Streamlit dashboard is already protected by the Flask `@login_required` on the home route; no extra auth is needed in the Streamlit script.
+
+---
+
+### Common mistakes when adding pages
+
+Use this list if a new page doesn’t work or the app won’t start.
+
+**Flask (new route / blueprint)**
+
+| Problem | Cause | Fix |
+|--------|--------|-----|
+| `NameError: name 'my_feature_bp' is not defined` | Blueprint used in `register_blueprint` but not imported | In `flask_app/__init__.py` add: `from flask_app.routes.my_feature import bp as my_feature_bp` |
+| 404 when opening `/my-feature` | Blueprint not registered, or wrong URL | Ensure `app.register_blueprint(my_feature_bp)` is inside `create_app()` and the route path is correct |
+| `TemplateNotFound` | Template path doesn’t match `render_template(...)` | Create `templates/my_feature/index.html` if you use `render_template("my_feature/index.html")` |
+| Nav link 404 or build error | Wrong blueprint or function name in `url_for` | Use `url_for("my_feature.my_feature_page")` — same names as in the blueprint and the `def` |
+| “Access denied” or role page not visible | Forgot `role_required` import or wrong decorator order | Add `from flask_app.routes.permissions import role_required` and use order: `@bp.route` → `@login_required` → `@role_required` |
+
+**Streamlit (new dashboard page)**
+
+| Problem | Cause | Fix |
+|--------|--------|-----|
+| New page doesn’t appear in sidebar | Page not added to `st.navigation(...)` | Add `my_dashboard_page` to one of the lists, e.g. `"Main Menu": [home_page, my_dashboard_page]` |
+| Blank page or “File not found” | Wrong path in `st.Page(...)` | Use `"dashboard_pages/my_dashboard.py"` (with `dashboard_pages/`, forward slashes) |
+| Error when opening the page | Missing `import streamlit as st` in the page file | Put `import streamlit as st` at the top of `dashboard_pages/my_dashboard.py` |
+
+**Forms (Flask)**
+
+| Problem | Cause | Fix |
+|--------|--------|-----|
+| “Your session expired” on submit | CSRF token missing in the form | In the form add: `<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">` |
 
 ---
 
@@ -1038,7 +1153,7 @@ Always sourced from `app_db/config.py` via environment variables. Never hardcode
 
 ## 17. Base CSS & Style Guide
 
-> **See also:** `DESIGN_SYSTEM.md` for HTML/CSS standards, page structure, and a checklist for new pages.
+> **See also:** [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) (in this folder) for HTML/CSS standards, page structure, and a checklist for new pages.
 
 `static/css/base.css` is the **only** stylesheet for all HTML pages (auth, admin, docs, CRUD, etc.). It is loaded by `templates/base.html` and includes layout, components, docs styles, and CRUD/form-and-table styles in one file. It provides Bootstrap-like class names so you can build consistent UIs without adding page-specific CSS.
 
@@ -1065,7 +1180,7 @@ Use these in custom CSS or to keep values consistent:
 
 ### Buttons
 
-Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto**` for inline buttons.
+Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto`** for inline buttons.
 
 
 | Class                                  | Use                                      |
@@ -1281,6 +1396,9 @@ Use `**.btn`** plus a variant. Buttons are full-width by default; add `**.w-auto
 ```python
 from flask_login import login_required
 from flask_app.routes.permissions import role_required, admin_required
+from flask import Blueprint
+
+bp = Blueprint("url_name", __name__)
 
 # Any logged-in user
 @bp.route("/page")

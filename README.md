@@ -2,44 +2,109 @@
 
 Flask authentication gateway for Streamlit, with PostgreSQL-backed users and CRUD feature patterns.
 
-## 1) What This Starter Solves
-- Protect Streamlit behind Flask login/session.
-- Keep auth and user management in PostgreSQL.
-- Provide admin user management endpoints.
-- Provide feature templates for protected CRUD pages.
+---
 
-## 2) Architecture At A Glance
+## What This Starter Does
 
-### Runtime model
-`run.py` launches:
-- Flask app (`auth_server.py`) on `FLASK_PORT` (default `5001`)
-- Streamlit app (`dashboard_app.py`) on `STREAMLIT_PORT` (default `8501`)
+- **Protect Streamlit** behind Flask login/session (dashboard only after auth).
+- **User management** in PostgreSQL with roles (viewer, editor, approval1, approval2, admin).
+- **Admin panel** for users and site settings (e.g. disable sign-up).
+- **Templates** for protected Flask pages and Streamlit dashboard pages.
 
-In `--prod` mode, Streamlit is served behind `/dashboard-app/` and typically fronted by Nginx.
+---
 
-### Core stack
-- Flask, Flask-Login, Flask-WTF CSRF
-- Flask-SQLAlchemy + SQLAlchemy engine
-- PostgreSQL (`psycopg2`)
-- Streamlit multipage app
+## Architecture at a Glance
 
-## 3) Quick Start (Development)
+`run.py` starts two processes:
 
-### 3.1 Clone and install
+| Process    | Port (default) | Role                          |
+|-----------|----------------|-------------------------------|
+| **Flask** | 5001           | Auth gateway, HTML pages, API |
+| **Streamlit** | 8501        | Dashboards (iframe from Flask) |
+
+In production (`run.py --prod`), Streamlit is served under `/streamlit/` behind Nginx.
+
+**Stack:** Flask, Flask-Login, Flask-WTF CSRF, Flask-SQLAlchemy, PostgreSQL (`psycopg2`), Streamlit.
+
+---
+
+## Quick Start (Development)
+
+Use this flow on **Windows**, **Linux**, or **macOS** to run the app locally.
+
+### 1. Clone and enter the project
+
 ```bash
 git clone https://github.com/ramadlana/streamlit-starter
 cd streamlit-starter
+```
+
+### 2. Create a virtual environment
+
+**Linux / macOS:**
+
+```bash
 python3 -m venv .venv
 source .venv/bin/activate
+```
+
+**Windows (Command Prompt):**
+
+```cmd
+python -m venv .venv
+.venv\Scripts\activate.bat
+```
+
+**Windows (PowerShell):**
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 3.2 Start PostgreSQL
-Use your preferred setup (Docker/local service). Example Docker:
+### 4. Set environment variables
+
+**Option A — Individual DB variables**
+
+Linux/macOS:
+
+```bash
+export DB_USER=appuser
+export DB_PASSWORD=strongpassword
+export DB_HOST=127.0.0.1
+export DB_PORT=5432
+export DB_NAME=appdb
+export SECRET_KEY=change-this-secret-key-in-dev
+export FLASK_PORT=5001
+export STREAMLIT_PORT=8501
+```
+
+Windows (CMD): use `set VAR=value` for each. Windows (PowerShell): use `$env:VAR="value"` for each.
+
+**Option B — Single `DATABASE_URL` (any OS):**
+
+```bash
+export DATABASE_URL=postgresql+psycopg2://appuser:strongpassword@127.0.0.1:5432/appdb
+export SECRET_KEY=change-this-secret-key-in-dev
+export FLASK_PORT=5001
+export STREAMLIT_PORT=8501
+```
+
+### 5. Start PostgreSQL
+
+Ensure PostgreSQL is running and the database exists.
+
+**Docker (all platforms):**
+
 ```bash
 docker run -d \
   --name postgres-appdb \
-  --restart unless-stopped \
   -p 5432:5432 \
   -e POSTGRES_USER=appuser \
   -e POSTGRES_PASSWORD=strongpassword \
@@ -48,287 +113,147 @@ docker run -d \
   postgres:16
 ```
 
-For Demo / Dev purposes, dummy table in postgresql:
+**Linux:** use your distro’s PostgreSQL package. **macOS:** `brew services start postgresql@16`. **Windows:** install from the official PostgreSQL installer and create the database.
+
+Optional — create the `dummydata` table if you use that feature:
+
 ```sql
 CREATE TABLE public.dummydata (
-  id serial NOT NULL,
+  id serial NOT NULL PRIMARY KEY,
   name text NOT NULL,
   email text NOT NULL,
   created_at timestamp without time zone NULL DEFAULT now()
 );
-
-ALTER TABLE public.dummydata
-ADD CONSTRAINT dummydata_pkey PRIMARY KEY (id);
 ```
 
-### 3.3 Configure environment
-Use either `DATABASE_URL` or full `DB_*` variables.
+### 6. Create the first admin user
 
-Option A (`DB_*`):
-```bash
-export DB_USER=appuser
-export DB_PASSWORD=strongpassword
-export DB_HOST=127.0.0.1
-export DB_PORT=5432
-export DB_NAME=appdb
-export SECRET_KEY=change-this-secret
-export FLASK_PORT=5001
-export STREAMLIT_PORT=8501
-```
-
-Option B (`DATABASE_URL`):
-```bash
-export DATABASE_URL=postgresql+psycopg2://appuser:strongpassword@127.0.0.1:5432/appdb
-export SECRET_KEY=change-this-secret
-export FLASK_PORT=5001
-export STREAMLIT_PORT=8501
-```
-
-### 3.4 Create first admin
 ```bash
 python3 scripts/manage_admin.py create admin admin@example.com admin123
 ```
 
-### 3.5 Run app
+On Windows use `python` if that’s how Python is on your PATH.
+
+### 7. Run the app
+
 ```bash
 python3 run.py
 ```
 
-Access:
-- Flask UI: `http://127.0.0.1:5001`
-- Streamlit is accessed from protected Flask home after login
+- **Flask:** http://localhost:5001 (or your `FLASK_PORT`)
+- **Streamlit:** reached from the Flask home page after login (iframe to port 8501 by default)
 
-## 4) Environment Contract
-Required DB config:
-- `DATABASE_URL`
-- or `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`
+**Ports in use:** On Linux/macOS, `run.py` tries to free the ports first; you can also run `python3 scripts/kill_ports.py`. On Windows, `lsof` is not available — stop the process using the port (Task Manager or `taskkill`) or use different `FLASK_PORT` / `STREAMLIT_PORT`.
 
-Security/runtime:
-- `SECRET_KEY` (required in production; strongly recommended always)
-- `FLASK_PORT` (optional, default `5001`)
-- `STREAMLIT_PORT` (optional, default `8501`)
+### Development checklist
 
-Rules:
-- PostgreSQL only (no SQLite fallback).
-- Do not hardcode credentials/secrets.
+| Step | Action |
+|------|--------|
+| 1 | Clone repo, `cd` into project |
+| 2 | Create venv and activate it |
+| 3 | `pip install -r requirements.txt` |
+| 4 | Set `DATABASE_URL` or `DB_*` + `SECRET_KEY` (+ optional ports) |
+| 5 | Start PostgreSQL and create DB (and optional `dummydata` table) |
+| 6 | `python3 scripts/manage_admin.py create admin admin@example.com <password>` |
+| 7 | `python3 run.py` → open http://localhost:5001 |
 
-## 5) Routes and Access Model
+**Production (server) deployment:** see **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.
 
-### Blueprints
-- `home`
-- `auth`
-- `admin`
-- `example_crud`
-- `dummydata_crud`
-- `docs`
+---
 
-### Core routes
-- `/login`
-- `/signup` (can be disabled by admin via Admin Panel → Site settings)
-- `/logout`
-- `/change-password` (protected)
-- `/auth-check`
-- `/` (protected)
-- `/iframe-app-streamlit` (protected; Streamlit in iframe)
-- `/admin` (admin-only)
-- `/admin/settings` (admin-only, POST; toggle allow sign up)
-- `/example-crud` (protected)
-- `/dummydata-crud` (protected)
-- `/docs` (protected)
-- `/docs/<slug>` (protected)
-- `/docs/editor/<id>` (protected, non-viewer roles)
-- `/docs/tag/<tag>` (protected)
-- `/docs/upload-image` (protected, non-viewer roles)
-- `/docs/attachments/<filename>` (protected)
-- `/docs/admin/attachments-housekeeping` (admin-only, POST)
-- `/docs/admin/delete/<id>` (protected, non-viewer roles, POST)
+## Environment Variables
 
-## 6) Project Layout
-```text
-.
-├── run.py
-├── auth_server.py
-├── dashboard_app.py
-├── flask_app/
-│   ├── __init__.py
-│   ├── extensions.py
-│   └── routes/
-│       ├── auth.py
-│       ├── home.py
-│       ├── admin.py
-│       ├── docs.py
-│       ├── example_crud.py
-│       ├── dummydata_crud.py
-│       ├── iframe_app_streamlit.py
-│       └── permissions.py
-├── app_db/
-│   ├── base.py
-│   ├── config.py
-│   ├── engine.py
-│   ├── models.py
-│   ├── user_roles.py
-│   ├── app_settings.py
-│   ├── example_crud.py
-│   ├── docs.py
-│   └── docs_attachments.py
-├── templates/
-├── dashboard_pages/
-└── scripts/
+- **Database:** `DATABASE_URL` **or** `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`.
+- **Required in production:** `SECRET_KEY`.
+- **Optional:** `FLASK_PORT` (default `5001`), `STREAMLIT_PORT` (default `8501`).
+
+PostgreSQL only; no SQLite. Do not hardcode credentials. Production env and full variable table: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#3-environment-variables-reference)**.
+
+---
+
+## Project Layout
+
+```
+run.py              # Starts Flask + Streamlit
+auth_server.py      # Flask entrypoint
+dashboard_app.py   # Streamlit entrypoint
+flask_app/         # App factory, blueprints (routes/)
+app_db/            # DB config, models, engine, helpers
+templates/         # Jinja HTML (extend base.html)
+static/css/        # base.css only
+dashboard_pages/   # Streamlit pages
+scripts/           # manage_admin, kill_ports, docs_attachments_housekeeping
 ```
 
-## 7) Database Notes
-- `User` table is managed through SQLAlchemy (`db.create_all()` in app factory).
-- `User` includes role model: `viewer`, `editor`, `approval1`, `approval2`, `admin`.
-- Role is the single authorization source (`admin` is the privileged role).
-- Startup auto-ensures/backfills the `role` column for existing DBs.
-- `documentation_pages` stores docs content/slug/tags (ORM model `DocumentationPage`).
-- Docs read-page timestamps are rendered as human-readable values in the browser's local timezone.
-- `example_crud_items` is auto-created by `ensure_example_crud_table()`.
-- `app_settings` stores key-value site settings (e.g. `allow_signup`); created at startup; admin can toggle sign up in Admin Panel.
-- `dummydata` table is expected to exist already.
+Detailed repo map and read-first order: **[docs/AGENTS.md](docs/AGENTS.md)**.
 
-Example DDL for `dummydata`:
-```sql
-CREATE TABLE public.dummydata (
-  id serial NOT NULL,
-  name text NOT NULL,
-  email text NOT NULL,
-  created_at timestamp without time zone NULL DEFAULT now(),
-  CONSTRAINT dummydata_pkey PRIMARY KEY (id)
-);
-```
+---
 
-## 8) Development Playbooks
+## Routes (Summary)
 
-Before non-trivial implementation work, define/refine a spec in `SPECS.md` and execute against its acceptance criteria.
+- **Auth:** `/login`, `/signup`, `/logout`, `/change-password`, `/auth-check`
+- **Home:** `/` (protected; shows Streamlit iframe)
+- **Admin:** `/admin`, `/admin/settings` (admin only)
+- **CRUD examples:** `/example-crud`, `/dummydata-crud`
+- **Docs:** `/docs`, `/docs/<slug>`, `/docs/editor/<id>`, etc.
+- **Streamlit iframe:** `/iframe-app-streamlit`
 
-### Add a protected Flask feature
-1. Create `flask_app/routes/<feature>.py` blueprint.
-2. Add endpoints and protect with `@login_required` as needed.
-3. Add templates under `templates/`.
-4. Register blueprint in `flask_app/__init__.py`.
-5. Add navigation link in `templates/base.html` if user-facing.
+Full route list, blueprints, and how to protect or restrict by role: **[docs/FRAMEWORK_GUIDE.md](docs/FRAMEWORK_GUIDE.md)**.
 
-### Add a new CRUD page
-1. Put DB logic in `app_db/<feature>.py`.
-2. Use raw SQL via `get_sql_engine()` for feature/reporting tables.
-3. Keep route handlers thin (validate input, call DB helpers, render/redirect).
+---
 
-### Add a Streamlit page
-1. Add file under `dashboard_pages/`.
-2. Register with `st.Page(...)` in `dashboard_app.py`.
-3. Keep heavy logic out of page files.
+## Database Notes
 
-## 9) Security Checklist
-- Include CSRF token on every HTML `POST` form:
-```html
-<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-```
-- Use `@login_required` for protected routes.
-- Keep admin checks in route logic (`role_required("admin", ...)`).
-- Set stable `SECRET_KEY` across restarts.
+- **User** and **documentation_pages** are ORM-managed; `db.create_all()` runs at startup.
+- **Roles:** viewer, editor, approval1, approval2, admin; role column is ensured at startup.
+- **app_settings:** key-value (e.g. allow_signup); created at startup.
+- **example_crud_items** is created by a startup helper.
+- **dummydata** table must exist if you use that feature; DDL is in the [Quick Start](#quick-start-development) above.
 
-## 10) Production (systemd + Nginx)
+---
 
-### 10.1 Example systemd unit
-`/etc/systemd/system/streamgatekeeper.service`
-```ini
-[Unit]
-Description=Streamlit Gatekeeper (Flask + Streamlit)
-After=network.target
+## Common Commands
 
-[Service]
-Type=simple
-User=www-data
-Group=www-data
-WorkingDirectory=/opt/streamgatekeeper
-EnvironmentFile=/etc/streamgatekeeper/streamgatekeeper.env
-ExecStart=/opt/streamgatekeeper/.venv/bin/python3 /opt/streamgatekeeper/run.py --prod
-Restart=always
-RestartSec=5
-KillMode=control-group
-TimeoutStopSec=30
+| Command | Purpose |
+|--------|---------|
+| `python3 run.py` | Run app (development) |
+| `python3 run.py --prod` | Run with production wiring (expects Nginx) |
+| `python3 scripts/manage_admin.py create <user> <email> <pass>` | Create/promote admin |
+| `python3 scripts/manage_admin.py list` | List users |
+| `python3 scripts/kill_ports.py` | Free Flask/Streamlit ports (Linux/macOS) |
+| `python3 scripts/docs_attachments_housekeeping.py --include-legacy` | Docs attachments dry-run |
+| `python3 -m compileall -q app_db flask_app auth_server.py scripts` | Syntax check |
 
-[Install]
-WantedBy=multi-user.target
-```
+---
 
-### 10.2 Example env file
-`/etc/streamgatekeeper/streamgatekeeper.env`
-```bash
-DATABASE_URL=postgresql+psycopg2://appuser:strongpassword@127.0.0.1:5432/appdb
-SECRET_KEY=replace-with-a-long-random-secret
-FLASK_PORT=5001
-STREAMLIT_PORT=8501
-```
+## Documentation (Where to Go for More)
 
-Secure it:
-```bash
-sudo chown root:root /etc/streamgatekeeper/streamgatekeeper.env
-sudo chmod 600 /etc/streamgatekeeper/streamgatekeeper.env
-```
+| Document | Purpose |
+|----------|---------|
+| **[docs/PROMPTING_GUIDE.md](docs/PROMPTING_GUIDE.md)** | Prompt templates and placeholders for adding new features (follow AGENTS.md). |
+| **[docs/CLEAN_FRAMEWORK.md](docs/CLEAN_FRAMEWORK.md)** | Remove all demo features (example/dummydata CRUD, docs, iframe-app-streamlit, Streamlit example pages) for a minimal framework. |
+| **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** | **Production only:** server setup, systemd, Nginx, env file, troubleshooting. |
+| **[docs/FRAMEWORK_GUIDE.md](docs/FRAMEWORK_GUIDE.md)** | Auth, roles, protecting pages, adding Flask/Streamlit pages, CSRF, nav by role, CRUD pattern, DB patterns, CSS quick reference. |
+| **[docs/AGENTS.md](docs/AGENTS.md)** | Repo map, route/blueprint inventory, playbooks (add route, CRUD, Streamlit page), security rules, for contributors and automation. |
+| **[docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)** | HTML/CSS standards, base template, components and classes when building or changing UI. |
+| **[docs/SPECS.md](docs/SPECS.md)** | Spec-driven workflow for non-trivial changes; template and status. |
+| **[docs/ARCHITECTURE_DIAGRAM.md](docs/ARCHITECTURE_DIAGRAM.md)** | Architecture diagrams (runtime, auth flow, dev vs prod). |
 
-### 10.3 Example Nginx site
-```nginx
-server {
-    listen 80;
-    server_name _;
+---
 
-    location / {
-        proxy_pass http://127.0.0.1:5001;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
+## Troubleshooting (development)
 
-    location = /auth-check {
-        internal;
-        proxy_pass http://127.0.0.1:5001/auth-check;
-        proxy_pass_request_body off;
-        proxy_set_header Content-Length "";
-    }
+- **Missing PostgreSQL configuration** — Set `DATABASE_URL` or all `DB_*` vars; ensure the database and user exist.
+- **Port in use** — On Linux/macOS run `python3 scripts/kill_ports.py`. On Windows, stop the process using the port or set different `FLASK_PORT` / `STREAMLIT_PORT`.
+- **Session / CSRF issues** — Use a stable `SECRET_KEY`; every POST form needs the CSRF token (see [docs/FRAMEWORK_GUIDE.md](docs/FRAMEWORK_GUIDE.md)).
+- **404 or BuildError** — Check blueprint registration in `flask_app/__init__.py` and `url_for("blueprint.endpoint")` names. See [docs/FRAMEWORK_GUIDE.md](docs/FRAMEWORK_GUIDE.md#common-mistakes-when-adding-pages).
 
-    location /dashboard-app/ {
-        auth_request /auth-check;
-        proxy_pass http://127.0.0.1:8501/dashboard-app/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-    }
-}
-```
+Production issues: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#4-troubleshooting)**.
 
-## 11) Common Commands
-- Run app: `python3 run.py`
-- Run production wiring: `python3 run.py --prod`
-- List users: `python3 scripts/manage_admin.py list`
-- Create/promote admin: `python3 scripts/manage_admin.py create <username> <email> <password>`
-- Docs attachments housekeeping dry-run: `python3 scripts/docs_attachments_housekeeping.py --include-legacy`
-- Docs attachments housekeeping apply: `python3 scripts/docs_attachments_housekeeping.py --apply --include-legacy`
-- Cleanup occupied ports: `python3 scripts/kill_ports.py`
-- Validation compile: `python3 -m compileall -q app_db flask_app auth_server.py scripts models.py`
+---
 
-## 12) Troubleshooting
-- `Missing PostgreSQL configuration`:
-  - Set `DATABASE_URL` or all `DB_*` vars.
-- Session resets unexpectedly:
-  - Ensure `SECRET_KEY` is set and stable.
-- Production boot error:
-  - `SECRET_KEY` is mandatory when debug is off.
-- `BuildError` from templates:
-  - Check `url_for("blueprint.endpoint")` names.
-- 404 on route:
-  - Ensure blueprint is registered in `flask_app/__init__.py`.
-- CSRF/session-expired message on submit:
-  - Reload the page and resubmit.
+## Roadmap
 
-## 13) Agent Context
-- [AGENTS.md](AGENTS.md)
-- [SPECS.md](SPECS.md)
-
-## 14) Roadmap (Condensed)
-- Extend docs workflow with approval lifecycle and audit history by role.
-- Add production hardening (search/filter, pagination, notifications, optional object storage).
-- Add tests for docs role permissions and attachment housekeeping.
+- Docs workflow: approval lifecycle and audit history by role.
+- Production hardening: search/filter, pagination, notifications, optional object storage.
+- Tests for docs role permissions and attachment housekeeping.

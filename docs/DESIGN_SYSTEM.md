@@ -112,6 +112,6 @@ Use these instead of inline `style="background: ..."`.
 
 ## 6. References
 
-- **FRAMEWORK_GUIDE.md** — Section "Base CSS & Style Guide" for a full list of utility and component classes.
-- **AGENTS.md** — Repo map, routes, and change playbooks.
+- [FRAMEWORK_GUIDE.md](FRAMEWORK_GUIDE.md) — Section "Base CSS & Style Guide" for a full list of utility and component classes.
+- [AGENTS.md](AGENTS.md) — Repo map, routes, and change playbooks.
 - **static/css/base.css** — Single source of truth; sections are commented (e.g. "CRUD", "Admin", "Dashboard").

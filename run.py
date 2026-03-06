@@ -48,10 +48,10 @@ def run_app():
         "--server.headless", "true"
     ]
     
-    # In production, Streamlit needs to know it's being served under /dashboard-app/
+    # In production, Streamlit needs to know it's being served under /streamlit/
     if is_prod:
-        streamlit_cmd.extend(["--server.baseUrlPath", "/dashboard-app/"])
-        print("📁 Streamlit configured for /dashboard-app/ proxy path")
+        streamlit_cmd.extend(["--server.baseUrlPath", "/streamlit/"])
+        print("📁 Streamlit configured for /streamlit/ proxy path")
 
     streamlit_proc = subprocess.Popen(streamlit_cmd)
     

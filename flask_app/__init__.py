@@ -14,6 +14,8 @@ from flask_app.routes.home import bp as home_bp
 from flask_app.routes.dummydata_crud import bp as dummydata_crud_bp
 from flask_app.routes.docs import bp as docs_bp
 from flask_app.routes.iframe_app_streamlit import bp as iframe_app_streamlit_bp
+# import your routes here
+# Example: from flask_app.routes.my_feature import bp as my_feature_bp
 
 def create_app():
     project_root = Path(__file__).resolve().parent.parent
@@ -69,6 +71,9 @@ def create_app():
     app.register_blueprint(dummydata_crud_bp)
     app.register_blueprint(docs_bp)
     app.register_blueprint(iframe_app_streamlit_bp)
+    # register your blueprints here, dont forget to import them at the top
+    # Example: app.register_blueprint(my_feature_bp)
+    
     with app.app_context():
         db.create_all()
         ensure_user_role_column()

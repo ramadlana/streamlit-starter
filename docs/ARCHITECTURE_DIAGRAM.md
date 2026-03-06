@@ -33,10 +33,10 @@ flowchart TB
     streamlit_cmd --> streamlit
     flask_cmd --> flask
 
-    RUN -.->|"--prod"| basePath["Streamlit baseUrlPath\n/dashboard-app/"]
+    RUN -.->|"--prod"| basePath["Streamlit baseUrlPath\n/streamlit/"]
 ```
 
-- **run.py** starts both servers and (in `--prod`) configures Streamlit for the `/dashboard-app/` proxy path.
+- **run.py** starts both servers and (in `--prod`) configures Streamlit for the `/streamlit/` proxy path.
 - **Flask** is the auth/session gateway; **Streamlit** is the dashboard UI, either on its own port (dev) or under Nginx (prod).
 
 ---
@@ -69,13 +69,13 @@ sequenceDiagram
         F->>F: @login_required
         F->>U: 200 iframe_app_streamlit.html
         note over U: iframe src = streamlit_url
-        U->>S: GET streamlit_url (dev: :8501, prod: /dashboard-app/)
+        U->>S: GET streamlit_url (dev: :8501, prod: /streamlit/)
         S->>U: Streamlit app (multipage)
     end
 ```
 
 - All protected routes go through Flask; session is Flask-Login.
-- Streamlit is loaded inside an iframe; in dev the iframe points to `http://localhost:8501`, in prod to `/dashboard-app/`.
+- Streamlit is loaded inside an iframe; in dev the iframe points to `http://localhost:8501`, in prod to `/streamlit/`.
 
 ---
 
@@ -213,13 +213,13 @@ flowchart LR
         S2[Streamlit]
         U2 --> Nginx
         Nginx --> F2
-        Nginx -->|/dashboard-app/| S2
-        F2 -->|iframe src /dashboard-app/| Nginx
+        Nginx -->|/streamlit/| S2
+        F2 -->|iframe src /streamlit/| Nginx
     end
 ```
 
 - **Dev:** User hits Flask; Flask serves HTML with an iframe to `http://localhost:STREAMLIT_PORT`. User (or iframe) talks to Streamlit on that port.
-- **Prod:** Nginx fronts both; Streamlit is mounted at `/dashboard-app/`; Flask serves pages that embed iframe `src="/dashboard-app/"`.
+- **Prod:** Nginx fronts both; Streamlit is mounted at `/streamlit/`; Flask serves pages that embed iframe `src="/streamlit/"`.
 
 ---
 
@@ -233,4 +233,4 @@ flowchart LR
 | **app_db**      | PostgreSQL: ORM (User, docs) + raw SQL helpers      |
 | **Templates**   | Jinja; base.html; CSRF on every POST form           |
 
-All access to the app is through Flask first; the dashboard is shown via an iframe to Streamlit (direct in dev, via `/dashboard-app/` in prod).
+All access to the app is through Flask first; the dashboard is shown via an iframe to Streamlit (direct in dev, via `/streamlit/` in prod).

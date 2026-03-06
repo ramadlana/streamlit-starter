@@ -32,8 +32,8 @@ Minimum agent behavior:
 - `run.py` starts **two processes**:
   - Flask app (`auth_server.py`) on `FLASK_PORT` (default `5001`)
   - Streamlit app (`dashboard_app.py`) on `STREAMLIT_PORT` (default `8501`)
-- In `--prod` mode, Streamlit is served behind `/dashboard-app/`.
-- Home route (`/`) is login-protected and renders Streamlit URL into the template.
+- In `--prod` mode, Streamlit is served behind `/streamlit/` (Nginx proxies to it).
+- Home route (`/`) is login-protected; `/iframe-app-streamlit` serves the page that embeds the Streamlit iframe (dev: localhost:8501, prod: `/streamlit/`).
 
 ### Core stack
 - Flask 3.x
@@ -48,10 +48,14 @@ Minimum agent behavior:
 ## 3) Repo Map (What lives where)
 
 - `flask_app/`
-  - `__init__.py`: app factory, extension setup, blueprint registration, CSRF error handling
+  - `__init__.py`: app factory, extension setup, blueprint registration, CSRF error handling (import/register blueprints here)
   - `extensions.py`: extension instances (`login_manager`, `csrf`)
   - `routes/`: blueprints per feature
+  - `routes/__init__.py`: package marker (required for `from flask_app.routes.<module> import bp`)
+  - `routes/permissions.py`: decorators `role_required`, `admin_required` (not a blueprint)
+  - `routes/auth.py`, `admin.py`, `home.py`, `docs.py`, `example_crud.py`, `dummydata_crud.py`, `iframe_app_streamlit.py`: blueprints
 - `app_db/`
+  - `__init__.py`: re-exports `db`, `User`, `DocumentationPage`, `get_sql_engine`, `build_database_uri`, role helpers, etc.
   - `base.py`: shared SQLAlchemy instance (`db`)
   - `config.py`: DB URI builder from env
   - `models.py`: ORM models (`User`, `DocumentationPage`)
@@ -60,16 +64,16 @@ Minimum agent behavior:
   - `docs.py`: docs query + persistence helpers
   - `docs_attachments.py`: docs attachment reference scan + orphan housekeeping helpers
   - `engine.py`: shared SQL engine for raw SQL features
-  - `example_crud.py`: feature table bootstrap helper
-- `templates/`: Jinja pages and forms (extend `base.html`; no inline styles)
+  - `example_crud.py`: feature table bootstrap helper (no `dummydata.py`; that table is expected to exist)
+- `templates/`: Jinja pages (extend `base.html`; no inline styles). Includes `base.html`, `home.html`, `login.html`, `signup.html`, `admin.html`, `docs_index.html`, `docs_view.html`, `docs_editor.html`, `example_crud.html`, `dummydata_crud.html`, `iframe_app_streamlit.html`, `change_password.html`, `components/modal.html`
 - `static/css/`: `base.css` only (single stylesheet; see `DESIGN_SYSTEM.md`)
 - `DESIGN_SYSTEM.md`: HTML/CSS standards and component reference for the starter kit
-- `dashboard_pages/`: Streamlit pages
-- `scripts/`: operational utilities (`manage_admin.py`, `docs_attachments_housekeeping.py`, etc.)
+- `dashboard_pages/`: Streamlit page modules (e.g. `home.py`, `example/*.py`). Registered in `dashboard_app.py` via `st.Page(...)` and `st.navigation(...)`.
+- `scripts/`: `manage_admin.py`, `kill_ports.py`, `docs_attachments_housekeeping.py`
 - Root entrypoints:
-  - `run.py`
-  - `auth_server.py`
-  - `dashboard_app.py`
+  - `run.py`: starts Flask + Streamlit (use `--prod` for production)
+  - `auth_server.py`: Flask app
+  - `dashboard_app.py`: Streamlit multipage app
 
 ---
 
@@ -128,12 +132,12 @@ Read these in order when starting a task:
 - `docs`
   - `/docs`
   - `/docs/<slug>`
-  - `/docs/editor/<id>`
   - `/docs/tag/<tag>`
-  - `/docs/upload-image`
+  - `/docs/editor/<doc_id>` (GET/POST)
+  - `/docs/upload-image` (POST)
   - `/docs/attachments/<filename>`
-  - `/docs/admin/attachments-housekeeping`
-  - `/docs/admin/delete/<id>`
+  - `/docs/admin/attachments-housekeeping` (POST)
+  - `/docs/admin/delete/<doc_id>` (POST)
 - `iframe_app_streamlit`
   - `/iframe-app-streamlit` (protected; embeds Streamlit in iframe)
 
@@ -177,6 +181,8 @@ Also:
   - `python3 scripts/manage_admin.py create <username> <email> <password>`
 - List users:
   - `python3 scripts/manage_admin.py list`
+- Free Flask/Streamlit ports (Linux/macOS):
+  - `python3 scripts/kill_ports.py`
 - Docs attachments housekeeping (dry-run default):
   - `python3 scripts/docs_attachments_housekeeping.py --include-legacy`
 - Docs attachments housekeeping apply (move orphans to trash):
@@ -191,7 +197,7 @@ Also:
 2. Use `@login_required` for protected access.
 3. Add template in `templates/<feature>/...` or reuse existing pages.
 4. Use explicit `url_for("<blueprint>.<endpoint>")` in redirects/templates.
-5. Register blueprint in `flask_app/__init__.py` if new.
+5. If new blueprint: **import** at top of `flask_app/__init__.py` (e.g. `from flask_app.routes.my_feature import bp as my_feature_bp`) and **register** inside `create_app()` with `app.register_blueprint(my_feature_bp)`.
 
 ### Add a CRUD feature
 1. Create `flask_app/routes/<feature>.py` with a dedicated blueprint.
@@ -201,8 +207,8 @@ Also:
 5. Add nav link in `templates/base.html` if user-facing.
 
 ### Add a Streamlit page
-1. Add module under `dashboard_pages/`.
-2. Register it in `dashboard_app.py` via `st.Page(...)` and navigation group.
+1. Add module under `dashboard_pages/` (e.g. `dashboard_pages/my_page.py`). Include `import streamlit as st`.
+2. In `dashboard_app.py`: add `my_page = st.Page("dashboard_pages/my_page.py", title="My Page", icon="...")` and add `my_page` to one of the lists in `st.navigation({...})`.
 3. Keep business logic in `app_db`/Flask helpers, not in the Streamlit view.
 
 ---
@@ -251,14 +257,15 @@ For new code, import from `app_db`.
 ### Safe refactor rules
 - If renaming blueprints or endpoints, update **all** `url_for(...)` usages.
 - Keep docs aligned when structure changes:
-  - `README.md`
-  - `AGENTS.md`
+  - `README.md` (root)
+  - `AGENTS.md`, `DEPLOYMENT.md`, `FRAMEWORK_GUIDE.md` (in docs/)
+- To remove all demo features (example/dummydata CRUD, docs, iframe-app-streamlit, Streamlit examples) and get a minimal framework, follow **`CLEAN_FRAMEWORK.md`** (in this folder).
 
 ---
 
 ## 12) Known Gotchas
 
-- Streamlit proxy behavior differs by mode (`/dashboard-app/` in prod).
+- Streamlit proxy behavior differs by mode (`/streamlit/` in prod).
 - Missing CSRF token in templates will break form submissions.
 - `dummydata_crud` assumes `dummydata` table already exists.
 - `db.create_all()` runs in app factory; avoid relying on it for non-ORM raw SQL tables.
