@@ -1,21 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Login - StreamlitPro{% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block content %}
 <div class="card">
     <h1>Welcome back</h1>
     <p class="subtitle">Please enter your details to sign in.</p>
-
-    <div class="flash-messages">
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        {% for message in messages %}
-        <div class="flash-message">{{ message }}</div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-    </div>
 
     <form method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

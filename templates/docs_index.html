@@ -3,138 +3,154 @@
 {% block title %}Documentation{% endblock %}
 {% block body_class %}docs-light{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/docs.css') }}">
-{% endblock %}
-
 {% block content %}
 <div class="docs-shell">
-    <div class="docs-topbar">
-        <h1>Documentation</h1>
+    <header class="docs-topbar">
+        <h1 class="docs-topbar-title">Documentation</h1>
         <div class="docs-actions">
-            {% if can_manage_docs %}
-            <a class="docs-btn" href="{{ url_for('docs.docs_editor', doc_id=0) }}">New Document</a>
-            {% endif %}
             {% if current_user.role == "admin" %}
-            <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}" class="docs-housekeeping-form">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="mode" value="dry-run">
-                <input type="hidden" name="include_legacy" value="1">
-                <input type="hidden" name="min_age_minutes" value="0">
-                <button type="submit" class="docs-btn docs-btn-secondary">Housekeeping Dry Run</button>
-            </form>
-            <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}" class="docs-housekeeping-form" onsubmit="return confirm('Apply housekeeping now? Orphan files will be moved to trash.');">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="mode" value="apply">
-                <input type="hidden" name="include_legacy" value="1">
-                <input type="hidden" name="min_age_minutes" value="0">
-                <button type="submit" class="docs-btn docs-btn-secondary">Housekeeping Apply</button>
-            </form>
+            <div class="docs-actions-admin">
+                <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}"
+                    class="docs-housekeeping-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="mode" value="dry-run">
+                    <input type="hidden" name="include_legacy" value="1">
+                    <input type="hidden" name="min_age_minutes" value="0">
+                    <button type="submit" class="docs-btn docs-btn-ghost">Housekeeping Dry Run</button>
+                </form>
+                <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}"
+                    class="docs-housekeeping-form"
+                    onsubmit="return confirm('Apply housekeeping now? Orphan files will be moved to trash.');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="mode" value="apply">
+                    <input type="hidden" name="include_legacy" value="1">
+                    <input type="hidden" name="min_age_minutes" value="0">
+                    <button type="submit" class="docs-btn docs-btn-ghost">Housekeeping Apply</button>
+                </form>
+            </div>
+            {% endif %}
+            {% if can_manage_docs %}
+            <a class="docs-btn docs-btn-primary" href="{{ url_for('docs.docs_editor', doc_id=0) }}">New Document</a>
             {% endif %}
         </div>
-    </div>
+    </header>
 
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    {% for message in messages %}
-    <div class="flash-message">{{ message }}</div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <form method="GET" action="{{ url_for('docs.docs_index') }}" class="docs-search-row">
+    <form method="GET"
+        action="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag) }}{% else %}{{ url_for('docs.docs_index') }}{% endif %}"
+        class="docs-search-row">
         <input type="text" name="q" value="{{ query }}" placeholder="Search by title or slug">
         <button type="submit" class="docs-btn docs-btn-secondary">Search</button>
+        <label class="docs-per-page">
+            <span>Rows Displayed per page</span>
+            <select name="per_page" onchange="this.form.submit()">
+                {% for option in per_page_options %}
+                <option value="{{ option }}" {% if pagination.per_page==option %}selected{% endif %}>{{ option }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
     </form>
 
     {% if active_tag %}
-    <p class="docs-meta">Filtered by tag: <strong>#{{ active_tag }}</strong> · <a href="{{ url_for('docs.docs_index') }}">Clear</a></p>
+    <p class="docs-meta">Filtered by tag: <strong>#{{ active_tag }}</strong> · <a
+            href="{{ url_for('docs.docs_index') }}">Clear</a></p>
     {% endif %}
 
     <div class="docs-list">
         {% for doc in docs %}
         <article class="docs-card">
-            <h2><a href="{{ url_for('docs.docs_view', slug=doc.slug) }}">{{ doc.title }}</a></h2>
-            <p class="docs-meta">Updated {{ doc.updated_at }}</p>
+            <header class="docs-card-header">
+                <h2 class="docs-card-title"><a href="{{ url_for('docs.docs_view', slug=doc.slug) }}">{{ doc.title }}</a></h2>
+            </header>
+
             {% if doc.preview_text %}
-            <p class="docs-summary">{{ doc.preview_text }}</p>
+            <p class="docs-card-preview">{{ doc.preview_text }}</p>
             {% endif %}
-            {% if can_manage_docs %}
-            <button
-                type="button"
-                class="docs-btn docs-delete-btn"
-                data-doc-id="{{ doc.id }}"
-                data-doc-title="{{ doc.title }}"
-            >
-                Delete
-            </button>
-            {% endif %}
-            {% if doc.tags_csv %}
-            <div class="docs-tags">
-                {% for tag in doc.tags_csv.split(',') %}
-                <a class="docs-tag" href="{{ url_for('docs.docs_by_tag', tag=tag) }}">#{{ tag }}</a>
-                {% endfor %}
-            </div>
-            {% endif %}
+
+            <footer class="docs-card-footer">
+                {% if doc.tags_csv %}
+                <div class="docs-card-tags" style="justify-content: flex-start;">
+                    {% for tag in doc.tags_csv.split(',') %}
+                    <a class="docs-tag" href="{{ url_for('docs.docs_by_tag', tag=tag) }}">#{{ tag }}</a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </footer>
         </article>
         {% else %}
         <p class="docs-empty">No documents yet.</p>
         {% endfor %}
     </div>
-</div>
 
-{% if can_manage_docs %}
-<div class="docs-modal-backdrop" id="docs-delete-modal" hidden>
-    <div class="docs-modal" role="dialog" aria-modal="true" aria-labelledby="docs-delete-title">
-        <h3 id="docs-delete-title">Delete Document</h3>
-        <p id="docs-delete-message">Are you sure you want to delete this document?</p>
-        <form id="docs-delete-form" method="POST" action="">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <div class="docs-modal-actions">
-                <button type="button" class="docs-btn docs-btn-secondary" id="docs-delete-cancel">Cancel</button>
-                <button type="submit" class="docs-btn docs-btn-danger">Delete</button>
-            </div>
-        </form>
-    </div>
+    {% if pagination.total_pages > 1 %}
+    <nav class="docs-pagination" aria-label="Docs pagination">
+        {% if pagination.has_prev %}
+        <a class="docs-page-btn"
+            href="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag, q=query, per_page=pagination.per_page, page=pagination.page - 1) }}{% else %}{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page, page=pagination.page - 1) }}{% endif %}">&lt;
+            Previous</a>
+        {% else %}
+        <span class="docs-page-btn is-disabled">&lt; Previous</span>
+        {% endif %}
+
+        <div class="docs-page-numbers">
+            {% for page_number in pagination.pages %}
+            {% if page_number is none %}
+            <span class="docs-page-ellipsis">...</span>
+            {% elif page_number == pagination.page %}
+            <span class="docs-page-btn is-active">{{ page_number }}</span>
+            {% else %}
+            <a class="docs-page-btn"
+                href="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag, q=query, per_page=pagination.per_page, page=page_number) }}{% else %}{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page, page=page_number) }}{% endif %}">{{
+                page_number }}</a>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        {% if pagination.has_next %}
+        <a class="docs-page-btn"
+            href="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag, q=query, per_page=pagination.per_page, page=pagination.page + 1) }}{% else %}{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page, page=pagination.page + 1) }}{% endif %}">Next
+            &gt;</a>
+        {% else %}
+        <span class="docs-page-btn is-disabled">Next &gt;</span>
+        {% endif %}
+    </nav>
+    {% endif %}
 </div>
 
 <script>
     (function () {
-        const modal = document.getElementById('docs-delete-modal');
-        const form = document.getElementById('docs-delete-form');
-        const message = document.getElementById('docs-delete-message');
-        const cancel = document.getElementById('docs-delete-cancel');
-        if (!modal || !form || !message || !cancel) return;
-        modal.hidden = true;
+        const dateNodes = document.querySelectorAll('.docs-card-footer .js-local-datetime');
+        if (!dateNodes.length || typeof Intl === 'undefined') return;
 
-        document.addEventListener('click', function (evt) {
-            const btn = evt.target.closest('.docs-delete-btn');
-            if (!btn) return;
-            const docId = btn.getAttribute('data-doc-id');
-            const docTitle = btn.getAttribute('data-doc-title') || 'this document';
-            if (!docId) return;
-
-            form.action = "{{ url_for('docs.docs_admin_delete_document', doc_id=0) }}".replace('/0', '/' + docId);
-            message.textContent = "Delete '" + docTitle + "'? This cannot be undone.";
-            modal.hidden = false;
+        const formatter = new Intl.DateTimeFormat(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            timeZoneName: 'short'
         });
 
-        cancel.addEventListener('click', function () {
-            modal.hidden = true;
-        });
+        function toClientDate(rawValue) {
+            if (!rawValue) return null;
+            const normalized = rawValue.includes(' ') ? rawValue.replace(' ', 'T') : rawValue;
+            const hasTimezone = /[zZ]|[+\-]\d{2}:\d{2}$/.test(normalized);
+            const parseValue = hasTimezone ? normalized : normalized + 'Z';
+            const parsed = new Date(parseValue);
+            return Number.isNaN(parsed.getTime()) ? null : parsed;
+        }
 
-        modal.addEventListener('click', function (evt) {
-            if (evt.target === modal) {
-                modal.hidden = true;
+        dateNodes.forEach(function (node) {
+            const isoValue = node.getAttribute('datetime');
+            const parsed = toClientDate(isoValue);
+            if (!parsed) {
+                node.textContent = node.dataset.fallback || node.textContent;
+                return;
             }
-        });
-
-        document.addEventListener('keydown', function (evt) {
-            if (evt.key === 'Escape') {
-                modal.hidden = true;
-            }
+            node.textContent = formatter.format(parsed);
+            node.setAttribute('title', parsed.toISOString());
         });
     })();
 </script>
-{% endif %}
+
 {% endblock %}

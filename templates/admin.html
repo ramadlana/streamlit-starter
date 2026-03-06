@@ -1,103 +1,17 @@
 {% extends "base.html" %}
+{% from "components/modal.html" import modal %}
 
-{% block title %}Admin Panel - Streamlit Starter{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/form_and_table.css') }}">
-{% endblock %}
+{% block title %}Admin Panel{% endblock %}
+{% block body_class %}content-top{% endblock %}
 
 {% block content %}
-<style>
-    .admin-container {
-        width: 100%;
-        max-width: 1200px;
-        margin-top: 40px;
-        padding-bottom: 50px;
-    }
-
-    .admin-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .badge {
-        padding: 4px 12px;
-        border-radius: 100px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    .badge-admin {
-        background: rgba(99, 102, 241, 0.2);
-        color: var(--accent-color);
-        border: 1px solid var(--accent-color);
-    }
-
-    .badge-role {
-        background: rgba(148, 163, 184, 0.1);
-        color: var(--text-secondary);
-        border: 1px solid var(--glass-border);
-    }
-
-    .action-btn {
-        background: #ffffff;
-        border: 1px solid var(--glass-border);
-        color: var(--text-primary);
-        padding: 6px 12px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.85rem;
-        transition: all 0.2s ease;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .action-btn:hover {
-        background: #f8fafc;
-    }
-
-    .btn-delete {
-        color: var(--error-color);
-        border-color: rgba(244, 63, 94, 0.3);
-    }
-
-    .btn-delete:hover {
-        background: rgba(244, 63, 94, 0.1);
-    }
-
-    /* Modal for Edit/Add */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(15, 23, 42, 0.35);
-        z-index: 2000;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal-content {
-        background: #ffffff;
-        border: 1px solid var(--glass-border);
-        border-radius: 24px;
-        padding: 2.5rem;
-        width: 100%;
-        max-width: 500px;
-    }
-</style>
-
 <div class="admin-container">
     <div class="admin-header">
         <div>
             <h1>User Management</h1>
             <p class="subtitle">Manage system access and roles</p>
         </div>
-        <button class="btn" style="width: auto; padding: 12px 24px;" onclick="showModal('addModal')">+ Add New
-            User</button>
+        <button type="button" class="btn btn-primary w-auto" onclick="AppModal.open('addModal')">+ Add New User</button>
     </div>
 
     <div class="crud-panel">
@@ -145,80 +59,73 @@
 </div>
 
 <!-- Add User Modal -->
-<div id="addModal" class="modal">
-    <div class="modal-content">
+{% call modal('addModal') %}
         <h2>Add New User</h2>
-        <form action="{{ url_for('admin.admin_add_user') }}" method="POST" style="margin-top: 1.5rem;">
+        <form action="{{ url_for('admin.admin_add_user') }}" method="POST" class="modal-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
-                <label>Username</label>
-                <input type="text" name="username" required>
+                <label class="form-label" for="add_username">Username</label>
+                <input class="form-control" type="text" name="username" id="add_username" required>
             </div>
             <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" required>
+                <label class="form-label" for="add_email">Email</label>
+                <input class="form-control" type="email" name="email" id="add_email" required>
             </div>
             <div class="form-group">
-                <label>Temporary Password</label>
-                <input type="password" name="password" required>
+                <label class="form-label" for="add_password">Temporary Password</label>
+                <input class="form-control" type="password" name="password" id="add_password" required>
             </div>
             <div class="form-group">
-                <label>Role</label>
-                <select name="role" required>
+                <label class="form-label" for="add_role">Role</label>
+                <select class="form-control form-select" name="role" id="add_role" required>
                     {% for role in roles %}
                     <option value="{{ role }}" {% if role == 'viewer' %}selected{% endif %}>{{ role }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" class="btn">Create User</button>
-                <button type="button" class="btn" style="background: #e2e8f0; color: #0f172a;"
-                    onclick="closeModal('addModal')">Cancel</button>
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">Create User</button>
+                <button type="button" class="btn btn-secondary" onclick="AppModal.close('addModal')">Cancel</button>
             </div>
         </form>
-    </div>
-</div>
+{% endcall %}
 
 <!-- Edit User Modal -->
-<div id="editModal" class="modal">
-    <div class="modal-content">
+{% call modal('editModal') %}
         <h2>Edit User</h2>
-        <form id="editForm" method="POST" style="margin-top: 1.5rem;">
+        <form id="editForm" method="POST" class="modal-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
-                <label>Username</label>
-                <input type="text" name="username" id="edit_username" required>
+                <label class="form-label" for="edit_username">Username</label>
+                <input class="form-control" type="text" name="username" id="edit_username" required>
             </div>
             <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" id="edit_email" required>
+                <label class="form-label" for="edit_email">Email</label>
+                <input class="form-control" type="email" name="email" id="edit_email" required>
             </div>
             <div class="form-group">
-                <label>New Password (leave blank to keep current)</label>
-                <input type="password" name="password">
+                <label class="form-label" for="edit_password">New Password (leave blank to keep current)</label>
+                <input class="form-control" type="password" name="password" id="edit_password">
             </div>
             <div class="form-group">
-                <label>Role</label>
-                <select name="role" id="edit_role" required>
+                <label class="form-label" for="edit_role">Role</label>
+                <select class="form-control form-select" name="role" id="edit_role" required>
                     {% for role in roles %}
                     <option value="{{ role }}">{{ role }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" class="btn">Update User</button>
-                <button type="button" class="btn" style="background: #e2e8f0; color: #0f172a;"
-                    onclick="closeModal('editModal')">Cancel</button>
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">Update User</button>
+                <button type="button" class="btn btn-secondary" onclick="AppModal.close('editModal')">Cancel</button>
             </div>
         </form>
-    </div>
-</div>
+{% endcall %}
 
 <!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="modal">
-    <div class="modal-content" style="max-width: 400px; text-align: center;">
-        <div
-            style="background: rgba(244, 63, 94, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+{% call modal('deleteModal', 'modal-compact') %}
+    <div style="text-align: center;">
+        <div class="app-modal-danger-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 6h18"></path>
@@ -229,31 +136,21 @@
             </svg>
         </div>
         <h2>Are you sure?</h2>
-        <p style="color: var(--text-secondary); margin: 1rem 0 2rem;">
+        <p class="app-modal-body-muted">
             You are about to delete user <strong id="delete_username_label"
                 style="color: var(--text-primary);"></strong>. This action cannot be undone.
         </p>
-        <div style="display: flex; gap: 15px;">
+        <div class="app-modal-actions">
             <form id="confirm_delete_form" method="POST" action="#" style="flex: 1;">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button id="confirm_delete_btn" type="submit" class="btn"
-                    style="background: var(--error-color); margin-top: 0; width: 100%;">Delete User</button>
+                <button id="confirm_delete_btn" type="submit" class="btn btn-danger w-100">Delete User</button>
             </form>
-            <button type="button" class="btn" style="background: #e2e8f0; color: #0f172a; margin-top: 0; flex: 1;"
-                onclick="closeModal('deleteModal')">Cancel</button>
+            <button type="button" class="btn btn-secondary" onclick="AppModal.close('deleteModal')">Cancel</button>
         </div>
     </div>
-</div>
+{% endcall %}
 
 <script>
-    function showModal(id) {
-        document.getElementById(id).style.display = 'flex';
-    }
-
-    function closeModal(id) {
-        document.getElementById(id).style.display = 'none';
-    }
-
     // Handle Edit User Clicks
     document.querySelectorAll('.edit-user-btn').forEach(button => {
         button.addEventListener('click', () => {
@@ -266,7 +163,7 @@
             document.getElementById('edit_email').value = email;
             document.getElementById('edit_role').value = role;
             document.getElementById('editForm').action = "/admin/edit/" + id;
-            showModal('editModal');
+            AppModal.open('editModal');
         });
     });
 
@@ -278,15 +175,8 @@
 
             document.getElementById('delete_username_label').innerText = username;
             document.getElementById('confirm_delete_form').action = "/admin/delete/" + id;
-            showModal('deleteModal');
+            AppModal.open('deleteModal');
         });
     });
-
-    // Close on outside click
-    window.onclick = function (event) {
-        if (event.target.className === 'modal') {
-            event.target.style.display = 'none';
-        }
-    }
 </script>
 {% endblock %}

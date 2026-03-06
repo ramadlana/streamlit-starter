@@ -5,20 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}App{% endblock %}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
-    <nav class="navbar">
-        <div class="logo">Streamlit Gatekeeper</div>
-        <div class="nav-links">
+    <nav class="navbar" id="main-nav">
+        <div class="logo">Internal Tool</div>
+        <button class="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false" id="nav-toggle-btn">
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+        </button>
+        <div class="nav-links" id="nav-menu">
             <a href="/">Home</a>
             {% if current_user.is_authenticated %}
+            <a href="{{ url_for('iframe_app_streamlit.iframe_app_streamlit') }}">Iframe App Streamlit</a>
             <a href="{{ url_for('docs.docs_index') }}">Docs</a>
-            {% set can_open_editor_menu = current_user.role == "admin" or (current_user.role in ['editor', 'approval1', 'approval2']) %}
-            {% if can_open_editor_menu %}
+            <!-- only show editor menu if user is admin or editor or approval1 or approval2 -->
+            {% if current_user.role in ['editor', 'approval1', 'approval2', 'admin'] %}
             <div class="nav-dropdown">
                 <button class="nav-dropdown-toggle" type="button">
                     Editor Menu
@@ -40,54 +45,126 @@
             {% endif %}
 
             {% if current_user.is_authenticated %}
-            <span style="color: var(--text-secondary); font-size: 0.9rem;">Hi, <strong>{{ current_user.username
-                    }}</strong></span>
+            <span class="nav-user">Hi, <strong>{{ current_user.username }}</strong></span>
             {% endif %}
         </div>
     </nav>
+
+    {% block flash_messages %}
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="flash-messages flash-messages-info" role="alert" aria-live="polite">
+        {% for message in messages %}
+        <div class="flash-message flash-message-info">
+            <span class="flash-message-text">{{ message }}</span>
+            <button type="button" class="flash-message-close" aria-label="Close message" onclick="this.closest('.flash-message').remove(); if (!this.closest('.flash-messages').querySelectorAll('.flash-message').length) this.closest('.flash-messages').remove();">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% endblock %}
 
     <div class="container">
         {% block content %}{% endblock %}
     </div>
 
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <script>
-        // Flash messages can be handled here
-    </script>
-    {% endif %}
-    {% endwith %}
+   
 
     <script>
         (function () {
-            const dropdown = document.querySelector('.nav-dropdown');
-            if (!dropdown) return;
-
-            const toggle = dropdown.querySelector('.nav-dropdown-toggle');
-
-            function closeDropdown() {
-                dropdown.classList.remove('open');
+            function getModal(modalId) {
+                if (!modalId) return null;
+                return document.getElementById(modalId);
             }
 
-            toggle.addEventListener('click', function (evt) {
-                evt.stopPropagation();
-                const isOpen = dropdown.classList.contains('open');
-                if (isOpen) {
-                    closeDropdown();
-                } else {
-                    dropdown.classList.add('open');
-                }
-            });
+            function open(modalId) {
+                const modal = getModal(modalId);
+                if (!modal) return;
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+            }
 
-            document.addEventListener('click', function () {
-                closeDropdown();
+            function close(modalId) {
+                const modal = getModal(modalId);
+                if (!modal) return;
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+
+            function closeAll() {
+                document.querySelectorAll('.app-modal.is-open').forEach(function (modal) {
+                    modal.classList.remove('is-open');
+                    modal.setAttribute('aria-hidden', 'true');
+                });
+            }
+
+            window.AppModal = { open, close, closeAll };
+
+            document.addEventListener('click', function (evt) {
+                if (evt.target.classList.contains('app-modal')) {
+                    evt.target.classList.remove('is-open');
+                    evt.target.setAttribute('aria-hidden', 'true');
+                }
             });
 
             document.addEventListener('keydown', function (evt) {
                 if (evt.key === 'Escape') {
-                    closeDropdown();
+                    closeAll();
                 }
             });
+        })();
+
+        (function () {
+            const nav = document.getElementById('main-nav');
+            const toggleBtn = document.getElementById('nav-toggle-btn');
+            const navMenu = document.getElementById('nav-menu');
+
+            function setMenuOpen(open) {
+                if (!nav || !toggleBtn) return;
+                nav.classList.toggle('is-open', open);
+                toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                document.body.classList.toggle('nav-menu-open', open);
+            }
+
+            function closeMenu() {
+                setMenuOpen(false);
+            }
+
+            if (toggleBtn && navMenu) {
+                toggleBtn.addEventListener('click', function () {
+                    setMenuOpen(!nav.classList.contains('is-open'));
+                });
+                navMenu.querySelectorAll('a').forEach(function (link) {
+                    link.addEventListener('click', closeMenu);
+                });
+            }
+
+            document.addEventListener('keydown', function (evt) {
+                if (evt.key === 'Escape') closeMenu();
+            });
+
+            const dropdown = document.querySelector('.nav-dropdown');
+            if (dropdown) {
+                const toggle = dropdown.querySelector('.nav-dropdown-toggle');
+                function closeDropdown() {
+                    dropdown.classList.remove('open');
+                }
+                toggle.addEventListener('click', function (evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    dropdown.classList.toggle('open');
+                });
+                document.addEventListener('click', function () {
+                    closeDropdown();
+                });
+                document.addEventListener('keydown', function (evt) {
+                    if (evt.key === 'Escape') {
+                        closeDropdown();
+                        closeMenu();
+                    }
+                });
+            }
         })();
     </script>
 </body>

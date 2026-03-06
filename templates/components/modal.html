@@ -1,0 +1,7 @@
+{% macro modal(modal_id, content_class='') -%}
+<div id="{{ modal_id }}" class="app-modal" aria-hidden="true">
+    <div class="app-modal-content {{ content_class }}" role="dialog" aria-modal="true">
+        {{ caller() }}
+    </div>
+</div>
+{%- endmacro %}

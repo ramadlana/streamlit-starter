@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block body_class %}content-top page-dashboard{% endblock %}
+
+{% block content %}
+<div id="loader" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Initializing Dashboard...</p>
+</div>
+<iframe src="{{ streamlit_url }}" class="app-viewport"
+    onload="document.getElementById('loader').style.opacity='0'; setTimeout(function(){ document.getElementById('loader').style.display='none'; }, 400)">
+</iframe>
+{% endblock %}

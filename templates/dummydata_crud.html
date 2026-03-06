@@ -1,174 +1,151 @@
 {% extends "base.html" %}
+{% from "components/modal.html" import modal %}
 
 {% block title %}Dummydata CRUD{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/form_and_table.css') }}">
-{% endblock %}
+{% block body_class %}content-top{% endblock %}
 
 {% block content %}
-
-<div class="crud-container">
-    <div class="crud-header">
+<div class="admin-container">
+    <div class="admin-header">
         <div>
             <h1>Dummydata CRUD</h1>
-            <p class="subtitle">
-                Protected page for logged-in users. Data is stored in table <code>dummydata</code>.
-            </p>
+            <p class="subtitle">Protected page for logged-in users. Data is stored in table <code>dummydata</code>.</p>
         </div>
+        <button type="button" class="btn btn-primary w-auto" onclick="AppModal.open('addModal')">+ Add New Row</button>
     </div>
 
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    {% for message in messages %}
-    <div class="flash-message">{{ message }}</div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <div class="crud-grid">
-        <!-- Column 1: table -->
-        <div class="crud-panel">
-            <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);">
-                Rows
-            </h3>
-            <div class="crud-table-wrapper">
-                <table class="crud-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in rows %}
-                        <tr>
-                            <td>{{ row.id }}</td>
-                            <td title="{{ row.name }}">{{ row.name }}</td>
-                            <td title="{{ row.email }}">{{ row.email }}</td>
-                            <td>
-                                <div class="actions">
-                                    <button
-                                        type="button"
-                                        class="btn btn-small btn-ghost row-edit-btn"
-                                        data-id="{{ row.id }}"
-                                        data-name="{{ row.name }}"
-                                        data-email="{{ row.email }}"
-                                    >
-                                        Edit
-                                    </button>
-                                    <form method="POST"
-                                          action="{{ url_for('dummydata_crud.dummydata_crud_delete', item_id=row.id) }}"
-                                          onsubmit="return confirm('Delete this row?');">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <button class="btn btn-small btn-danger" type="submit">Delete</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="4" style="color: var(--text-secondary);">No rows yet.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Column 2: editor form -->
-        <div class="crud-panel">
-            <h3 id="row-form-title" style="font-size: 0.95rem; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);">
-                New Row
-            </h3>
-            <form
-                id="row-form"
-                class="form-compact"
-                method="POST"
-                action="{{ url_for('dummydata_crud.dummydata_crud_create') }}"
-                data-create-url="{{ url_for('dummydata_crud.dummydata_crud_create') }}"
-                data-edit-url-prefix="/dummydata-crud/edit/"
-            >
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" id="row-id" value="">
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" name="name" id="row-name" required />
-                </div>
-                <div class="form-group" style="margin-bottom: 0.75rem;">
-                    <label>Email</label>
-                    <input type="email" name="email" id="row-email" required />
-                </div>
-                <button class="btn" type="submit" id="row-submit">Create row</button>
-                <button
-                    type="button"
-                    class="btn btn-ghost"
-                    id="row-cancel-edit"
-                    style="width: 100%; margin-top: 0.5rem; display: none;"
-                >
-                    Cancel edit
-                </button>
-            </form>
+    <div class="crud-panel">
+        <div class="crud-table-wrapper">
+            <table class="crud-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td>{{ row.id }}</td>
+                        <td title="{{ row.name }}">{{ row.name }}</td>
+                        <td title="{{ row.email }}">{{ row.email }}</td>
+                        <td>
+                            <div class="actions">
+                                <button type="button" class="action-btn edit-row-btn"
+                                    data-id="{{ row.id }}"
+                                    data-name="{{ row.name }}"
+                                    data-email="{{ row.email }}">Edit</button>
+                                <button type="button" class="action-btn btn-delete delete-row-btn"
+                                    data-id="{{ row.id }}"
+                                    data-name="{{ row.name }}">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-muted">No rows yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
+<!-- Add Row Modal -->
+{% call modal('addModal') %}
+    <h2>Add New Row</h2>
+    <form action="{{ url_for('dummydata_crud.dummydata_crud_create') }}" method="POST" class="modal-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label class="form-label" for="add_name">Name</label>
+            <input class="form-control" type="text" name="name" id="add_name" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="add_email">Email</label>
+            <input class="form-control" type="email" name="email" id="add_email" required>
+        </div>
+        <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">Create Row</button>
+            <button type="button" class="btn btn-secondary" onclick="AppModal.close('addModal')">Cancel</button>
+        </div>
+    </form>
+{% endcall %}
+
+<!-- Edit Row Modal -->
+{% call modal('editModal') %}
+    <h2>Edit Row</h2>
+    <form id="editRowForm" method="POST" class="modal-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label class="form-label" for="edit_name">Name</label>
+            <input class="form-control" type="text" name="name" id="edit_name" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="edit_email">Email</label>
+            <input class="form-control" type="email" name="email" id="edit_email" required>
+        </div>
+        <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">Update Row</button>
+            <button type="button" class="btn btn-secondary" onclick="AppModal.close('editModal')">Cancel</button>
+        </div>
+    </form>
+{% endcall %}
+
+<!-- Delete Confirmation Modal -->
+{% call modal('deleteModal', 'modal-compact') %}
+    <div class="text-center">
+        <div class="app-modal-danger-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+        </div>
+        <h2>Are you sure?</h2>
+        <p class="app-modal-body-muted">
+            You are about to delete row <strong id="delete_row_label" class="text-primary">—</strong>. This action cannot be undone.
+        </p>
+        <div class="app-modal-actions">
+            <form id="confirm_delete_form" method="POST" action="#" style="flex: 1;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button id="confirm_delete_btn" type="submit" class="btn btn-danger w-100">Delete Row</button>
+            </form>
+            <button type="button" class="btn btn-secondary" onclick="AppModal.close('deleteModal')">Cancel</button>
+        </div>
+    </div>
+{% endcall %}
+
 <script>
     (function () {
-        const form = document.getElementById('row-form');
-        if (!form) return;
+        var editUrlPrefix = "{{ url_for('dummydata_crud.dummydata_crud_edit', item_id=0) }}".replace(/\/0\s*$/, '/');
 
-        const titleEl = document.getElementById('row-form-title');
-        const idInput = document.getElementById('row-id');
-        const nameInput = document.getElementById('row-name');
-        const emailInput = document.getElementById('row-email');
-        const submitBtn = document.getElementById('row-submit');
-        const cancelBtn = document.getElementById('row-cancel-edit');
-
-        const createUrl = form.getAttribute('data-create-url');
-        const editUrlPrefix = form.getAttribute('data-edit-url-prefix');
-
-        function setCreateMode() {
-            idInput.value = '';
-            form.action = createUrl;
-            submitBtn.textContent = 'Create row';
-            titleEl.textContent = 'New Row';
-            cancelBtn.style.display = 'none';
-            nameInput.value = '';
-            emailInput.value = '';
-        }
-
-        function setEditMode(rowId, name, email) {
-            idInput.value = rowId;
-            nameInput.value = name || '';
-            emailInput.value = email || '';
-            form.action = (editUrlPrefix || '/dummydata-crud/edit/') + rowId;
-            submitBtn.textContent = 'Update row';
-            titleEl.textContent = 'Edit Row';
-            cancelBtn.style.display = 'block';
-            nameInput.focus();
-            nameInput.select();
-        }
-
-        document.addEventListener('click', function (evt) {
-            const btn = evt.target.closest('.row-edit-btn');
-            if (!btn) return;
-            const rowId = btn.getAttribute('data-id');
-            const name = btn.getAttribute('data-name') || '';
-            const email = btn.getAttribute('data-email') || '';
-            if (!rowId) return;
-            setEditMode(rowId, name, email);
+        document.querySelectorAll('.edit-row-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var id = btn.getAttribute('data-id');
+                var name = btn.getAttribute('data-name') || '';
+                var email = btn.getAttribute('data-email') || '';
+                document.getElementById('edit_name').value = name;
+                document.getElementById('edit_email').value = email;
+                document.getElementById('editRowForm').action = editUrlPrefix + id;
+                AppModal.open('editModal');
+            });
         });
 
-        cancelBtn.addEventListener('click', function () {
-            setCreateMode();
+        document.querySelectorAll('.delete-row-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var id = btn.getAttribute('data-id');
+                var name = btn.getAttribute('data-name') || 'this row';
+                document.getElementById('delete_row_label').textContent = name;
+                document.getElementById('confirm_delete_form').action = "{{ url_for('dummydata_crud.dummydata_crud_delete', item_id=0) }}".replace(/\/0\s*$/, '/') + id;
+                AppModal.open('deleteModal');
+            });
         });
-
-        // Initial state
-        setCreateMode();
     })();
 </script>
 {% endblock %}
-
