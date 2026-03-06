@@ -68,12 +68,13 @@ Authentication is handled by **Flask-Login**. The implementation lives in `flask
 ### Built-in auth routes
 
 
-| Route         | Method   | What it does                                       |
-| ------------- | -------- | -------------------------------------------------- |
-| `/login`      | GET/POST | Login form + credential check                      |
-| `/signup`     | GET/POST | Self-service registration (default role: `viewer`) |
-| `/logout`     | GET      | Logs out the current user                          |
-| `/auth-check` | GET      | Returns `200 Authenticated` or `401 Unauthorized`  |
+| Route             | Method   | What it does                                       |
+| ----------------- | -------- | -------------------------------------------------- |
+| `/login`          | GET/POST | Login form + credential check                      |
+| `/signup`         | GET/POST | Self-service registration (default role: `viewer`); can be disabled by admin in Site settings |
+| `/logout`         | GET      | Logs out the current user                          |
+| `/change-password` | GET/POST | Change password form (logged-in users only)        |
+| `/auth-check`     | GET      | Returns `200 Authenticated` or `401 Unauthorized`  |
 
 
 ### User loader (required by Flask-Login)
@@ -618,7 +619,8 @@ The nav bar in `templates/base.html` uses Jinja conditionals to show links based
 
 1. Log in as an `admin` user.
 2. Click **Admin Panel** in the nav bar.
-3. From there you can **Add**, **Edit** (change role/password), or **Delete** users.
+3. **Site settings**: Toggle **Allow new sign ups** (Yes/No). When disabled, the signup page redirects to login and the Sign Up link is hidden. Only admins can change this.
+4. From there you can **Add**, **Edit** (change role/password), or **Delete** users.
 
 ### Via the CLI
 

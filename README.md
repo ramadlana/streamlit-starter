@@ -124,11 +124,14 @@ Rules:
 
 ### Core routes
 - `/login`
-- `/signup`
+- `/signup` (can be disabled by admin via Admin Panel → Site settings)
 - `/logout`
+- `/change-password` (protected)
 - `/auth-check`
 - `/` (protected)
+- `/iframe-app-streamlit` (protected; Streamlit in iframe)
 - `/admin` (admin-only)
+- `/admin/settings` (admin-only, POST; toggle allow sign up)
 - `/example-crud` (protected)
 - `/dummydata-crud` (protected)
 - `/docs` (protected)
@@ -154,15 +157,17 @@ Rules:
 │       ├── home.py
 │       ├── admin.py
 │       ├── docs.py
-│       ├── permissions.py
 │       ├── example_crud.py
-│       └── dummydata_crud.py
+│       ├── dummydata_crud.py
+│       ├── iframe_app_streamlit.py
+│       └── permissions.py
 ├── app_db/
 │   ├── base.py
 │   ├── config.py
 │   ├── engine.py
 │   ├── models.py
 │   ├── user_roles.py
+│   ├── app_settings.py
 │   ├── example_crud.py
 │   ├── docs.py
 │   └── docs_attachments.py
@@ -179,6 +184,7 @@ Rules:
 - `documentation_pages` stores docs content/slug/tags (ORM model `DocumentationPage`).
 - Docs read-page timestamps are rendered as human-readable values in the browser's local timezone.
 - `example_crud_items` is auto-created by `ensure_example_crud_table()`.
+- `app_settings` stores key-value site settings (e.g. `allow_signup`); created at startup; admin can toggle sign up in Admin Panel.
 - `dummydata` table is expected to exist already.
 
 Example DDL for `dummydata`:

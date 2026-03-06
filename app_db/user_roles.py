@@ -6,6 +6,7 @@ ROLE_CHOICES = ("viewer", "editor", "approval1", "approval2", "admin")
 ALLOWED_ROLES = set(ROLE_CHOICES)
 DEFAULT_ROLE = "viewer"
 ADMIN_ROLE = "admin"
+EDITOR_MENU_ROLES = {"editor", "approval1", "approval2", "admin"}
 
 
 def normalize_role(value: str) -> str:

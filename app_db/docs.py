@@ -1,6 +1,7 @@
 import re
 from typing import Optional
 
+import bleach
 from sqlalchemy import text
 
 from app_db.engine import get_sql_engine
@@ -8,6 +9,21 @@ from app_db.models import DocumentationPage
 
 
 SLUG_PATTERN = re.compile(r"[^a-z0-9]+")
+
+# Allowed HTML for doc body (Quill-style rich text); script/style and event handlers stripped.
+ALLOWED_TAGS = [
+    "p", "br", "span", "strong", "b", "em", "i", "u", "s", "sub", "sup",
+    "a", "img", "ul", "ol", "li", "blockquote", "h1", "h2", "h3", "h4", "h5", "h6",
+    "pre", "code", "hr",
+]
+ALLOWED_ATTRS = {"a": ["href", "title"], "img": ["src", "alt", "title"]}
+
+
+def sanitize_doc_html(html: str) -> str:
+    """Sanitize stored doc HTML to prevent XSS; allow only safe tags/attributes."""
+    if not html:
+        return ""
+    return bleach.clean(html, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, strip=True)
 
 
 def slugify(value: str) -> str:
@@ -66,12 +82,13 @@ def create_or_update_document(
     summary_clean = (summary or "").strip()
     tags_clean = normalize_tags(tags_csv)
     slug_base = slugify(slug or title_clean)
+    content_safe = sanitize_doc_html(content_html or "")
 
     if doc_id > 0:
         page = DocumentationPage.query.get_or_404(doc_id)
         page.title = title_clean
         page.summary = summary_clean or None
-        page.content_html = content_html
+        page.content_html = content_safe
         page.tags_csv = tags_clean or None
         page.slug = _ensure_unique_slug(slug_base, doc_id=page.id)
         return page
@@ -79,7 +96,7 @@ def create_or_update_document(
     page = DocumentationPage()
     page.title = title_clean
     page.summary = summary_clean or None
-    page.content_html = content_html
+    page.content_html = content_safe
     page.tags_csv = tags_clean or None
     page.created_by = created_by
     page.slug = _ensure_unique_slug(slug_base)

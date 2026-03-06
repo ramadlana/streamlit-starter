@@ -26,6 +26,7 @@ from app_db import (
     normalize_role,
     User,
 )
+from app_db.user_roles import EDITOR_MENU_ROLES
 from app_db.docs_attachments import (
     cleanup_orphaned_files,
     get_docs_attachments_dir,
@@ -37,8 +38,8 @@ bp = Blueprint("docs", __name__)
 
 ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 TAG_RE = re.compile(r"<[^>]+>")
-DOCS_MANAGE_ROLES = {"editor", "approval1", "approval2", "admin"}
 DOCS_PER_PAGE_OPTIONS = (12, 24, 48, 96)
+MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
 def _preview_text(summary, content_html, max_words=10):
@@ -64,7 +65,7 @@ def _decorate_docs(rows):
 
 
 def _can_manage_docs(user) -> bool:
-    return normalize_role(getattr(user, "role", "viewer")) in DOCS_MANAGE_ROLES
+    return normalize_role(getattr(user, "role", "viewer")) in EDITOR_MENU_ROLES
 
 
 def _parse_positive_int(raw_value, default_value):
@@ -189,6 +190,8 @@ def docs_view(slug: str):
     message="Access denied: You only have view permission for docs.",
 )
 def docs_editor(doc_id: int):
+    if doc_id < 0:
+        abort(404)
     doc = None
     if request.method == "POST":
         title = (request.form.get("title") or "").strip()
@@ -214,7 +217,8 @@ def docs_editor(doc_id: int):
             content_html=content_html,
             created_by=current_user.id,
         )
-        if doc_id == 0:
+        # New docs: create_or_update_document returns an unsaved instance; add to session.
+        if doc_id <= 0:
             db.session.add(saved)
         db.session.commit()
         flash("Document saved.")
@@ -233,6 +237,11 @@ def docs_editor(doc_id: int):
 def docs_upload_image():
     if not _can_manage_docs(current_user):
         return jsonify({"error": "Forbidden"}), 403
+
+    if request.content_length is None:
+        return jsonify({"error": "Content-Length required."}), 400
+    if request.content_length > MAX_IMAGE_UPLOAD_BYTES:
+        return jsonify({"error": "Image too large. Maximum size is 10 MB."}), 413
 
     image = request.files.get("image")
     if image is None or not image.filename:

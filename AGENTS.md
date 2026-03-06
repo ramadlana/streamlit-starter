@@ -56,6 +56,7 @@ Minimum agent behavior:
   - `config.py`: DB URI builder from env
   - `models.py`: ORM models (`User`, `DocumentationPage`)
   - `user_roles.py`: role constants/normalization + startup role-column ensure/backfill
+  - `app_settings.py`: key-value app settings (e.g. `allow_signup`); admin-only writes
   - `docs.py`: docs query + persistence helpers
   - `docs_attachments.py`: docs attachment reference scan + orphan housekeeping helpers
   - `engine.py`: shared SQL engine for raw SQL features
@@ -97,6 +98,7 @@ Read these in order when starting a task:
 - `example_crud`
 - `dummydata_crud`
 - `docs`
+- `iframe_app_streamlit`
 
 ### Route groups (high-level)
 - `home`
@@ -105,9 +107,11 @@ Read these in order when starting a task:
   - `/login`
   - `/signup`
   - `/logout`
+  - `/change-password`
   - `/auth-check`
 - `admin`
   - `/admin`
+  - `/admin/settings`
   - `/admin/add`
   - `/admin/edit/<user_id>`
   - `/admin/delete/<user_id>`
@@ -130,6 +134,8 @@ Read these in order when starting a task:
   - `/docs/attachments/<filename>`
   - `/docs/admin/attachments-housekeeping`
   - `/docs/admin/delete/<id>`
+- `iframe_app_streamlit`
+  - `/iframe-app-streamlit` (protected; embeds Streamlit in iframe)
 
 ---
 
@@ -258,6 +264,7 @@ For new code, import from `app_db`.
 - `db.create_all()` runs in app factory; avoid relying on it for non-ORM raw SQL tables.
 - Docs uploads now write to `uploads/attachments/docs`; `/docs/attachments/<filename>` also falls back to legacy `uploads/attachments/changemanagement`.
 - User roles are `viewer`, `editor`, `approval1`, `approval2`, `admin`; role is the single source for authorization checks.
+- Sign up can be disabled by admin via **Admin Panel → Site settings** (“Allow new sign ups” toggle); when disabled, `/signup` redirects to login and the Sign Up nav link is hidden.
 
 ---
 
