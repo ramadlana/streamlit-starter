@@ -1036,7 +1036,9 @@ Always sourced from `app_db/config.py` via environment variables. Never hardcode
 
 ## 17. Base CSS & Style Guide
 
-`**static/css/base.css*`* is the **only** stylesheet for all HTML pages (auth, admin, docs, CRUD, etc.). It is loaded by `templates/base.html` and includes layout, components, docs styles, and CRUD/form-and-table styles in one file. It provides Bootstrap-like class names so you can build consistent UIs without adding page-specific CSS.
+> **See also:** `DESIGN_SYSTEM.md` for HTML/CSS standards, page structure, and a checklist for new pages.
+
+`static/css/base.css` is the **only** stylesheet for all HTML pages (auth, admin, docs, CRUD, etc.). It is loaded by `templates/base.html` and includes layout, components, docs styles, and CRUD/form-and-table styles in one file. It provides Bootstrap-like class names so you can build consistent UIs without adding page-specific CSS.
 
 Every template that extends `templates/base.html` already loads `base.css`. You do not need `{% block extra_css %}` unless loading a third-party asset (e.g. Quill for the docs editor). Use the classes below in any Jinja template.
 

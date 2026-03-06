@@ -35,14 +35,6 @@
         </div>
     </header>
 
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    {% for message in messages %}
-    <div class="flash-message">{{ message }}</div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-
     <form method="GET"
         action="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag) }}{% else %}{{ url_for('docs.docs_index') }}{% endif %}"
         class="docs-search-row">
@@ -76,14 +68,8 @@
             {% endif %}
 
             <footer class="docs-card-footer">
-                <div class="docs-card-meta-item">
-                    <span class="docs-card-meta-label">Updated</span>
-                    <time class="docs-card-meta-value js-local-datetime"
-                        datetime="{{ doc.updated_at.isoformat() if doc.updated_at else '' }}"
-                        data-fallback="{{ doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}">{{ doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}</time>
-                </div>
                 {% if doc.tags_csv %}
-                <div class="docs-card-tags">
+                <div class="docs-card-tags" style="justify-content: flex-start;">
                     {% for tag in doc.tags_csv.split(',') %}
                     <a class="docs-tag" href="{{ url_for('docs.docs_by_tag', tag=tag) }}">#{{ tag }}</a>
                     {% endfor %}

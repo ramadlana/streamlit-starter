@@ -88,10 +88,9 @@
     <div class="app-modal-actions">
         <form method="POST" action="{{ url_for('docs.docs_admin_delete_document', doc_id=doc.id) }}" style="flex: 1;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn" style="background: var(--error-color); width: 100%;">Delete</button>
+            <button type="submit" class="btn btn-danger w-100">Delete</button>
         </form>
-        <button type="button" class="btn" style="background: #e2e8f0; color: #0f172a; flex: 1;"
-            onclick="AppModal.close('deleteDocModal')">Cancel</button>
+        <button type="button" class="btn btn-secondary" onclick="AppModal.close('deleteDocModal')">Cancel</button>
     </div>
 </div>
 {% endcall %}

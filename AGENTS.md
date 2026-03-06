@@ -60,8 +60,9 @@ Minimum agent behavior:
   - `docs_attachments.py`: docs attachment reference scan + orphan housekeeping helpers
   - `engine.py`: shared SQL engine for raw SQL features
   - `example_crud.py`: feature table bootstrap helper
-- `templates/`: Jinja pages and forms
-- `static/css/`: `base.css` only (global, docs, CRUD styles merged)
+- `templates/`: Jinja pages and forms (extend `base.html`; no inline styles)
+- `static/css/`: `base.css` only (single stylesheet; see `DESIGN_SYSTEM.md`)
+- `DESIGN_SYSTEM.md`: HTML/CSS standards and component reference for the starter kit
 - `dashboard_pages/`: Streamlit pages
 - `scripts/`: operational utilities (`manage_admin.py`, `docs_attachments_housekeeping.py`, etc.)
 - Root entrypoints:
@@ -83,6 +84,7 @@ Read these in order when starting a task:
 7. `flask_app/routes/docs.py`
 8. `templates/base.html`
 9. `run.py`
+10. `DESIGN_SYSTEM.md` (when adding or changing templates/CSS)
 
 ---
 
@@ -268,6 +270,10 @@ python3 -m compileall -q app_db flask_app auth_server.py scripts models.py
 
 Recommended if available:
 - `pytest`
+
+When changing templates/CSS, follow `DESIGN_SYSTEM.md`:
+- Single stylesheet (`base.css`); no new CSS files or inline `<style>` in templates
+- Use standard classes (`btn`, `form-control`, `crud-panel-title`, etc.); no duplicate flash blocks
 
 When changing docs/routing/features, verify:
 - Route names + blueprint names match all `url_for(...)`

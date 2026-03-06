@@ -12,7 +12,7 @@ from flask_app.routes.example_crud import bp as example_crud_bp
 from flask_app.routes.home import bp as home_bp
 from flask_app.routes.dummydata_crud import bp as dummydata_crud_bp
 from flask_app.routes.docs import bp as docs_bp
-
+from flask_app.routes.iframe_app_streamlit import bp as iframe_app_streamlit_bp
 
 def create_app():
     project_root = Path(__file__).resolve().parent.parent
@@ -52,7 +52,7 @@ def create_app():
     app.register_blueprint(example_crud_bp)
     app.register_blueprint(dummydata_crud_bp)
     app.register_blueprint(docs_bp)
-
+    app.register_blueprint(iframe_app_streamlit_bp)
     with app.app_context():
         db.create_all()
         ensure_user_role_column()
