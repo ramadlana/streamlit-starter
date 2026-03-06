@@ -194,6 +194,7 @@
         const selection = quill.getSelection(true);
         const activeFormats = selection ? quill.getFormat(selection.index, selection.length) : {};
         const textPayload = clipboard.getData('text/plain');
+        
         if (activeFormats && activeFormats['code-block'] && textPayload) {
             evt.preventDefault();
             const insertIndex = selection ? selection.index : quill.getLength();
@@ -202,6 +203,21 @@
             quill.insertText(insertIndex, textPayload, 'user');
             quill.setSelection(insertIndex + textPayload.length, 0, 'silent');
             return;
+        }
+
+        // Handle multi-line plain text paste in normal body text
+        if (textPayload && textPayload.includes('\n') && !activeFormats['code-block']) {
+            const htmlPayload = clipboard.getData('text/html');
+            // Only intercept if pasting plain text (no rich HTML formatting)
+            if (!htmlPayload || htmlPayload.trim() === '') {
+                evt.preventDefault();
+                const insertIndex = selection ? selection.index : quill.getLength();
+                const replaceLength = selection ? selection.length : 0;
+                quill.deleteText(insertIndex, replaceLength, 'user');
+                quill.insertText(insertIndex, textPayload, 'user');
+                quill.setSelection(insertIndex + textPayload.length, 0, 'silent');
+                return;
+            }
         }
 
         const imageItem = Array.from(clipboard.items).find(function (item) {
