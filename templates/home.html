@@ -13,7 +13,7 @@
                 <p class="home-hero-tagline">Dashboards, docs, and tools in one place.</p>
             </div>
             <div class="home-hero-image">
-                <img src="https://picsum.photos/seed/hero1/800/400" alt="Workspace" width="800" height="400" loading="lazy">
+                <img src="{{ url_for('static', filename='images/home-portalimage-800x400.jpg') }}" alt="Workspace" width="800" height="400" loading="lazy">
             </div>
         </div>
     </section>
@@ -216,7 +216,7 @@
 
     <section class="home-section mt-5">
         <div class="crud-panel p-4 home-getting-started">
-            <img src="https://picsum.photos/seed/started1/400/240" alt="" width="400" height="240" loading="lazy">
+            <img src="{{ url_for('static', filename='images/get-started-241-400x240.jpg') }}" alt="" width="400" height="240" loading="lazy">
             <div class="home-getting-started-content">
                 <p class="text-muted small mb-2">Open an app above to get started. Access and role: <strong>{{ current_user.role if current_user.is_authenticated else 'Guest' }}</strong>. For access changes, contact your admin or IT.</p>
             </div>
