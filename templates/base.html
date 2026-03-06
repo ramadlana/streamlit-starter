@@ -37,10 +37,13 @@
             {% if current_user.role == "admin" %}
             <a href="{{ url_for('admin.admin') }}">Admin Panel</a>
             {% endif %}
+            <a href="{{ url_for('auth.change_password') }}">Change password</a>
             <a href="{{ url_for('auth.logout') }}" class="nav-link-logout">Logout</a>
             {% else %}
             <a href="{{ url_for('auth.login') }}">Login</a>
+            {% if allow_signup %}
             <a href="{{ url_for('auth.signup') }}">Sign Up</a>
+            {% endif %}
             {% endif %}
 
             {% if current_user.is_authenticated %}

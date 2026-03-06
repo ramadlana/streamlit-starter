@@ -41,8 +41,14 @@ def login():
 
 @bp.route("/signup", methods=["GET", "POST"])
 def signup():
+    from app_db.app_settings import get_allow_signup
+
     if current_user.is_authenticated:
         return redirect(url_for("home.index"))
+
+    if not get_allow_signup():
+        flash("Sign up is currently disabled.")
+        return redirect(url_for("auth.login"))
 
     if request.method == "POST":
         username = (request.form.get("username") or "").strip()
@@ -82,6 +88,44 @@ def signup():
 def logout():
     logout_user()
     return redirect(url_for("auth.login"))
+
+
+MIN_PASSWORD_LENGTH = 8
+
+
+@bp.route("/change-password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    if request.method == "POST":
+        current = request.form.get("current_password") or ""
+        new_password = request.form.get("new_password") or ""
+        confirm = request.form.get("confirm_password") or ""
+
+        if not current:
+            flash("Current password is required.")
+            return render_template("change_password.html")
+
+        if not current_user.check_password(current):
+            flash("Current password is incorrect.")
+            return render_template("change_password.html")
+
+        if len(new_password) < MIN_PASSWORD_LENGTH:
+            flash("New password must be at least 8 characters.")
+            return render_template("change_password.html")
+
+        if new_password != confirm:
+            flash("New password and confirmation do not match.")
+            return render_template("change_password.html")
+
+        try:
+            current_user.set_password(new_password)
+            db.session.commit()
+            flash("Your password has been updated.")
+            return redirect(url_for("home.index"))
+        except ValueError:
+            flash("Invalid new password.")
+
+    return render_template("change_password.html")
 
 
 @bp.route("/auth-check")

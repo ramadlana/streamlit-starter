@@ -5,6 +5,7 @@ from flask import Flask, flash, redirect, request, url_for
 from flask_wtf.csrf import CSRFError, generate_csrf
 
 from app_db import build_database_uri, db, ensure_user_role_column
+from app_db.app_settings import ensure_app_settings_table
 from flask_app.extensions import csrf, login_manager
 from flask_app.routes.admin import bp as admin_bp
 from flask_app.routes.auth import bp as auth_bp
@@ -51,6 +52,11 @@ def create_app():
         )
         return {"can_show_editor_menu": can_show}
 
+    @app.context_processor
+    def inject_allow_signup():
+        from app_db.app_settings import get_allow_signup
+        return {"allow_signup": get_allow_signup()}
+
     @app.errorhandler(CSRFError)
     def handle_csrf_error(_):
         flash("Your session expired. Please try again.")
@@ -66,5 +72,6 @@ def create_app():
     with app.app_context():
         db.create_all()
         ensure_user_role_column()
+        ensure_app_settings_table()
 
     return app

@@ -1855,10 +1855,11 @@ select.form-control { cursor: pointer; }
 }
 
 .crud-table th {
-    color: var(--muted-foreground);
+    color: #27272a;
     font-size: 0.75rem;
     font-weight: 500;
     text-transform: uppercase;
+    font-weight: bold;
     letter-spacing: 0.04em;
 }
 
@@ -2062,6 +2063,85 @@ select.form-control { cursor: pointer; }
 }
 
 .modal-form { margin-top: 1.5rem; }
+
+.admin-settings-section {
+    margin-top: 1.5rem;
+}
+
+.admin-settings-form {
+    max-width: 28rem;
+    margin-bottom: 0;
+}
+
+.admin-settings-form-inner {
+    margin-top: 0.5rem;
+}
+
+.settings-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.settings-toggle-label {
+    font-weight: 500;
+    color: var(--foreground);
+}
+
+.settings-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.settings-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.settings-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: var(--muted);
+    border-radius: 26px;
+    transition: background 0.2s;
+}
+
+.settings-switch-slider::before {
+    content: "";
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background: var(--background);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+}
+
+.settings-switch-input:checked + .settings-switch-slider {
+    background: var(--primary);
+}
+
+.settings-switch-input:checked + .settings-switch-slider::before {
+    transform: translateX(22px);
+}
+
+.settings-switch-input:focus-visible + .settings-switch-slider {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.btn-settings-save {
+    margin-top: 0.25rem;
+}
 
 /* ==========================================================================
    Dashboard home (iframe full-height)

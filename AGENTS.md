@@ -105,9 +105,11 @@ Read these in order when starting a task:
   - `/login`
   - `/signup`
   - `/logout`
+  - `/change-password`
   - `/auth-check`
 - `admin`
   - `/admin`
+  - `/admin/settings`
   - `/admin/add`
   - `/admin/edit/<user_id>`
   - `/admin/delete/<user_id>`

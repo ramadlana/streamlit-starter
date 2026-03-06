@@ -2,6 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app_db import ROLE_CHOICES, User, db, normalize_role
+from app_db.app_settings import get_allow_signup, set_allow_signup
 from flask_app.routes.permissions import role_required
 
 bp = Blueprint("admin", __name__)
@@ -16,7 +17,23 @@ MIN_PASSWORD_LENGTH = 8
 @role_required("admin", message="Access denied: Admins only.")
 def admin():
     users = User.query.all()
-    return render_template("admin.html", users=users, roles=ROLE_CHOICES)
+    return render_template(
+        "admin.html",
+        users=users,
+        roles=ROLE_CHOICES,
+        allow_signup_setting=get_allow_signup(),
+    )
+
+
+@bp.route("/admin/settings", methods=["POST"])
+@login_required
+@role_required("admin", message="Access denied: Admins only.")
+def admin_settings():
+    allow_signup_raw = (request.form.get("allow_signup") or "").strip().lower()
+    allowed = allow_signup_raw in ("1", "true", "yes", "on")
+    set_allow_signup(allowed)
+    flash("Site settings updated.")
+    return redirect(url_for("admin.admin"))
 
 
 @bp.route("/admin/add", methods=["POST"])
