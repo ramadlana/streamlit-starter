@@ -1,11 +1,226 @@
 {% extends "base.html" %}
-{% from "components/modal.html" import modal %}
 
-{% block title %}Style cheatsheet{% endblock %}
+{% block title %}Home{% endblock %}
 {% block body_class %}content-top page-home{% endblock %}
 
 {% block content %}
-<div class="showcase-container">
-    <h1>Home</h1>
+<div class="home-page">
+    <!-- Hero -->
+    <section class="home-hero">
+        <div class="home-hero-inner">
+            <div class="home-hero-content">
+                <h1 class="home-hero-title">Portal</h1>
+                <p class="home-hero-tagline">Dashboards, docs, and tools in one place.</p>
+            </div>
+            <div class="home-hero-image">
+                <img src="https://picsum.photos/seed/hero1/800/400" alt="Workspace" width="800" height="400" loading="lazy">
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick info strip -->
+    <div class="home-info-strip">
+        <div class="home-info-item">
+            <span class="home-info-item-dot" aria-hidden="true"></span>
+            <span>All systems operational</span>
+        </div>
+        <div class="home-info-item">
+            <span class="home-info-item-dot warning" aria-hidden="true"></span>
+            <span>Last deploy: Mar 5, 2025</span>
+        </div>
+        <div class="home-info-item">
+            <span>Need help? Check the <a href="{{ url_for('docs.docs_index') }}">Docs</a> or contact IT.</span>
+        </div>
+    </div>
+
+    <div class="home-two-col">
+        <!-- News & announcements -->
+        <div class="home-col">
+            <section class="home-section">
+                <h2 class="home-section-title">News &amp; announcements</h2>
+                <div class="home-news-list">
+                    <a href="{{ url_for('docs.docs_index') }}" class="home-news-item">
+                        <div class="home-news-item-date">Mar 4, 2025</div>
+                        <div class="home-news-item-title">New documentation hub live</div>
+                        <p class="home-news-item-excerpt">Browse and search all internal docs in one place. Tagged and searchable for your team.</p>
+                    </a>
+                    <div class="home-news-item">
+                        <div class="home-news-item-date">Mar 1, 2025</div>
+                        <div class="home-news-item-title">Streamlit dashboard updates</div>
+                        <p class="home-news-item-excerpt">The analytics dashboard now includes Q1 metrics and export options. Open it from the Apps section below.</p>
+                    </div>
+                    <div class="home-news-item">
+                        <div class="home-news-item-date">Feb 28, 2025</div>
+                        <div class="home-news-item-title">Scheduled maintenance window</div>
+                        <p class="home-news-item-excerpt">Planned maintenance on Sunday 2–4 AM UTC. Brief read-only mode possible. No action required.</p>
+                    </div>
+                    <div class="home-news-item">
+                        <div class="home-news-item-date">Feb 28, 2025</div>
+                        <div class="home-news-item-title">Scheduled maintenance window</div>
+                        <p class="home-news-item-excerpt">Planned maintenance on Sunday 2–4 AM UTC. Brief read-only mode possible. No action required.</p>
+                    </div>
+                    <div class="home-news-item">
+                        <div class="home-news-item-date">Feb 28, 2025</div>
+                        <div class="home-news-item-title">Scheduled maintenance window</div>
+                        <p class="home-news-item-excerpt">Planned maintenance on Sunday 2–4 AM UTC. Brief read-only mode possible. No action required.</p>
+                    </div>
+                    <div class="home-news-item">
+                        <div class="home-news-item-date">Feb 28, 2025</div>
+                        <div class="home-news-item-title">Scheduled maintenance window</div>
+                        <p class="home-news-item-excerpt">Planned maintenance on Sunday 2–4 AM UTC. Brief read-only mode possible. No action required.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Sub-apps -->
+        <div class="home-col home-col-apps">
+            <section class="home-section">
+                <h2 class="home-section-title">Apps</h2>
+                <div class="home-apps-grid">
+                    <a href="{{ url_for('iframe_app_streamlit.iframe_app_streamlit') }}" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17v-6h4v6M10 17V9h4v8M17 17v-4h3"/><path d="M2 14h5M8 10h5M14 8h5"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">Dashboard</span>
+                            <p class="home-app-card-desc">Metrics and reports</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="#" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <!-- Calendar icon -->
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="12" rx="2"/><path d="M16 3v2M4 3v2M3 9h14"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">Event Hub</span>
+                            <p class="home-app-card-desc">Company event schedules</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="#" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <!-- Chat bubbles icon -->
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="10" cy="8" rx="7" ry="5"/><path d="M4 14l2-2c.4-.4 1-.6 1.6-.4C8.6 12.1 9.3 12 10 12c3.9 0 7-2.2 7-5 0-.5-.1-.9-.2-1.3"/><circle cx="7" cy="8" r="1"/><circle cx="10" cy="8" r="1"/><circle cx="13" cy="8" r="1"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">QuickChat</span>
+                            <p class="home-app-card-desc">Internal messaging</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="#" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <!-- Lightbulb icon -->
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2a6 6 0 0 0-3 11.3V16a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-2.7A6 6 0 0 0 10 2z"/><path d="M9 19h2"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">IdeaBoard</span>
+                            <p class="home-app-card-desc">Crowdsource suggestions</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="#" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <!-- Rocket icon -->
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 17l4-4a6 6 0 0 1 6-6l4-4M9 15l6-6"/><circle cx="15.5" cy="4.5" r="2"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">LaunchPad</span>
+                            <p class="home-app-card-desc">Access beta features</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="#" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <!-- Wrench/tools icon -->
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16.24 7.76a5.5 5.5 0 1 0-6.48 6.48l4.72 4.72a1 1 0 0 0 1.41-1.41l-4.72-4.72a3.5 3.5 0 1 1 4.95-4.95z"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">ToolBench</span>
+                            <p class="home-app-card-desc">Utility suite</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="#" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <!-- Pie chart icon -->
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="8"/><path d="M10 10V2M10 10h8"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">InsightsPro</span>
+                            <p class="home-app-card-desc">Analyze stats</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="#" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <!-- Cloud upload icon -->
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 16v-6M7 10l3-3 3 3"/><path d="M17 16a5 5 0 0 0-9.9-1.5"/><path d="M5 16a4 4 0 1 1 8 0"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">FileDrop</span>
+                            <p class="home-app-card-desc">Upload and share docs</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="{{ url_for('docs.docs_index') }}" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2h7l5 5v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M12 2v5h5"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">Docs</span>
+                            <p class="home-app-card-desc">Internal documentation</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    {% if can_show_editor_menu %}
+                    <a href="{{ url_for('example_crud.example_crud') }}" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h12M4 10h12M4 14h8"/><rect x="2" y="2" width="16" height="16" rx="1.5"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">Example CRUD</span>
+                            <p class="home-app-card-desc">Records</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="{{ url_for('dummydata_crud.dummydata_crud') }}" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h4v4H3zM10 5h4v4h-4zM3 11h4v4H3zM10 11h4v4h-4z"/><path d="M2 3h16v14H2z"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">Dummydata</span>
+                            <p class="home-app-card-desc">Data browser</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    {% endif %}
+                    {% if current_user.is_authenticated and current_user.role == "admin" %}
+                    <a href="{{ url_for('admin.admin') }}" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v1.5m0 13v1.5M4.2 4.2l1 1m9.6 9.6l1 1M2 10h1.5m13 0H17M4.2 15.8l1-1m9.6-9.6l1-1"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">Admin</span>
+                            <p class="home-app-card-desc">Users and settings</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <section class="home-section mt-5">
+        <div class="crud-panel p-4 home-getting-started">
+            <img src="https://picsum.photos/seed/started1/400/240" alt="" width="400" height="240" loading="lazy">
+            <div class="home-getting-started-content">
+                <p class="text-muted small mb-2">Open an app above to get started. Access and role: <strong>{{ current_user.role if current_user.is_authenticated else 'Guest' }}</strong>. For access changes, contact your admin or IT.</p>
+            </div>
+        </div>
+    </section>
 </div>
 {% endblock %}
