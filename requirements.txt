@@ -17,5 +17,6 @@ plotly==6.5.2
 altair==6.0.0
 
 # Security & Utils
+bleach==6.1.0
 python-dotenv==1.2.1
 watchdog==6.0.0

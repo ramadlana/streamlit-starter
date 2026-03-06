@@ -13,6 +13,8 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(32), nullable=False, default="viewer")
 
     def set_password(self, password):
+        if password is None or not isinstance(password, str) or not password.strip():
+            raise ValueError("Password must be a non-empty string")
         self.password = generate_password_hash(password)
 
     def check_password(self, password):

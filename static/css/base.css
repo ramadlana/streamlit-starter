@@ -95,6 +95,11 @@ body {
     color: #cbd5e1;
 }
 
+.nav-link-logout {
+    color: var(--error-color);
+    opacity: 0.8;
+}
+
 .nav-dropdown {
     position: relative;
 }

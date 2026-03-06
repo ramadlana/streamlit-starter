@@ -41,6 +41,16 @@ def create_app():
     def inject_csrf_token():
         return {"csrf_token": generate_csrf}
 
+    @app.context_processor
+    def inject_editor_menu():
+        from flask_login import current_user
+        from app_db.user_roles import EDITOR_MENU_ROLES, normalize_role
+        can_show = (
+            current_user.is_authenticated
+            and normalize_role(getattr(current_user, "role", "viewer")) in EDITOR_MENU_ROLES
+        )
+        return {"can_show_editor_menu": can_show}
+
     @app.errorhandler(CSRFError)
     def handle_csrf_error(_):
         flash("Your session expired. Please try again.")

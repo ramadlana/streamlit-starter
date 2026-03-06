@@ -151,6 +151,22 @@
 {% endcall %}
 
 <script>
+    // Reopen add-user modal when returning from validation error
+    (function () {
+        var open = {{ request.args.get('open', '') | tojson }};
+        if (open !== 'addModal') return;
+        function openAddModal() {
+            if (typeof AppModal !== 'undefined' && AppModal.open) {
+                AppModal.open('addModal');
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', openAddModal);
+        } else {
+            openAddModal();
+        }
+    })();
+
     // Handle Edit User Clicks
     document.querySelectorAll('.edit-user-btn').forEach(button => {
         button.addEventListener('click', () => {

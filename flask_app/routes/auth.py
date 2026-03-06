@@ -24,14 +24,17 @@ def login():
         return redirect(url_for("home.index"))
 
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        user = User.query.filter_by(username=username).first()
+        username = (request.form.get("username") or "").strip()
+        password = request.form.get("password") or ""
+        if not username:
+            flash("Invalid username or password")
+        else:
+            user = User.query.filter_by(username=username).first()
 
-        if user and user.check_password(password):
-            login_user(user)
-            return redirect(url_for("home.index"))
-        flash("Invalid username or password")
+            if user and user.check_password(password):
+                login_user(user)
+                return redirect(url_for("home.index"))
+            flash("Invalid username or password")
 
     return render_template("login.html")
 
@@ -42,24 +45,34 @@ def signup():
         return redirect(url_for("home.index"))
 
     if request.method == "POST":
-        username = request.form.get("username")
-        email = request.form.get("email")
-        password = request.form.get("password")
+        username = (request.form.get("username") or "").strip()
+        email = (request.form.get("email") or "").strip().lower()
+        password = request.form.get("password") or ""
 
-        user_exists = User.query.filter(
-            (User.username == username) | (User.email == email)
-        ).first()
-        if user_exists:
-            flash("Username or email already exists")
+        if not username:
+            flash("Username is required.")
+        elif not email:
+            flash("Email is required.")
+        elif len(password) < 8:
+            flash("Password must be at least 8 characters.")
         else:
-            new_user = User()
-            new_user.username = username
-            new_user.email = email
-            new_user.set_password(password)
-            db.session.add(new_user)
-            db.session.commit()
-            flash("Account created! Please login.")
-            return redirect(url_for("auth.login"))
+            user_exists = User.query.filter(
+                (User.username == username) | (User.email == email)
+            ).first()
+            if user_exists:
+                flash("Username or email already exists")
+            else:
+                try:
+                    new_user = User()
+                    new_user.username = username
+                    new_user.email = email
+                    new_user.set_password(password)
+                    db.session.add(new_user)
+                    db.session.commit()
+                    flash("Account created! Please login.")
+                    return redirect(url_for("auth.login"))
+                except ValueError:
+                    flash("Invalid password.")
 
     return render_template("signup.html")
 
