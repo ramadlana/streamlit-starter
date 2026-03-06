@@ -20,16 +20,41 @@
 
     <!-- Quick info strip -->
     <div class="home-info-strip">
-        <div class="home-info-item">
+        <a href="/#" class="home-info-item home-info-item-link" title="View status page">
             <span class="home-info-item-dot" aria-hidden="true"></span>
             <span>All systems operational</span>
-        </div>
+        </a>
         <div class="home-info-item">
             <span class="home-info-item-dot warning" aria-hidden="true"></span>
             <span>Last deploy: Mar 5, 2025</span>
         </div>
         <div class="home-info-item">
             <span>Need help? Check the <a href="{{ url_for('docs.docs_index') }}">Docs</a> or contact IT.</span>
+        </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="home-quick-actions">
+        <span class="home-quick-actions-label">Quick actions</span>
+        <div class="home-quick-actions-buttons">
+            <a href="/#" class="home-quick-action-btn">
+                <span class="home-quick-action-btn-icon" aria-hidden="true">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h4v4H3zM10 4h4v4h-4zM3 10h4v4H3zM10 10h4v4h-4z"/><path d="M2 2h16v16H2z"/></svg>
+                </span>
+                <span>New ticket</span>
+            </a>
+            <a href="/#" class="home-quick-action-btn">
+                <span class="home-quick-action-btn-icon" aria-hidden="true">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2"/></svg>
+                </span>
+                <span>Log time</span>
+            </a>
+            <a href="/#" class="home-quick-action-btn">
+                <span class="home-quick-action-btn-icon" aria-hidden="true">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="12" rx="2"/><path d="M16 3v2M4 3v2M3 9h14"/></svg>
+                </span>
+                <span>Request change</span>
+            </a>
         </div>
     </div>
 
@@ -78,6 +103,7 @@
             <section class="home-section">
                 <h2 class="home-section-title">Apps</h2>
                 <div class="home-apps-grid">
+                    <div class="home-apps-category" style="grid-column: 1 / -1;">Service delivery, infra &amp; ops</div>
                     <a href="/#" class="home-app-card">
                         <div class="home-app-card-icon" aria-hidden="true">
                             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h4v4H3zM10 4h4v4h-4zM3 10h4v4H3zM10 10h4v4h-4z"/><path d="M2 2h16v16H2z"/></svg>
@@ -275,6 +301,57 @@
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Status Page</span>
                             <p class="home-app-card-desc">Service health & incidents (internal)</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <div class="home-apps-category" style="grid-column: 1 / -1;">Approvals &amp; people</div>
+                    <a href="/#" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 14l2-2 4 4 8-8"/><path d="M10 4v4l2 2"/><circle cx="10" cy="10" r="7"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">Approvals</span>
+                            <p class="home-app-card-desc">Leave, change &amp; access requests</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="/#" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="12" rx="2"/><path d="M16 3v2M4 3v2M3 9h14"/><path d="M7 12h2M11 12h2"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">Release Calendar</span>
+                            <p class="home-app-card-desc">Planned releases &amp; deploys</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="/#" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="6" r="2.5"/><circle cx="13" cy="6" r="2.5"/><path d="M4 16c0-2.2 1.8-4 4-4s4 1.8 4 4M12 16c0-1.5 1-2.8 2.4-3.3"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">Team Directory</span>
+                            <p class="home-app-card-desc">Who does what, skills &amp; escalation</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="/#" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h12v8H4z"/><path d="M6 4v2M14 4v2"/><path d="M7 9h6M7 12h4"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">Reporting</span>
+                            <p class="home-app-card-desc">Report catalog &amp; scheduled reports</p>
+                        </div>
+                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="/#" class="home-app-card">
+                        <div class="home-app-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3l6 3v5l-6 3-6-3V6l6-3z"/><path d="M4 11l6 3 6-3M10 14V8"/></svg>
+                        </div>
+                        <div class="home-app-card-text">
+                            <span class="home-app-card-title">Training &amp; Certs</span>
+                            <p class="home-app-card-desc">Mandatory training &amp; certifications</p>
                         </div>
                         <span class="home-app-card-arrow" aria-hidden="true">→</span>
                     </a>

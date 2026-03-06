@@ -81,7 +81,17 @@
         {% block content %}{% endblock %}
     </div>
 
-   
+    <footer class="portal-footer">
+        <div class="portal-footer-inner">
+            <a href="{{ url_for('docs.docs_index') }}">Docs</a>
+            <a href="/#">Status</a>
+            <a href="/#">Suggest an app</a>
+            {% if current_user.is_authenticated and current_user.role == "admin" %}
+            <a href="{{ url_for('admin.admin') }}">Admin</a>
+            {% endif %}
+            <span class="portal-footer-meta">Portal</span>
+        </div>
+    </footer>
 
     <script>
         (function () {

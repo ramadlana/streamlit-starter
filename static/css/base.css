@@ -469,7 +469,7 @@ body.docs-light .container {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    max-height: 26rem;
+    max-height: 32rem;
     overflow-y: auto;
     overflow-x: hidden;
     padding-bottom: 1rem;
@@ -546,11 +546,101 @@ body.docs-light .container {
     background: #eab308;
 }
 
+.home-info-item-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.home-info-item-link:hover {
+    text-decoration: underline;
+}
+
+.home-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.25rem;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+.home-quick-actions-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted-foreground);
+}
+
+.home-quick-actions-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.home-quick-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--primary-foreground);
+    background: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: background var(--transition), border-color var(--transition), opacity var(--transition);
+}
+
+.home-quick-action-btn:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    opacity: 0.95;
+}
+
+.home-quick-action-btn:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: var(--ring-offset);
+}
+
+.home-quick-action-btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-quick-action-btn-icon svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.home-apps-category {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted-foreground);
+    padding: 0.5rem 0 0.15rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.home-apps-category:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
 .home-apps-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 0.75rem;
-    max-height: 26rem;
+    max-height: 32rem;
     overflow-y: auto;
     overflow-x: hidden;
     padding-bottom: 1rem;
@@ -664,6 +754,48 @@ body.docs-light .container {
     margin-bottom: 0.5rem;
     font-weight: 600;
     color: var(--foreground);
+}
+
+/* Portal footer (all pages) */
+.portal-footer {
+    margin-top: auto;
+    padding: 1.25rem 2rem;
+    background: var(--background);
+    border-top: 1px solid var(--border);
+    font-size: 0.8125rem;
+}
+
+.portal-footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.portal-footer a {
+    color: var(--muted-foreground);
+    text-decoration: none;
+}
+
+.portal-footer a:hover {
+    color: var(--foreground);
+    text-decoration: underline;
+}
+
+.portal-footer-meta {
+    color: var(--muted-foreground);
+    margin-left: auto;
+}
+
+@media (max-width: 768px) {
+    .portal-footer-meta {
+        margin-left: 0;
+        width: 100%;
+        text-align: center;
+    }
 }
 
 /* Showcase / cheatsheet (style guide page) */
