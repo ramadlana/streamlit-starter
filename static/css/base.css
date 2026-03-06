@@ -139,10 +139,15 @@ body {
     padding: 0.5rem 1rem;
     display: block;
     white-space: nowrap;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
 }
 
 .nav-dropdown-menu a:hover {
     background: rgba(148, 163, 184, 0.12);
+    color: #cbd5e1;
 }
 
 .nav-dropdown.open .nav-dropdown-menu {
@@ -1361,6 +1366,22 @@ body.docs-editor-page .docs-reading-actions {
     margin-bottom: 1.1rem;
     overflow-wrap: anywhere;
     word-break: break-word;
+}
+
+/* Reading view: 16px text and spacing (wins over Quill .ql-editor defaults) */
+.docs-reading .docs-content.docs-prose {
+    font-size: 16px;
+}
+.docs-reading .docs-content.docs-prose p,
+.docs-reading .docs-content.docs-prose ul,
+.docs-reading .docs-content.docs-prose ol,
+.docs-reading .docs-content.docs-prose blockquote,
+.docs-reading .docs-content.docs-prose pre {
+    margin-bottom: 1.1rem;
+}
+.docs-reading .docs-content.docs-prose p:last-child,
+.docs-reading .docs-content.docs-prose > *:last-child {
+    margin-bottom: 0;
 }
 
 .docs-prose h1,
