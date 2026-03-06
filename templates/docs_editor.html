@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}{% if doc %}Edit{% else %}New{% endif %} Document{% endblock %}
-{% block body_class %}docs-light{% endblock %}
+{% block body_class %}docs-light docs-editor-page{% endblock %}
 
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
@@ -166,14 +166,16 @@
                 return;
             }
 
+            /* Paste multi-line text (e.g. from VSCode or web) as code block */
             if (textPayload && textPayload.includes('\n') && !activeFormats['code-block']) {
-                const htmlPayload = clipboard.getData('text/html');
-                if (!htmlPayload || htmlPayload.trim() === '') {
+                const htmlPayload = clipboard.getData('text/html') || '';
+                const looksLikeCode = !htmlPayload.trim() || /<pre[\s>]|<code[\s>]/i.test(htmlPayload);
+                if (looksLikeCode) {
                     evt.preventDefault();
                     const insertIndex = selection ? selection.index : quill.getLength();
                     const replaceLength = selection ? selection.length : 0;
                     quill.deleteText(insertIndex, replaceLength, 'user');
-                    quill.insertText(insertIndex, textPayload, 'user');
+                    quill.insertText(insertIndex, textPayload, 'code-block', true, 'user');
                     quill.setSelection(insertIndex + textPayload.length, 0, 'silent');
                     return;
                 }
