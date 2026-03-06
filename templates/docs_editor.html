@@ -113,9 +113,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+<script type="application/json" id="docs-editor-config">
+{{ {"initialHtml": (doc.content_html if doc else "") or "", "uploadImageUrl": url_for("docs.docs_upload_image")} | tojson }}
+</script>
 <script>
-
     (function () {
+        const config = JSON.parse(document.getElementById('docs-editor-config').textContent);
+
         const Font = Quill.import('formats/font');
         Font.whitelist = ['inter', 'roboto', 'mirza'];
         Quill.register(Font, true);
@@ -154,62 +158,46 @@
             return delta;
         });
 
-        const initialHtml = {{ (doc.content_html if doc else '') | tojson
-    }};
-    if (initialHtml) {
-        quill.clipboard.dangerouslyPasteHTML(initialHtml);
-    } else {
-        // Default typing font for new content.
-        quill.format('font', 'inter');
-    }
-
-    async function uploadClipboardImage(file) {
-        const tokenInput = document.querySelector('input[name="csrf_token"]');
-        const formData = new FormData();
-        formData.append('image', file);
-
-        const res = await fetch({{ url_for('docs.docs_upload_image') | tojson }}, {
-        method: 'POST',
-            headers: {
-            'X-CSRFToken': tokenInput ? tokenInput.value : ''
-        },
-        body: formData
-    });
-    if (!res.ok) {
-        throw new Error('Image upload failed');
-    }
-    const payload = await res.json();
-    if (!payload.url) {
-        throw new Error('Image URL missing in response');
-    }
-    return payload.url;
+        const initialHtml = config.initialHtml;
+        if (initialHtml) {
+            quill.clipboard.dangerouslyPasteHTML(initialHtml);
+        } else {
+            quill.format('font', 'inter');
         }
 
-    quill.root.addEventListener('paste', async function (evt) {
-        const clipboard = evt.clipboardData;
-        if (!clipboard || !clipboard.items) {
-            return;
+        async function uploadClipboardImage(file) {
+            const tokenInput = document.querySelector('input[name="csrf_token"]');
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const res = await fetch(config.uploadImageUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': tokenInput ? tokenInput.value : ''
+                },
+                body: formData
+            });
+            if (!res.ok) {
+                throw new Error('Image upload failed');
+            }
+            const payload = await res.json();
+            if (!payload.url) {
+                throw new Error('Image URL missing in response');
+            }
+            return payload.url;
         }
 
-        const selection = quill.getSelection(true);
-        const activeFormats = selection ? quill.getFormat(selection.index, selection.length) : {};
-        const textPayload = clipboard.getData('text/plain');
-        
-        if (activeFormats && activeFormats['code-block'] && textPayload) {
-            evt.preventDefault();
-            const insertIndex = selection ? selection.index : quill.getLength();
-            const replaceLength = selection ? selection.length : 0;
-            quill.deleteText(insertIndex, replaceLength, 'user');
-            quill.insertText(insertIndex, textPayload, 'user');
-            quill.setSelection(insertIndex + textPayload.length, 0, 'silent');
-            return;
-        }
+        quill.root.addEventListener('paste', async function (evt) {
+            const clipboard = evt.clipboardData;
+            if (!clipboard || !clipboard.items) {
+                return;
+            }
 
-        // Handle multi-line plain text paste in normal body text
-        if (textPayload && textPayload.includes('\n') && !activeFormats['code-block']) {
-            const htmlPayload = clipboard.getData('text/html');
-            // Only intercept if pasting plain text (no rich HTML formatting)
-            if (!htmlPayload || htmlPayload.trim() === '') {
+            const selection = quill.getSelection(true);
+            const activeFormats = selection ? quill.getFormat(selection.index, selection.length) : {};
+            const textPayload = clipboard.getData('text/plain');
+
+            if (activeFormats && activeFormats['code-block'] && textPayload) {
                 evt.preventDefault();
                 const insertIndex = selection ? selection.index : quill.getLength();
                 const replaceLength = selection ? selection.length : 0;
@@ -218,36 +206,48 @@
                 quill.setSelection(insertIndex + textPayload.length, 0, 'silent');
                 return;
             }
-        }
 
-        const imageItem = Array.from(clipboard.items).find(function (item) {
-            return item.type && item.type.indexOf('image/') === 0;
+            if (textPayload && textPayload.includes('\n') && !activeFormats['code-block']) {
+                const htmlPayload = clipboard.getData('text/html');
+                if (!htmlPayload || htmlPayload.trim() === '') {
+                    evt.preventDefault();
+                    const insertIndex = selection ? selection.index : quill.getLength();
+                    const replaceLength = selection ? selection.length : 0;
+                    quill.deleteText(insertIndex, replaceLength, 'user');
+                    quill.insertText(insertIndex, textPayload, 'user');
+                    quill.setSelection(insertIndex + textPayload.length, 0, 'silent');
+                    return;
+                }
+            }
+
+            const imageItem = Array.from(clipboard.items).find(function (item) {
+                return item.type && item.type.indexOf('image/') === 0;
+            });
+
+            if (!imageItem) {
+                return;
+            }
+
+            evt.preventDefault();
+            const file = imageItem.getAsFile();
+            if (!file) {
+                return;
+            }
+
+            try {
+                const imageUrl = await uploadClipboardImage(file);
+                const range = quill.getSelection(true);
+                const index = range ? range.index : quill.getLength();
+                quill.insertEmbed(index, 'image', imageUrl, 'user');
+                quill.setSelection(index + 1, 0, 'silent');
+            } catch (error) {
+                alert('Unable to upload pasted image.');
+            }
         });
 
-        if (!imageItem) {
-            return;
-        }
-
-        evt.preventDefault();
-        const file = imageItem.getAsFile();
-        if (!file) {
-            return;
-        }
-
-        try {
-            const imageUrl = await uploadClipboardImage(file);
-            const range = quill.getSelection(true);
-            const index = range ? range.index : quill.getLength();
-            quill.insertEmbed(index, 'image', imageUrl, 'user');
-            quill.setSelection(index + 1, 0, 'silent');
-        } catch (error) {
-            alert('Unable to upload pasted image.');
-        }
-    });
-
-    document.getElementById('docs-form').addEventListener('submit', function () {
-        document.getElementById('content_html').value = quill.root.innerHTML;
-    });
-    }) ();
+        document.getElementById('docs-form').addEventListener('submit', function () {
+            document.getElementById('content_html').value = quill.root.innerHTML;
+        });
+    })();
 </script>
 {% endblock %}

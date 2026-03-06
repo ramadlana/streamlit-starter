@@ -34,24 +34,26 @@
             <p class="docs-summary docs-hero-summary">{{ doc.summary }}</p>
             {% endif %}
             <div class="docs-hero-meta">
-                <span class="docs-hero-creator">Created by <strong>{{ creator_name }}</strong></span>
-                <div class="docs-hero-meta-dates">
-                    <span>
-                        Created
-                        <time class="js-local-datetime"
-                            datetime="{{ doc.created_at.isoformat() if doc.created_at else '' }}"
-                            data-fallback="{{ doc.created_at.strftime('%b %d, %Y %H:%M') if doc.created_at else 'Unknown' }}">{{
-                            doc.created_at.strftime('%b %d, %Y %H:%M') if doc.created_at else 'Unknown' }}</time>
-                    </span>
-                    <span>
-                        Updated
-                        <time class="js-local-datetime"
-                            datetime="{{ doc.updated_at.isoformat() if doc.updated_at else '' }}"
-                            data-fallback="{{ doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}">{{
-                            doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}</time>
-                    </span>
+                <div class="docs-hero-meta-item docs-hero-creator">
+                    <span class="docs-hero-meta-label">Author</span>
+                    <span class="docs-hero-meta-value">{{ creator_name }}</span>
+                </div>
+                <span class="docs-hero-meta-sep" aria-hidden="true"></span>
+                <div class="docs-hero-meta-item">
+                    <span class="docs-hero-meta-label">Created</span>
+                    <time class="docs-hero-meta-value js-local-datetime"
+                        datetime="{{ doc.created_at.isoformat() if doc.created_at else '' }}"
+                        data-fallback="{{ doc.created_at.strftime('%b %d, %Y %H:%M') if doc.created_at else 'Unknown' }}">{{ doc.created_at.strftime('%b %d, %Y %H:%M') if doc.created_at else 'Unknown' }}</time>
+                </div>
+                <span class="docs-hero-meta-sep" aria-hidden="true"></span>
+                <div class="docs-hero-meta-item">
+                    <span class="docs-hero-meta-label">Updated</span>
+                    <time class="docs-hero-meta-value js-local-datetime"
+                        datetime="{{ doc.updated_at.isoformat() if doc.updated_at else '' }}"
+                        data-fallback="{{ doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}">{{ doc.updated_at.strftime('%b %d, %Y %H:%M') if doc.updated_at else 'Unknown' }}</time>
                 </div>
                 {% if tags %}
+                <span class="docs-hero-meta-sep" aria-hidden="true"></span>
                 <div class="docs-tags docs-hero-tags docs-hero-tags-inline">
                     {% for tag in tags %}
                     <a class="docs-tag" href="{{ url_for('docs.docs_by_tag', tag=tag) }}">#{{ tag }}</a>

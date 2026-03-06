@@ -325,7 +325,7 @@ body.docs-light .container {
 }
 
 .docs-reading {
-    max-width: 840px;
+    max-width: min(80vw, 840px);
     margin: 0 auto;
     background: #ffffff;
     border: none;
@@ -370,36 +370,58 @@ body.docs-light .container {
 }
 
 .docs-hero-meta {
-    margin-top: 1rem;
+    margin-top: 1.25rem;
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
+    align-items: baseline;
+    gap: 0 1.25rem;
+    row-gap: 0.75rem;
     color: #64748b;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
 }
 
-.docs-hero-creator {
-    font-size: 0.95rem;
-    color: #475569;
-}
-
-.docs-hero-meta-dates {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.docs-hero-meta span {
-    display: flex;
+.docs-hero-meta-item {
+    display: inline-flex;
     flex-direction: column;
-    gap: 0.2rem;
-    font-size: 0.88rem;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.docs-hero-meta-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+
+.docs-hero-meta-value {
+    font-size: 0.875rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+.docs-hero-meta-item.docs-hero-creator .docs-hero-meta-value {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.docs-hero-meta-sep {
+    width: 1px;
+    height: 1em;
+    background: #e2e8f0;
+    align-self: center;
+    flex-shrink: 0;
 }
 
 .docs-tags.docs-hero-tags-inline {
     margin-bottom: 0;
     margin-left: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
 }
 
 .docs-prose,
@@ -729,11 +751,17 @@ body.docs-light select {
     }
 
     .docs-hero-meta {
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
+        gap: 0.75rem 1rem;
+    }
+
+    .docs-hero-meta-sep {
+        display: none;
     }
 
     .docs-tags.docs-hero-tags-inline {
         margin-left: 0;
+        width: 100%;
     }
 }
