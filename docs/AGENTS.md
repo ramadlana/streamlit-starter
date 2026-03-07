@@ -65,7 +65,7 @@ Minimum agent behavior:
   - `docs_attachments.py`: docs attachment reference scan + orphan housekeeping helpers
   - `engine.py`: shared SQL engine for raw SQL features
   - `example_crud.py`: feature table bootstrap helper (no `dummydata.py`; that table is expected to exist)
-- `templates/`: Jinja pages (extend `base.html`; no inline styles). Includes `base.html`, `home.html`, `login.html`, `signup.html`, `admin.html`, `docs_index.html`, `docs_view.html`, `docs_editor.html`, `example_crud.html`, `dummydata_crud.html`, `iframe_app_streamlit.html`, `change_password.html`, `components/modal.html`
+- `templates/`: Jinja pages (extend `base.html`; no inline styles). Includes `base.html`, `home.html`, `login.html`, `signup.html`, `admin.html`, `docs_index.html`, `docs_view.html`, `docs_editor.html`, `example_crud.html`, `dummydata_crud.html`, `iframe_app_streamlit.html`, `change_password.html`, `components/modal.html`. **Lucide Icons** loaded via CDN in `base.html`; use `<i data-lucide="icon-name"></i>` (see [lucide.dev/icons](https://lucide.dev/icons)).
 - `static/css/`: Modular stylesheets. `base.css` is the entry point that imports `variables.css`, `reset.css`, `navbar.css`, `home.css`, `footer.css`, `showcase.css`, `components.css`, `docs.css`, `utilities.css`, `crud.css`, `admin.css`, `dashboard.css`. See `FRAMEWORK_REFERENCE.md` Part II — Design System.
 - `dashboard_pages/`: Streamlit page modules (e.g. `home.py`, `example/*.py`). Registered in `dashboard_app.py` via `st.Page(...)` and `st.navigation(...)`.
 - `scripts/`: `manage_admin.py`, `kill_ports.py`, `docs_attachments_housekeeping.py`
@@ -209,6 +209,12 @@ Also:
 1. Add module under `dashboard_pages/` (e.g. `dashboard_pages/my_page.py`). Include `import streamlit as st`.
 2. In `dashboard_app.py`: add `my_page = st.Page("dashboard_pages/my_page.py", title="My Page", icon="...")` and add `my_page` to one of the lists in `st.navigation({...})`.
 3. Keep business logic in `app_db`/Flask helpers, not in the Streamlit view.
+
+### Use Lucide Icons
+- **Loaded in**: `templates/base.html` (CDN, v0.460.0); `lucide.createIcons()` runs on `DOMContentLoaded`.
+- **Usage**: `<i data-lucide="icon-name" aria-hidden="true"></i>` where `icon-name` is the Lucide identifier (e.g. `arrow-left`, `pencil`, `trash-2`).
+- **Browse**: [lucide.dev/icons](https://lucide.dev/icons)
+- **Sizing**: For inline icons, use parent classes `.docs-back` or `.docs-inline-action` (styled in `docs.css`). For modals, use `.app-modal-danger-icon` (in `components.css`). See `FRAMEWORK_REFERENCE.md` §10.7.
 
 ---
 

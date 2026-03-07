@@ -285,6 +285,14 @@ input:focus {
     margin: 0 auto 1.25rem;
 }
 
+.app-modal-danger-icon .lucide,
+.app-modal-danger-icon svg {
+    width: 24px;
+    height: 24px;
+    color: #f43f5e;
+    stroke: #f43f5e;
+}
+
 .app-modal-body-muted {
     color: var(--muted-foreground);
     font-size: 0.875rem;

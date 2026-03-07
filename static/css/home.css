@@ -253,6 +253,14 @@ a.home-news-item:hover {
     text-decoration: underline;
 }
 
+.home-news-footer-link .home-news-footer-icon,
+.home-news-footer-link .lucide {
+    width: 0.875em;
+    height: 0.875em;
+    margin-left: 0.25em;
+    vertical-align: middle;
+}
+
 .home-info-strip {
     background: var(--background);
     border: 1px solid var(--border);
@@ -331,7 +339,8 @@ a.home-news-item:hover {
     border-color: var(--ring);
 }
 
-.home-info-oncall-arrow svg {
+.home-info-oncall-arrow svg,
+.home-info-oncall-arrow .lucide {
     width: 1rem;
     height: 1rem;
 }
@@ -467,7 +476,8 @@ a.home-news-item:hover {
     justify-content: center;
 }
 
-.home-quick-action-btn-icon svg {
+.home-quick-action-btn-icon svg,
+.home-quick-action-btn-icon .lucide {
     width: 1rem;
     height: 1rem;
 }
@@ -559,9 +569,15 @@ a.home-news-item:hover {
     color: var(--foreground);
 }
 
-.home-app-card-icon svg {
+.home-app-card-icon svg,
+.home-app-card-icon .lucide {
     width: 18px;
     height: 18px;
+}
+
+.home-app-card-arrow .lucide {
+    width: 0.875em;
+    height: 0.875em;
 }
 
 .home-app-card-text {
@@ -703,9 +719,19 @@ a.home-news-item:hover {
     opacity: 1;
 }
 
-.home-mystats-card-icon svg {
+.home-mystats-card-icon svg,
+.home-mystats-card-icon .lucide {
     width: 1rem;
     height: 1rem;
+}
+
+.home-mystats-card-link .home-inline-arrow,
+.home-mystats-card-link .lucide {
+    display: inline;
+    width: 0.75em;
+    height: 0.75em;
+    vertical-align: middle;
+    margin-left: 0.15em;
 }
 
 .home-mystats-card-value {
@@ -775,6 +801,19 @@ a.home-news-item:hover {
 
 .home-upcoming-viewall:hover {
     text-decoration: underline;
+}
+
+.home-upcoming-viewall .home-upcoming-viewall-icon,
+.home-upcoming-viewall .lucide {
+    width: 0.875em;
+    height: 0.875em;
+    margin-left: 0.25em;
+    vertical-align: middle;
+}
+
+.home-upcoming-item-arrow .lucide {
+    width: 0.875em;
+    height: 0.875em;
 }
 
 .home-upcoming-list {
@@ -987,9 +1026,23 @@ a.home-news-item:hover {
     color: var(--foreground);
 }
 
-.home-workspace-task-icon svg {
+.home-workspace-task-icon svg,
+.home-workspace-task-icon .lucide {
     width: 1.125rem;
     height: 1.125rem;
+}
+
+.home-workspace-task-arrow .lucide {
+    width: 0.875em;
+    height: 0.875em;
+}
+
+.home-workspace-help-link svg,
+.home-workspace-help-link .lucide {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    color: var(--muted-foreground);
 }
 
 .home-workspace-task-content {
@@ -1062,14 +1115,8 @@ a.home-news-item:hover {
     color: var(--primary);
 }
 
-.home-workspace-help-link svg {
-    flex-shrink: 0;
-    width: 1rem;
-    height: 1rem;
-    color: var(--muted-foreground);
-}
-
-.home-workspace-help-link:hover svg {
+.home-workspace-help-link:hover svg,
+.home-workspace-help-link:hover .lucide {
     color: var(--primary);
 }
 

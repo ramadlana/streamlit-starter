@@ -376,6 +376,13 @@ Use these instead of inline `style="background: ..."`.
 - **Success / error in content**: Prefer `alert alert-success` or `alert alert-danger` for in-page messages.
 - **Flash**: Styled automatically in base; uses `.flash-message` inside `.flash-messages`. For error emphasis, backend can flash and front-end will show it in the standard block.
 
+### 10.7 Lucide Icons
+
+- **Library**: [Lucide Icons](https://lucide.dev) is loaded via CDN in `base.html` and initialized on `DOMContentLoaded`.
+- **Usage**: Add `<i data-lucide="icon-name" aria-hidden="true"></i>` where `icon-name` is the Lucide icon identifier (e.g. `arrow-left`, `pencil`, `trash-2`). Icons are replaced with SVGs automatically.
+- **Browse icons**: [lucide.dev/icons](https://lucide.dev/icons)
+- **Sizing**: For inline icons with text, wrap in a parent with `.docs-back` or `.docs-inline-action`; the `.lucide` SVG is styled at `1em`. For larger icons (e.g. modals), use `.app-modal-danger-icon` or custom CSS.
+
 ---
 
 ## 11. Naming conventions

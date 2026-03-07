@@ -23,7 +23,7 @@
         <div class="home-info-oncall">
             <span class="home-info-oncall-label">On-call</span>
             <button type="button" class="home-info-oncall-arrow home-info-oncall-arrow-left" aria-label="Scroll left" id="oncall-scroll-left">
-                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16l-6-6 6-6"/></svg>
+                <i data-lucide="chevron-left" aria-hidden="true"></i>
             </button>
             <div class="home-info-oncall-scroll" id="oncall-scroll">
                 <div class="home-info-oncall-track">
@@ -64,7 +64,7 @@
                 </div>
             </div>
             <button type="button" class="home-info-oncall-arrow home-info-oncall-arrow-right" aria-label="Scroll right" id="oncall-scroll-right">
-                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4l6 6-6 6"/></svg>
+                <i data-lucide="chevron-right" aria-hidden="true"></i>
             </button>
         </div>
     </div>
@@ -75,19 +75,19 @@
         <div class="home-quick-actions-buttons">
             <a href="/#" class="home-quick-action-btn">
                 <span class="home-quick-action-btn-icon" aria-hidden="true">
-                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h4v4H3zM10 4h4v4h-4zM3 10h4v4H3zM10 10h4v4h-4z"/><path d="M2 2h16v16H2z"/></svg>
+                    <i data-lucide="ticket-plus"></i>
                 </span>
                 <span>New ticket</span>
             </a>
             <a href="/#" class="home-quick-action-btn">
                 <span class="home-quick-action-btn-icon" aria-hidden="true">
-                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2"/></svg>
+                    <i data-lucide="clock"></i>
                 </span>
                 <span>Log time</span>
             </a>
             <a href="/#" class="home-quick-action-btn">
                 <span class="home-quick-action-btn-icon" aria-hidden="true">
-                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="12" rx="2"/><path d="M16 3v2M4 3v2M3 9h14"/></svg>
+                    <i data-lucide="calendar"></i>
                 </span>
                 <span>Request change</span>
             </a>
@@ -104,27 +104,27 @@
             <div class="home-mystats-grid">
                 <a href="/#" class="home-mystats-card">
                     <span class="home-mystats-card-icon" aria-hidden="true">
-                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h4v4H3zM10 4h4v4h-4zM3 10h4v4H3zM10 10h4v4h-4z"/><path d="M2 2h16v16H2z"/></svg>
+                        <i data-lucide="ticket"></i>
                     </span>
                     <span class="home-mystats-card-value">3</span>
                     <span class="home-mystats-card-label">Open tickets assigned</span>
-                    <span class="home-mystats-card-link">Service Desk <span aria-hidden="true">→</span></span>
+                    <span class="home-mystats-card-link">Service Desk <i data-lucide="chevron-right" class="home-inline-arrow" aria-hidden="true"></i></span>
                 </a>
                 <a href="/#" class="home-mystats-card">
                     <span class="home-mystats-card-icon" aria-hidden="true">
-                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 14l2-2 4 4 8-8"/><path d="M10 4v4l2 2"/><circle cx="10" cy="10" r="7"/></svg>
+                        <i data-lucide="circle-check"></i>
                     </span>
                     <span class="home-mystats-card-value">2</span>
                     <span class="home-mystats-card-label">Pending approvals</span>
-                    <span class="home-mystats-card-link">Approvals <span aria-hidden="true">→</span></span>
+                    <span class="home-mystats-card-link">Approvals <i data-lucide="chevron-right" class="home-inline-arrow" aria-hidden="true"></i></span>
                 </a>
                 <a href="/#" class="home-mystats-card">
                     <span class="home-mystats-card-icon" aria-hidden="true">
-                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="12" rx="2"/><path d="M16 3v2M4 3v2M3 9h14"/></svg>
+                        <i data-lucide="calendar"></i>
                     </span>
                     <span class="home-mystats-card-value">Mar 10</span>
                     <span class="home-mystats-card-label">Next maintenance 02:00 UTC</span>
-                    <span class="home-mystats-card-link">Status Page <span aria-hidden="true">→</span></span>
+                    <span class="home-mystats-card-link">Status Page <i data-lucide="chevron-right" class="home-inline-arrow" aria-hidden="true"></i></span>
                 </a>
             </div>
         </div>
@@ -161,7 +161,10 @@
                     </div>
                 </div>
                 <footer class="home-news-footer">
-                    <a href="/#" class="home-news-footer-link">View all news</a>
+                    <a href="/#" class="home-news-footer-link">
+                        View all news
+                        <i data-lucide="arrow-right" class="home-news-footer-icon" aria-hidden="true"></i>
+                    </a>
                 </footer>
             </section>
         </div>
@@ -177,255 +180,205 @@
                 <div class="home-apps-grid">
                     <div class="home-apps-category" style="grid-column: 1 / -1;">Service delivery, infra &amp; ops</div>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h4v4H3zM10 4h4v4h-4zM3 10h4v4H3zM10 10h4v4h-4z"/><path d="M2 2h16v16H2z"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="ticket"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Service Desk</span>
                             <p class="home-app-card-desc">Incidents, requests & tickets</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h12M4 10h12M4 14h8"/><rect x="2" y="2" width="16" height="16" rx="1.5"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="clipboard-list"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Project Tracker</span>
                             <p class="home-app-card-desc">Milestones, status & delivery</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="12" rx="2"/><path d="M16 3v2M4 3v2M3 9h14"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="calendar"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Change Management</span>
                             <p class="home-app-card-desc">CAB, change calendar & approvals</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="6" r="2"/><path d="M4 16c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M14 10l3-3M17 7v3h-3"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="network"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Network Monitor</span>
                             <p class="home-app-card-desc">Topology, health & latency</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 16a5 5 0 0 0-9.9-1.5"/><path d="M5 16a4 4 0 1 1 8 0"/><path d="M10 12v4M8 14h4"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="server"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Infrastructure Map</span>
                             <p class="home-app-card-desc">Servers, VMs & cloud resources</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 17l4-4a6 6 0 0 1 6-6l4-4M9 15l6-6"/><circle cx="15.5" cy="4.5" r="2"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="git-branch"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">CI/CD Pipelines</span>
                             <p class="home-app-card-desc">Builds, deploys & release status</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2h7l5 5v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M12 2v5h5"/><path d="M7 10h6M7 13h4"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="file-text"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Runbooks</span>
                             <p class="home-app-card-desc">Ops procedures & playbooks</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="8"/><path d="M10 10V2M10 10h8"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="gauge"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">SLA Dashboard</span>
                             <p class="home-app-card-desc">Service levels & SLOs</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="12" height="14" rx="1"/><path d="M4 8h12M7 11h4"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="package"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Asset Inventory</span>
                             <p class="home-app-card-desc">Hardware & software assets</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2h7l5 5v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M12 2v5h5"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="book-open"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Knowledge Base</span>
                             <p class="home-app-card-desc">Docs, how-tos & internal wiki</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v1.5m0 13v1.5M4.2 4.2l1 1m9.6 9.6l1 1M2 10h1.5m13 0H17M4.2 15.8l1-1m9.6-9.6l1-1"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="users"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">On-call Schedule</span>
                             <p class="home-app-card-desc">Rotations & escalation</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 17v-6h4v6M10 17V9h4v8M17 17v-4h3"/><path d="M2 14h5M8 10h5M14 8h5"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="bar-chart-3"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Cost Dashboard</span>
                             <p class="home-app-card-desc">Cloud & infra spend (FinOps)</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 14l2-2 4 4 8-8"/><path d="M2 10h3v4H2zM8 6h3v8H8zM14 8h3v6h-3z"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="trending-up"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Capacity Planning</span>
                             <p class="home-app-card-desc">Resource & demand forecasting</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2a6 6 0 0 0-3 11.3V16a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-2.7A6 6 0 0 0 10 2z"/><path d="M9 19h2"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="shield-check"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Audit & Compliance</span>
                             <p class="home-app-card-desc">Config drift & compliance checks</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="clock"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Time & Billing</span>
                             <p class="home-app-card-desc">Project hours & consultant timesheets</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 16a4 4 0 1 1 8 0"/><path d="M10 12v4M8 14h4"/><path d="M4 8h12v6H4z"/><path d="M6 4v4M10 4v2M14 4v4"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="hard-drive"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Backup & DR</span>
                             <p class="home-app-card-desc">Backup status & recovery plans</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 14h4l2-4 3 6 2-4h4"/><path d="M2 18h16"/><path d="M4 10V6h3M13 10V6h3"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="activity"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Logs & Alerts</span>
                             <p class="home-app-card-desc">Centralized logs & alerting</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h12v8H4z"/><path d="M6 4v2M10 4v2M14 4v2"/><path d="M8 10h4M8 13h2"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="briefcase"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Vendor Management</span>
                             <p class="home-app-card-desc">Contracts, SLAs & renewals</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="5" height="5" rx="1"/><rect x="12" y="4" width="5" height="5" rx="1"/><rect x="3" y="11" width="5" height="5" rx="1"/><rect x="12" y="11" width="5" height="5" rx="1"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="layout-grid"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Resource Booking</span>
                             <p class="home-app-card-desc">Rooms, labs & shared resources</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="6"/><path d="M10 6v4l2 2"/><path d="M4 4l2 2M16 4l-2 2M4 16l2-2M16 16l-2-2"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="radio"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Status Page</span>
                             <p class="home-app-card-desc">Service health & incidents (internal)</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <div class="home-apps-category" style="grid-column: 1 / -1;">Approvals &amp; people</div>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 14l2-2 4 4 8-8"/><path d="M10 4v4l2 2"/><circle cx="10" cy="10" r="7"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="circle-check"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Approvals</span>
                             <p class="home-app-card-desc">Leave, change &amp; access requests</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="12" rx="2"/><path d="M16 3v2M4 3v2M3 9h14"/><path d="M7 12h2M11 12h2"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="calendar-days"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Release Calendar</span>
                             <p class="home-app-card-desc">Planned releases &amp; deploys</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="6" r="2.5"/><circle cx="13" cy="6" r="2.5"/><path d="M4 16c0-2.2 1.8-4 4-4s4 1.8 4 4M12 16c0-1.5 1-2.8 2.4-3.3"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="users"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Team Directory</span>
                             <p class="home-app-card-desc">Who does what, skills &amp; escalation</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h12v8H4z"/><path d="M6 4v2M14 4v2"/><path d="M7 9h6M7 12h4"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="file-bar-chart"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Reporting</span>
                             <p class="home-app-card-desc">Report catalog &amp; scheduled reports</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-app-card">
-                        <div class="home-app-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3l6 3v5l-6 3-6-3V6l6-3z"/><path d="M4 11l6 3 6-3M10 14V8"/></svg>
-                        </div>
+                        <div class="home-app-card-icon" aria-hidden="true"><i data-lucide="graduation-cap"></i></div>
                         <div class="home-app-card-text">
                             <span class="home-app-card-title">Training &amp; Certs</span>
                             <p class="home-app-card-desc">Mandatory training &amp; certifications</p>
                         </div>
-                        <span class="home-app-card-arrow" aria-hidden="true">→</span>
+                        <span class="home-app-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                 </div>
                 </div>
@@ -438,7 +391,10 @@
         <div class="home-upcoming-panel">
             <header class="home-upcoming-header">
                 <h2 class="home-upcoming-title">Upcoming</h2>
-                <a href="/#" class="home-upcoming-viewall">View calendar</a>
+                <a href="/#" class="home-upcoming-viewall">
+                    View calendar
+                    <i data-lucide="calendar" class="home-upcoming-viewall-icon" aria-hidden="true"></i>
+                </a>
             </header>
             <div class="home-upcoming-list">
                 <a href="/#" class="home-upcoming-item">
@@ -447,7 +403,7 @@
                         <span class="home-upcoming-item-title">CAB meeting</span>
                         <span class="home-upcoming-item-meta">14:00 · Change approvals</span>
                     </span>
-                    <span class="home-upcoming-item-arrow">→</span>
+                    <span class="home-upcoming-item-arrow"><i data-lucide="chevron-right" aria-hidden="true"></i></span>
                 </a>
                 <a href="/#" class="home-upcoming-item">
                     <span class="home-upcoming-item-date">Mar 10</span>
@@ -455,7 +411,7 @@
                         <span class="home-upcoming-item-title">Planned maintenance</span>
                         <span class="home-upcoming-item-meta">02:00–04:00 UTC · Core services</span>
                     </span>
-                    <span class="home-upcoming-item-arrow">→</span>
+                    <span class="home-upcoming-item-arrow"><i data-lucide="chevron-right" aria-hidden="true"></i></span>
                 </a>
                 <a href="/#" class="home-upcoming-item">
                     <span class="home-upcoming-item-date">Mar 15</span>
@@ -463,7 +419,7 @@
                         <span class="home-upcoming-item-title">SLA review (March)</span>
                         <span class="home-upcoming-item-meta">Delivery &amp; ops</span>
                     </span>
-                    <span class="home-upcoming-item-arrow">→</span>
+                    <span class="home-upcoming-item-arrow"><i data-lucide="chevron-right" aria-hidden="true"></i></span>
                 </a>
             </div>
         </div>
@@ -481,79 +437,69 @@
             <div class="home-workspace-body">
                 <div class="home-workspace-tasks">
                     <a href="/#" class="home-workspace-task">
-                        <span class="home-workspace-task-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h4v4H3zM10 4h4v4h-4zM3 10h4v4H3zM10 10h4v4h-4z"/><path d="M2 2h16v16H2z"/></svg>
-                        </span>
+                        <span class="home-workspace-task-icon" aria-hidden="true"><i data-lucide="ticket"></i></span>
                         <span class="home-workspace-task-content">
                             <span class="home-workspace-task-label">Report an incident or request</span>
                             <span class="home-workspace-task-app">Service Desk</span>
                         </span>
-                        <span class="home-workspace-task-arrow" aria-hidden="true">→</span>
+                        <span class="home-workspace-task-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-workspace-task">
-                        <span class="home-workspace-task-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2"/></svg>
-                        </span>
+                        <span class="home-workspace-task-icon" aria-hidden="true"><i data-lucide="clock"></i></span>
                         <span class="home-workspace-task-content">
                             <span class="home-workspace-task-label">Log project or consultant time</span>
                             <span class="home-workspace-task-app">Time &amp; Billing</span>
                         </span>
-                        <span class="home-workspace-task-arrow" aria-hidden="true">→</span>
+                        <span class="home-workspace-task-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-workspace-task">
-                        <span class="home-workspace-task-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="6"/><path d="M10 6v4l2 2"/><path d="M4 4l2 2M16 4l-2 2M4 16l2-2M16 16l-2-2"/></svg>
-                        </span>
+                        <span class="home-workspace-task-icon" aria-hidden="true"><i data-lucide="activity"></i></span>
                         <span class="home-workspace-task-content">
                             <span class="home-workspace-task-label">Check service health</span>
                             <span class="home-workspace-task-app">Status Page</span>
                         </span>
-                        <span class="home-workspace-task-arrow" aria-hidden="true">→</span>
+                        <span class="home-workspace-task-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-workspace-task">
-                        <span class="home-workspace-task-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="12" rx="2"/><path d="M16 3v2M4 3v2M3 9h14"/></svg>
-                        </span>
+                        <span class="home-workspace-task-icon" aria-hidden="true"><i data-lucide="calendar"></i></span>
                         <span class="home-workspace-task-content">
                             <span class="home-workspace-task-label">Request or approve a change</span>
                             <span class="home-workspace-task-app">Change Management</span>
                         </span>
-                        <span class="home-workspace-task-arrow" aria-hidden="true">→</span>
+                        <span class="home-workspace-task-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-workspace-task">
                         <span class="home-workspace-task-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v1.5m0 13v1.5M4.2 4.2l1 1m9.6 9.6l1 1M2 10h1.5m13 0H17M4.2 15.8l1-1m9.6-9.6l1-1"/></svg>
+                            <i data-lucide="users"></i>
                         </span>
                         <span class="home-workspace-task-content">
                             <span class="home-workspace-task-label">See who’s on-call</span>
                             <span class="home-workspace-task-app">On-call Schedule</span>
                         </span>
-                        <span class="home-workspace-task-arrow" aria-hidden="true">→</span>
+                        <span class="home-workspace-task-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                     <a href="/#" class="home-workspace-task">
-                        <span class="home-workspace-task-icon" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2h7l5 5v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M12 2v5h5"/><path d="M7 10h6M7 13h4"/></svg>
-                        </span>
+                        <span class="home-workspace-task-icon" aria-hidden="true"><i data-lucide="book-open"></i></span>
                         <span class="home-workspace-task-content">
                             <span class="home-workspace-task-label">Look up a procedure</span>
                             <span class="home-workspace-task-app">Runbooks / Knowledge Base</span>
                         </span>
-                        <span class="home-workspace-task-arrow" aria-hidden="true">→</span>
+                        <span class="home-workspace-task-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
                     </a>
                 </div>
                 <div class="home-workspace-help">
                     <h3 class="home-workspace-help-title">Need help?</h3>
                     <div class="home-workspace-help-links">
                         <a href="{{ url_for('docs.docs_index') }}" class="home-workspace-help-link">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2h7l5 5v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M12 2v5h5"/></svg>
+                            <i data-lucide="book-open" aria-hidden="true"></i>
                             <span>Docs &amp; how-tos</span>
                         </a>
                         <a href="/#" class="home-workspace-help-link">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="6"/><path d="M10 6v4l2 2"/></svg>
+                            <i data-lucide="activity" aria-hidden="true"></i>
                             <span>Status &amp; incidents</span>
                         </a>
                         <a href="/#" class="home-workspace-help-link">
-                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2a6 6 0 0 0-3 11.3V16a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-2.7A6 6 0 0 0 10 2z"/><path d="M9 19h2"/></svg>
+                            <i data-lucide="lightbulb" aria-hidden="true"></i>
                             <span>Suggest an app</span>
                         </a>
                     </div>

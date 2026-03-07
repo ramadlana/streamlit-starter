@@ -451,6 +451,16 @@
     gap: 0.45rem;
 }
 
+/* Lucide icons in docs reading actions */
+.docs-back .lucide,
+.docs-inline-action .lucide {
+    width: 1em;
+    height: 1em;
+    margin-right: 0.35em;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
 .docs-reading-delete { margin: 0; }
 
 .docs-back {
