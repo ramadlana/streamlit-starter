@@ -124,6 +124,17 @@
             return delta;
         });
 
+        function stripInlineStyles(html) {
+            if (!html || !html.trim()) return html;
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            div.querySelectorAll('*').forEach(function (el) {
+                el.removeAttribute('style');
+                el.removeAttribute('class');
+            });
+            return div.innerHTML;
+        }
+
         const initialHtml = config.initialHtml;
         if (initialHtml) {
             quill.clipboard.dangerouslyPasteHTML(initialHtml);
@@ -173,11 +184,31 @@
                 return;
             }
 
-            /* Paste multi-line text (e.g. from VSCode or web) as code block */
+            /* Paste image first — must run before HTML paste handler */
+            const imageItem = Array.from(clipboard.items).find(function (item) {
+                return item.type && item.type.indexOf('image/') === 0;
+            });
+
+            if (imageItem) {
+                evt.preventDefault();
+                const file = imageItem.getAsFile();
+                if (!file) return;
+                try {
+                    const imageUrl = await uploadClipboardImage(file);
+                    const range = quill.getSelection(true);
+                    const index = range ? range.index : quill.getLength();
+                    quill.insertEmbed(index, 'image', imageUrl, 'user');
+                    quill.setSelection(index + 1, 0, 'silent');
+                } catch (error) {
+                    alert('Unable to upload pasted image.');
+                }
+                return;
+            }
+
+            /* Paste plain text with newlines (e.g. from VSCode/terminal) as code block. */
             if (textPayload && textPayload.includes('\n') && !activeFormats['code-block']) {
                 const htmlPayload = clipboard.getData('text/html') || '';
-                const looksLikeCode = !htmlPayload.trim() || /<pre[\s>]|<code[\s>]/i.test(htmlPayload);
-                if (looksLikeCode) {
+                if (!htmlPayload.trim()) {
                     evt.preventDefault();
                     const insertIndex = selection ? selection.index : quill.getLength();
                     const replaceLength = selection ? selection.length : 0;
@@ -188,28 +219,24 @@
                 }
             }
 
-            const imageItem = Array.from(clipboard.items).find(function (item) {
-                return item.type && item.type.indexOf('image/') === 0;
-            });
-
-            if (!imageItem) {
+            /* Paste from web: strip inline styles/classes so Clean/remove format works on selection */
+            const htmlPayload = clipboard.getData('text/html') || '';
+            if (htmlPayload.trim()) {
+                evt.preventDefault();
+                const insertIndex = selection ? selection.index : quill.getLength();
+                const replaceLength = selection ? selection.length : 0;
+                const cleanHtml = stripInlineStyles(htmlPayload);
+                quill.deleteText(insertIndex, replaceLength, 'user');
+                quill.clipboard.dangerouslyPasteHTML(insertIndex, cleanHtml, 'user');
+                var pastedDelta = quill.clipboard.convert(cleanHtml);
+                var pastedLen = (pastedDelta.ops || []).reduce(function (n, op) {
+                    if (op.insert) {
+                        return n + (typeof op.insert === 'string' ? op.insert.length : 1);
+                    }
+                    return n;
+                }, 0);
+                quill.setSelection(insertIndex + pastedLen, 0, 'silent');
                 return;
-            }
-
-            evt.preventDefault();
-            const file = imageItem.getAsFile();
-            if (!file) {
-                return;
-            }
-
-            try {
-                const imageUrl = await uploadClipboardImage(file);
-                const range = quill.getSelection(true);
-                const index = range ? range.index : quill.getLength();
-                quill.insertEmbed(index, 'image', imageUrl, 'user');
-                quill.setSelection(index + 1, 0, 'silent');
-            } catch (error) {
-                alert('Unable to upload pasted image.');
             }
         });
 
