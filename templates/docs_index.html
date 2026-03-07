@@ -17,7 +17,7 @@
                         <input type="hidden" name="mode" value="dry-run">
                         <input type="hidden" name="include_legacy" value="1">
                         <input type="hidden" name="min_age_minutes" value="0">
-                        <button type="submit" class="docs-btn docs-btn-ghost docs-btn-sm"><i data-lucide="play" class="docs-index-btn-icon" aria-hidden="true"></i>Dry Run</button>
+                        <button type="submit" class="docs-btn docs-btn-ghost docs-btn-sm"><i data-lucide="play" class="docs-index-btn-icon" aria-hidden="true"></i>Dry Run Attachment Housekeeping</button>
                     </form>
                     <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}"
                         class="docs-housekeeping-form"
@@ -26,7 +26,7 @@
                         <input type="hidden" name="mode" value="apply">
                         <input type="hidden" name="include_legacy" value="1">
                         <input type="hidden" name="min_age_minutes" value="0">
-                        <button type="submit" class="docs-btn docs-btn-ghost docs-btn-sm"><i data-lucide="check" class="docs-index-btn-icon" aria-hidden="true"></i>Apply</button>
+                        <button type="submit" class="docs-btn docs-btn-ghost docs-btn-sm"><i data-lucide="check" class="docs-index-btn-icon" aria-hidden="true"></i>Proceed with Attachment Housekeeping</button>
                     </form>
                 </div>
                 {% endif %}
@@ -39,6 +39,8 @@
         <form method="GET" action="{{ url_for('docs.docs_index') }}" class="docs-index-search">
             <div class="docs-index-search-row">
                 <input type="text" name="q" value="{{ query }}" placeholder="Search by title or slug..." class="docs-index-search-input">
+            
+                <button type="submit" class="docs-btn docs-btn-secondary docs-btn-sm"><i data-lucide="search" class="docs-index-btn-icon" aria-hidden="true"></i>Search</button>
                 <label class="docs-index-per-page">
                     <span class="docs-index-per-page-label">Per page</span>
                     <select name="per_page" onchange="this.form.submit()" class="docs-index-per-page-select">
@@ -47,7 +49,6 @@
                         {% endfor %}
                     </select>
                 </label>
-                <button type="submit" class="docs-btn docs-btn-secondary docs-btn-sm"><i data-lucide="search" class="docs-index-btn-icon" aria-hidden="true"></i>Search</button>
             </div>
             {% if available_tags %}
             <div class="docs-index-tags-bar">
