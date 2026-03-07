@@ -86,20 +86,18 @@
         </span>
     </div>
 
-    <div class="docs-index-list">
+    <div class="docs-index-grid">
         {% for doc in docs %}
-        <article class="docs-index-row">
-            <a href="{{ url_for('docs.docs_view', slug=doc.slug) }}" class="docs-index-row-link">
-                <div class="docs-index-row-main">
-                    <h2 class="docs-index-row-title">{{ doc.title }}</h2>
-                    {% if doc.preview_text %}
-                    <p class="docs-index-row-preview">{{ doc.preview_text }}</p>
-                    {% endif %}
-                </div>
-                <span class="docs-index-row-arrow" aria-hidden="true">→</span>
+        <article class="docs-index-card">
+            <a href="{{ url_for('docs.docs_view', slug=doc.slug) }}" class="docs-index-card-link">
+                <h2 class="docs-index-card-title">{{ doc.title }}</h2>
+                {% if doc.preview_text %}
+                <p class="docs-index-card-preview">{{ doc.preview_text }}</p>
+                {% endif %}
+                <span class="docs-index-card-arrow" aria-hidden="true">→</span>
             </a>
             {% if doc.tags_csv %}
-            <div class="docs-index-row-tags">
+            <div class="docs-index-card-tags" onclick="event.stopPropagation()">
                 {% for tag in doc.tags_csv.split(',') %}
                 {% set t = tag.strip() %}
                 {% if t %}
@@ -110,7 +108,7 @@
             {% endif %}
         </article>
         {% else %}
-        <div class="docs-index-empty">
+        <div class="docs-index-empty docs-index-empty-full">
             <p class="docs-empty">No documents yet.</p>
         </div>
         {% endfor %}
