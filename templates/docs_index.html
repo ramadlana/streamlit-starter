@@ -4,153 +4,134 @@
 {% block body_class %}docs-light{% endblock %}
 
 {% block content %}
-<div class="docs-shell">
-    <header class="docs-topbar">
-        <h1 class="docs-topbar-title">Documentation</h1>
-        <div class="docs-actions">
-            {% if current_user.role == "admin" %}
-            <div class="docs-actions-admin">
-                <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}"
-                    class="docs-housekeeping-form">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="mode" value="dry-run">
-                    <input type="hidden" name="include_legacy" value="1">
-                    <input type="hidden" name="min_age_minutes" value="0">
-                    <button type="submit" class="docs-btn docs-btn-ghost">Housekeeping Dry Run</button>
-                </form>
-                <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}"
-                    class="docs-housekeeping-form"
-                    onsubmit="return confirm('Apply housekeeping now? Orphan files will be moved to trash.');">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="mode" value="apply">
-                    <input type="hidden" name="include_legacy" value="1">
-                    <input type="hidden" name="min_age_minutes" value="0">
-                    <button type="submit" class="docs-btn docs-btn-ghost">Housekeeping Apply</button>
-                </form>
-            </div>
-            {% endif %}
-            {% if can_manage_docs %}
-            <a class="docs-btn docs-btn-primary" href="{{ url_for('docs.docs_editor', doc_id=0) }}">New Document</a>
-            {% endif %}
-        </div>
-    </header>
-
-    <form method="GET"
-        action="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag) }}{% else %}{{ url_for('docs.docs_index') }}{% endif %}"
-        class="docs-search-row">
-        <input type="text" name="q" value="{{ query }}" placeholder="Search by title or slug">
-        <button type="submit" class="docs-btn docs-btn-secondary">Search</button>
-        <label class="docs-per-page">
-            <span>Rows Displayed per page</span>
-            <select name="per_page" onchange="this.form.submit()">
-                {% for option in per_page_options %}
-                <option value="{{ option }}" {% if pagination.per_page==option %}selected{% endif %}>{{ option }}
-                </option>
-                {% endfor %}
-            </select>
-        </label>
-    </form>
-
-    {% if active_tag %}
-    <p class="docs-meta">Filtered by tag: <strong>#{{ active_tag }}</strong> · <a
-            href="{{ url_for('docs.docs_index') }}">Clear</a></p>
-    {% endif %}
-
-    <div class="docs-list">
-        {% for doc in docs %}
-        <article class="docs-card">
-            <header class="docs-card-header">
-                <h2 class="docs-card-title"><a href="{{ url_for('docs.docs_view', slug=doc.slug) }}">{{ doc.title }}</a></h2>
-            </header>
-
-            {% if doc.preview_text %}
-            <p class="docs-card-preview">{{ doc.preview_text }}</p>
-            {% endif %}
-
-            <footer class="docs-card-footer">
-                {% if doc.tags_csv %}
-                <div class="docs-card-tags" style="justify-content: flex-start;">
-                    {% for tag in doc.tags_csv.split(',') %}
-                    <a class="docs-tag" href="{{ url_for('docs.docs_by_tag', tag=tag) }}">#{{ tag }}</a>
-                    {% endfor %}
+<div class="docs-shell docs-index">
+    <header class="docs-index-header">
+        <div class="docs-index-header-row">
+            <h1 class="docs-index-title">Documentation</h1>
+            <div class="docs-index-actions">
+                {% if current_user.role == "admin" %}
+                <div class="docs-index-admin">
+                    <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}"
+                        class="docs-housekeeping-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="mode" value="dry-run">
+                        <input type="hidden" name="include_legacy" value="1">
+                        <input type="hidden" name="min_age_minutes" value="0">
+                        <button type="submit" class="docs-btn docs-btn-ghost docs-btn-sm">Dry Run</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}"
+                        class="docs-housekeeping-form"
+                        onsubmit="return confirm('Apply housekeeping now? Orphan files will be moved to trash.');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="mode" value="apply">
+                        <input type="hidden" name="include_legacy" value="1">
+                        <input type="hidden" name="min_age_minutes" value="0">
+                        <button type="submit" class="docs-btn docs-btn-ghost docs-btn-sm">Apply</button>
+                    </form>
                 </div>
                 {% endif %}
-            </footer>
+                {% if can_manage_docs %}
+                <a class="docs-btn docs-btn-primary docs-btn-sm" href="{{ url_for('docs.docs_editor', doc_id=0) }}">New Document</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <form method="GET"
+            action="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag) }}{% else %}{{ url_for('docs.docs_index') }}{% endif %}"
+            class="docs-index-search">
+            <div class="docs-index-search-inner">
+                <input type="text" name="q" value="{{ query }}" placeholder="Search by title or slug..." class="docs-index-search-input">
+                <button type="submit" class="docs-btn docs-btn-secondary docs-btn-sm">Search</button>
+                <label class="docs-index-per-page">
+                    <span class="docs-index-per-page-label">Per page</span>
+                    <select name="per_page" onchange="this.form.submit()" class="docs-index-per-page-select">
+                        {% for option in per_page_options %}
+                        <option value="{{ option }}" {% if pagination.per_page==option %}selected{% endif %}>{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </div>
+        </form>
+    </header>
+
+    {% if active_tag %}
+    <div class="docs-index-filter">
+        <span class="docs-index-filter-label">Tag:</span>
+        <strong class="docs-index-filter-tag">#{{ active_tag }}</strong>
+        <a href="{{ url_for('docs.docs_index') }}" class="docs-index-filter-clear">Clear</a>
+    </div>
+    {% endif %}
+
+    <div class="docs-index-meta">
+        <span class="docs-index-count">
+            {% if pagination.total > 0 %}
+            {% set end_idx = pagination.page * pagination.per_page %}
+            Showing {{ ((pagination.page - 1) * pagination.per_page) + 1 }}–{{ pagination.total if end_idx > pagination.total else end_idx }} of {{ pagination.total }} document{{ 's' if pagination.total != 1 else '' }}
+            {% else %}
+            No documents
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="docs-index-list">
+        {% for doc in docs %}
+        <article class="docs-index-row">
+            <a href="{{ url_for('docs.docs_view', slug=doc.slug) }}" class="docs-index-row-link">
+                <div class="docs-index-row-main">
+                    <h2 class="docs-index-row-title">{{ doc.title }}</h2>
+                    {% if doc.preview_text %}
+                    <p class="docs-index-row-preview">{{ doc.preview_text }}</p>
+                    {% endif %}
+                </div>
+                <span class="docs-index-row-arrow" aria-hidden="true">→</span>
+            </a>
+            {% if doc.tags_csv %}
+            <div class="docs-index-row-tags">
+                {% for tag in doc.tags_csv.split(',') %}
+                {% set t = tag.strip() %}
+                {% if t %}
+                <a href="{{ url_for('docs.docs_by_tag', tag=t) }}" class="docs-index-tag">#{{ t }}</a>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
         </article>
         {% else %}
-        <p class="docs-empty">No documents yet.</p>
+        <div class="docs-index-empty">
+            <p class="docs-empty">No documents yet.</p>
+        </div>
         {% endfor %}
     </div>
 
     {% if pagination.total_pages > 1 %}
-    <nav class="docs-pagination" aria-label="Docs pagination">
+    <nav class="docs-index-pagination" aria-label="Docs pagination">
         {% if pagination.has_prev %}
-        <a class="docs-page-btn"
-            href="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag, q=query, per_page=pagination.per_page, page=pagination.page - 1) }}{% else %}{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page, page=pagination.page - 1) }}{% endif %}">&lt;
-            Previous</a>
+        <a class="docs-page-btn docs-page-prev"
+            href="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag, q=query, per_page=pagination.per_page, page=pagination.page - 1) }}{% else %}{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page, page=pagination.page - 1) }}{% endif %}">← Previous</a>
         {% else %}
-        <span class="docs-page-btn is-disabled">&lt; Previous</span>
+        <span class="docs-page-btn docs-page-prev is-disabled">← Previous</span>
         {% endif %}
 
         <div class="docs-page-numbers">
             {% for page_number in pagination.pages %}
             {% if page_number is none %}
-            <span class="docs-page-ellipsis">...</span>
+            <span class="docs-page-ellipsis">…</span>
             {% elif page_number == pagination.page %}
             <span class="docs-page-btn is-active">{{ page_number }}</span>
             {% else %}
             <a class="docs-page-btn"
-                href="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag, q=query, per_page=pagination.per_page, page=page_number) }}{% else %}{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page, page=page_number) }}{% endif %}">{{
-                page_number }}</a>
+                href="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag, q=query, per_page=pagination.per_page, page=page_number) }}{% else %}{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page, page=page_number) }}{% endif %}">{{ page_number }}</a>
             {% endif %}
             {% endfor %}
         </div>
 
         {% if pagination.has_next %}
-        <a class="docs-page-btn"
-            href="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag, q=query, per_page=pagination.per_page, page=pagination.page + 1) }}{% else %}{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page, page=pagination.page + 1) }}{% endif %}">Next
-            &gt;</a>
+        <a class="docs-page-btn docs-page-next"
+            href="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag, q=query, per_page=pagination.per_page, page=pagination.page + 1) }}{% else %}{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page, page=pagination.page + 1) }}{% endif %}">Next →</a>
         {% else %}
-        <span class="docs-page-btn is-disabled">Next &gt;</span>
+        <span class="docs-page-btn docs-page-next is-disabled">Next →</span>
         {% endif %}
     </nav>
     {% endif %}
 </div>
-
-<script>
-    (function () {
-        const dateNodes = document.querySelectorAll('.docs-card-footer .js-local-datetime');
-        if (!dateNodes.length || typeof Intl === 'undefined') return;
-
-        const formatter = new Intl.DateTimeFormat(undefined, {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            timeZoneName: 'short'
-        });
-
-        function toClientDate(rawValue) {
-            if (!rawValue) return null;
-            const normalized = rawValue.includes(' ') ? rawValue.replace(' ', 'T') : rawValue;
-            const hasTimezone = /[zZ]|[+\-]\d{2}:\d{2}$/.test(normalized);
-            const parseValue = hasTimezone ? normalized : normalized + 'Z';
-            const parsed = new Date(parseValue);
-            return Number.isNaN(parsed.getTime()) ? null : parsed;
-        }
-
-        dateNodes.forEach(function (node) {
-            const isoValue = node.getAttribute('datetime');
-            const parsed = toClientDate(isoValue);
-            if (!parsed) {
-                node.textContent = node.dataset.fallback || node.textContent;
-                return;
-            }
-            node.textContent = formatter.format(parsed);
-            node.setAttribute('title', parsed.toISOString());
-        });
-    })();
-</script>
-
 {% endblock %}

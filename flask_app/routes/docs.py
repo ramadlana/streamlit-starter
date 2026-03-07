@@ -42,7 +42,7 @@ DOCS_PER_PAGE_OPTIONS = (12, 24, 48, 96)
 MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
-def _preview_text(summary, content_html, max_words=10):
+def _preview_text(summary, content_html, max_words=40):
     source = (summary or "").strip()
     if not source or source.lower() in {"none", "null", "n/a", "-"}:
         source = TAG_RE.sub(" ", content_html or "")
