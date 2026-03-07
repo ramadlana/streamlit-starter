@@ -404,7 +404,8 @@ a.home-news-item:hover {
     height: 1rem;
 }
 
-.home-info-oncall-icon svg {
+.home-info-oncall-icon svg,
+.home-info-oncall-icon .lucide {
     width: 100%;
     height: 100%;
 }

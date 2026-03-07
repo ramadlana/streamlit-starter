@@ -17,7 +17,7 @@
                         <input type="hidden" name="mode" value="dry-run">
                         <input type="hidden" name="include_legacy" value="1">
                         <input type="hidden" name="min_age_minutes" value="0">
-                        <button type="submit" class="docs-btn docs-btn-ghost docs-btn-sm">Dry Run</button>
+                        <button type="submit" class="docs-btn docs-btn-ghost docs-btn-sm"><i data-lucide="play" class="docs-index-btn-icon" aria-hidden="true"></i>Dry Run</button>
                     </form>
                     <form method="POST" action="{{ url_for('docs.docs_admin_attachments_housekeeping') }}"
                         class="docs-housekeeping-form"
@@ -26,12 +26,12 @@
                         <input type="hidden" name="mode" value="apply">
                         <input type="hidden" name="include_legacy" value="1">
                         <input type="hidden" name="min_age_minutes" value="0">
-                        <button type="submit" class="docs-btn docs-btn-ghost docs-btn-sm">Apply</button>
+                        <button type="submit" class="docs-btn docs-btn-ghost docs-btn-sm"><i data-lucide="check" class="docs-index-btn-icon" aria-hidden="true"></i>Apply</button>
                     </form>
                 </div>
                 {% endif %}
                 {% if can_manage_docs %}
-                <a class="docs-btn docs-btn-primary docs-btn-sm" href="{{ url_for('docs.docs_editor', doc_id=0) }}">New Document</a>
+                <a class="docs-btn docs-btn-primary docs-btn-sm" href="{{ url_for('docs.docs_editor', doc_id=0) }}"><i data-lucide="file-plus" class="docs-index-btn-icon" aria-hidden="true"></i>New Document</a>
                 {% endif %}
             </div>
         </div>
@@ -47,11 +47,11 @@
                         {% endfor %}
                     </select>
                 </label>
-                <button type="submit" class="docs-btn docs-btn-secondary docs-btn-sm">Search</button>
+                <button type="submit" class="docs-btn docs-btn-secondary docs-btn-sm"><i data-lucide="search" class="docs-index-btn-icon" aria-hidden="true"></i>Search</button>
             </div>
             {% if available_tags %}
             <div class="docs-index-tags-bar">
-                <span class="docs-index-tags-label">Tags</span>
+                <span class="docs-index-tags-label"><i data-lucide="tag" class="docs-index-tags-icon" aria-hidden="true"></i>Tags</span>
                 <div class="docs-index-tags-pills">
                     {% for tag in available_tags %}
                     {% set is_active = tag in active_tags %}
@@ -65,7 +65,7 @@
                     {% endfor %}
                 </div>
                 {% if active_tags %}
-                <a href="{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page) }}" class="docs-index-tags-clear">Clear</a>
+                <a href="{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page) }}" class="docs-index-tags-clear"><i data-lucide="x" class="docs-index-tags-clear-icon" aria-hidden="true"></i>Clear</a>
                 {% endif %}
             </div>
             {% for t in active_tags %}
@@ -94,7 +94,7 @@
                 {% if doc.preview_text %}
                 <p class="docs-index-card-preview">{{ doc.preview_text }}</p>
                 {% endif %}
-                <span class="docs-index-card-arrow" aria-hidden="true">→</span>
+                <span class="docs-index-card-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
             </a>
             {% if doc.tags_csv %}
             <div class="docs-index-card-tags" onclick="event.stopPropagation()">
@@ -118,9 +118,9 @@
     <nav class="docs-index-pagination" aria-label="Docs pagination">
         {% if pagination.has_prev %}
         <a class="docs-page-btn docs-page-prev"
-            href="{{ url_for('docs.docs_index', q=query, tags=active_tags, per_page=pagination.per_page, page=pagination.page - 1) }}">← Previous</a>
+            href="{{ url_for('docs.docs_index', q=query, tags=active_tags, per_page=pagination.per_page, page=pagination.page - 1) }}"><i data-lucide="chevron-left" class="docs-pagination-icon" aria-hidden="true"></i>Previous</a>
         {% else %}
-        <span class="docs-page-btn docs-page-prev is-disabled">← Previous</span>
+        <span class="docs-page-btn docs-page-prev is-disabled"><i data-lucide="chevron-left" class="docs-pagination-icon" aria-hidden="true"></i>Previous</span>
         {% endif %}
 
         <div class="docs-page-numbers">
@@ -138,9 +138,9 @@
 
         {% if pagination.has_next %}
         <a class="docs-page-btn docs-page-next"
-            href="{{ url_for('docs.docs_index', q=query, tags=active_tags, per_page=pagination.per_page, page=pagination.page + 1) }}">Next →</a>
+            href="{{ url_for('docs.docs_index', q=query, tags=active_tags, per_page=pagination.per_page, page=pagination.page + 1) }}">Next <i data-lucide="chevron-right" class="docs-pagination-icon" aria-hidden="true"></i></a>
         {% else %}
-        <span class="docs-page-btn docs-page-next is-disabled">Next →</span>
+        <span class="docs-page-btn docs-page-next is-disabled">Next <i data-lucide="chevron-right" class="docs-pagination-icon" aria-hidden="true"></i></span>
         {% endif %}
     </nav>
     {% endif %}

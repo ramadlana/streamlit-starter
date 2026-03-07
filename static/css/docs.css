@@ -124,6 +124,18 @@
     flex-wrap: wrap;
 }
 
+.docs-pagination-icon,
+.docs-index-pagination .docs-page-btn .lucide {
+    width: 0.875em;
+    height: 0.875em;
+    margin-right: 0.25em;
+}
+
+.docs-page-next .lucide {
+    margin-right: 0;
+    margin-left: 0.25em;
+}
+
 .docs-page-btn {
     display: inline-flex;
     align-items: center;
@@ -1120,6 +1132,14 @@ body.docs-light select:focus {
     border-top: 1px solid var(--border);
 }
 
+.docs-index-actions .docs-btn .lucide,
+.docs-index-search-row .docs-btn .lucide {
+    width: 1em;
+    height: 1em;
+    margin-right: 0.35em;
+    vertical-align: middle;
+}
+
 .docs-index-tags-label {
     font-size: 0.75rem;
     font-weight: 600;
@@ -1127,6 +1147,23 @@ body.docs-light select:focus {
     text-transform: uppercase;
     color: var(--muted-foreground);
     flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.docs-index-tags-icon,
+.docs-index-tags-label .lucide {
+    width: 0.875em;
+    height: 0.875em;
+}
+
+.docs-index-tags-clear-icon,
+.docs-index-tags-clear .lucide {
+    width: 0.875em;
+    height: 0.875em;
+    margin-right: 0.25em;
+    vertical-align: middle;
 }
 
 .docs-index-tags-pills {
@@ -1273,6 +1310,11 @@ body.docs-light select:focus {
     color: var(--muted-foreground);
     opacity: 0;
     transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.docs-index-card-arrow .lucide {
+    width: 0.875em;
+    height: 0.875em;
 }
 
 .docs-index-card:hover .docs-index-card-arrow {
