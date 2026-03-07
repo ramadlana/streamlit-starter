@@ -694,13 +694,16 @@
 .docs-quill-stack .ql-container,
 .docs-quill-stack #editor { margin: 0; }
 
+/* Sticky toolbar: stays below topbar (56px nav + ~54px topbar) while editing long content */
+.docs-quill-stack #docs-toolbar,
 .docs-quill-stack #docs-toolbar.ql-toolbar,
 .docs-quill-stack .ql-toolbar.ql-snow {
     position: sticky;
-    top: 56px;
+    top: 110px;
     z-index: 5;
     background: #f8fafc;
     box-shadow: 0 1px 0 #e2e8f0;
+    margin-bottom: 0;
 }
 
 .docs-editor-clean { max-width: 1040px; margin: 0 auto; }
@@ -1329,6 +1332,10 @@ body.docs-light select:focus {
     .docs-editor-topbar {
         top: 48px;
         margin: 0 0 1rem 0;
+    }
+    .docs-quill-stack #docs-toolbar,
+    .docs-quill-stack .ql-toolbar.ql-snow {
+        top: 100px;
     }
     .docs-editor-topbar.is-scrolled {
         margin-left: -0.9rem;
