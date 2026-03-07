@@ -7,92 +7,86 @@
 <div class="home-page">
     
 
-    <!-- Quick info strip -->
-    <div class="home-info-strip">
-        <div class="home-info-header">
-            <span class="home-quick-actions-label"">Today's Overview</span>
-        </div>
-        <a href="/#" class="home-info-item home-info-item-link" title="View status page">
-            <span class="home-info-item-dot" aria-hidden="true"></span>
-            <span>5 Ticket Closed</span>
-        </a>
-        <div class="home-info-item">
-            <span class="home-info-item-dot warning" aria-hidden="true"></span>
-            <span>2 Ticket Open</span>
-        </div>
-        <div class="home-info-oncall">
-            <span class="home-info-oncall-label">On-call</span>
-            <button type="button" class="home-info-oncall-arrow home-info-oncall-arrow-left" aria-label="Scroll left" id="oncall-scroll-left">
-                <i data-lucide="chevron-left" aria-hidden="true"></i>
-            </button>
-            <div class="home-info-oncall-scroll" id="oncall-scroll">
-                <div class="home-info-oncall-track">
-                    <div class="home-info-oncall-person">
-                        <span class="home-info-oncall-name">Rama</span>
-                        <a href="https://wa.me/6281212345678" class="home-info-oncall-phone" title="WhatsApp" target="_blank" rel="noopener noreferrer">
-                            <span class="home-info-oncall-icon home-info-oncall-icon-wa" aria-hidden="true"><i data-lucide="message-circle"></i></span>
-                            <span>WhatsApp</span>
-                        </a>
-                        <a href="https://teams.microsoft.com/l/chat/0/0?users=youremail@company.com" class="home-info-oncall-teams" title="Chat in Microsoft Teams" target="_blank" rel="noopener noreferrer">
-                            <span class="home-info-oncall-icon home-info-oncall-icon-teams" aria-hidden="true"><i data-lucide="users"></i></span>
-                            <span>Ms Teams</span>
-                        </a>
-                    </div>
-                    <div class="home-info-oncall-person">
-                        <span class="home-info-oncall-name">Daniel</span>
-                        <a href="https://wa.me/6281212345678" class="home-info-oncall-phone" title="WhatsApp" target="_blank" rel="noopener noreferrer">
-                            <span class="home-info-oncall-icon home-info-oncall-icon-wa" aria-hidden="true"><i data-lucide="message-circle"></i></span>
-                            <span>WhatsApp</span>
-                        </a>
-                        <a href="https://teams.microsoft.com/l/chat/0/0?users=youremail@company.com" class="home-info-oncall-teams" title="Chat in Microsoft Teams" target="_blank" rel="noopener noreferrer">
-                            <span class="home-info-oncall-icon home-info-oncall-icon-teams" aria-hidden="true"><i data-lucide="users"></i></span>
-                            <span>Ms Teams</span>
-                        </a>
-                    </div>
-                    <div class="home-info-oncall-person">
-                        <span class="home-info-oncall-name">Suresh</span>
-                        <a href="https://wa.me/6281212345678" class="home-info-oncall-phone" title="WhatsApp" target="_blank" rel="noopener noreferrer">
-                            <span class="home-info-oncall-icon home-info-oncall-icon-wa" aria-hidden="true"><i data-lucide="message-circle"></i></span>
-                            <span>WhatsApp</span>
-                        </a>
-                        <a href="https://teams.microsoft.com/l/chat/0/0?users=youremail@company.com" class="home-info-oncall-teams" title="Chat in Microsoft Teams" target="_blank" rel="noopener noreferrer">
-                            <span class="home-info-oncall-icon home-info-oncall-icon-teams" aria-hidden="true"><i data-lucide="users"></i></span>
-                            <span>Ms Teams</span>
-                        </a>
-                    </div>
-                    
+    <!-- Unified Today Overview + Quick actions -->
+    <section class="home-dashboard-bar" aria-label="Today's overview and quick actions">
+        <header class="home-dashboard-bar-header">
+            <h2 class="home-dashboard-bar-title">Today</h2>
+            <div class="home-dashboard-bar-stats">
+                <a href="/#" class="home-dashboard-stat home-dashboard-stat-link" title="View status page">
+                    <span class="home-dashboard-stat-dot" aria-hidden="true"></span>
+                    <span>5 Closed</span>
+                </a>
+                <div class="home-dashboard-stat">
+                    <span class="home-dashboard-stat-dot warning" aria-hidden="true"></span>
+                    <span>2 Open</span>
                 </div>
             </div>
-            <button type="button" class="home-info-oncall-arrow home-info-oncall-arrow-right" aria-label="Scroll right" id="oncall-scroll-right">
-                <i data-lucide="chevron-right" aria-hidden="true"></i>
-            </button>
+        </header>
+        <div class="home-dashboard-bar-body">
+            <div class="home-dashboard-oncall">
+                <span class="home-dashboard-oncall-label">On Shift</span>
+                <div class="home-dashboard-oncall-scroll-wrap">
+                    <button type="button" class="home-dashboard-oncall-arrow" aria-label="Scroll left" id="oncall-scroll-left">
+                        <i data-lucide="chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <div class="home-dashboard-oncall-scroll" id="oncall-scroll">
+                        <div class="home-dashboard-oncall-track">
+                            <div class="home-dashboard-oncall-person">
+                                <span class="home-dashboard-oncall-name">Rama</span>
+                                <a href="https://wa.me/6281212345678" class="home-dashboard-oncall-link" title="WhatsApp" target="_blank" rel="noopener noreferrer">
+                                    <span class="home-dashboard-oncall-icon home-dashboard-oncall-icon-wa" aria-hidden="true"><i data-lucide="message-circle"></i></span>
+                                    <span>WhatsApp</span>
+                                </a>
+                                <a href="https://teams.microsoft.com/l/chat/0/0?users=youremail@company.com" class="home-dashboard-oncall-link" title="Chat in Microsoft Teams" target="_blank" rel="noopener noreferrer">
+                                    <span class="home-dashboard-oncall-icon home-dashboard-oncall-icon-teams" aria-hidden="true"><i data-lucide="users"></i></span>
+                                    <span>Ms Teams</span>
+                                </a>
+                            </div>
+                            <div class="home-dashboard-oncall-person">
+                                <span class="home-dashboard-oncall-name">Daniel</span>
+                                <a href="https://wa.me/6281212345678" class="home-dashboard-oncall-link" title="WhatsApp" target="_blank" rel="noopener noreferrer">
+                                    <span class="home-dashboard-oncall-icon home-dashboard-oncall-icon-wa" aria-hidden="true"><i data-lucide="message-circle"></i></span>
+                                    <span>WhatsApp</span>
+                                </a>
+                                <a href="https://teams.microsoft.com/l/chat/0/0?users=youremail@company.com" class="home-dashboard-oncall-link" title="Chat in Microsoft Teams" target="_blank" rel="noopener noreferrer">
+                                    <span class="home-dashboard-oncall-icon home-dashboard-oncall-icon-teams" aria-hidden="true"><i data-lucide="users"></i></span>
+                                    <span>Ms Teams</span>
+                                </a>
+                            </div>
+                            <div class="home-dashboard-oncall-person">
+                                <span class="home-dashboard-oncall-name">Suresh</span>
+                                <a href="https://wa.me/6281212345678" class="home-dashboard-oncall-link" title="WhatsApp" target="_blank" rel="noopener noreferrer">
+                                    <span class="home-dashboard-oncall-icon home-dashboard-oncall-icon-wa" aria-hidden="true"><i data-lucide="message-circle"></i></span>
+                                    <span>WhatsApp</span>
+                                </a>
+                                <a href="https://teams.microsoft.com/l/chat/0/0?users=youremail@company.com" class="home-dashboard-oncall-link" title="Chat in Microsoft Teams" target="_blank" rel="noopener noreferrer">
+                                    <span class="home-dashboard-oncall-icon home-dashboard-oncall-icon-teams" aria-hidden="true"><i data-lucide="users"></i></span>
+                                    <span>Ms Teams</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="home-dashboard-oncall-arrow" aria-label="Scroll right" id="oncall-scroll-right">
+                        <i data-lucide="chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="home-dashboard-actions">
+                <a href="/#" class="home-dashboard-action-btn">
+                    <i data-lucide="ticket-plus" aria-hidden="true"></i>
+                    <span>New ticket</span>
+                </a>
+                <a href="/#" class="home-dashboard-action-btn">
+                    <i data-lucide="clock" aria-hidden="true"></i>
+                    <span>Log time</span>
+                </a>
+                <a href="/#" class="home-dashboard-action-btn">
+                    <i data-lucide="calendar" aria-hidden="true"></i>
+                    <span>Request change</span>
+                </a>
+            </div>
         </div>
-    </div>
-
-    <!-- Quick actions -->
-    <div class="home-quick-actions">
-        <span class="home-quick-actions-label">Quick actions</span>
-        <div class="home-quick-actions-buttons">
-            <a href="/#" class="home-quick-action-btn">
-                <span class="home-quick-action-btn-icon" aria-hidden="true">
-                    <i data-lucide="ticket-plus"></i>
-                </span>
-                <span>New ticket</span>
-            </a>
-            <a href="/#" class="home-quick-action-btn">
-                <span class="home-quick-action-btn-icon" aria-hidden="true">
-                    <i data-lucide="clock"></i>
-                </span>
-                <span>Log time</span>
-            </a>
-            <a href="/#" class="home-quick-action-btn">
-                <span class="home-quick-action-btn-icon" aria-hidden="true">
-                    <i data-lucide="calendar"></i>
-                </span>
-                <span>Request change</span>
-            </a>
-        </div>
-    </div>
+    </section>
 
     <!-- My work today -->
     <section class="home-section home-mystats">
