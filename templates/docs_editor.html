@@ -164,10 +164,24 @@
             return payload.url;
         }
 
+        /* Save scroll before any paste; restore after — prevents Quill default from scrolling to top */
+        quill.root.addEventListener('paste', function () {
+            const y = window.scrollY;
+            setTimeout(function () { window.scrollTo(0, y); }, 0);
+        }, true);
+
         quill.root.addEventListener('paste', async function (evt) {
             const clipboard = evt.clipboardData;
             if (!clipboard || !clipboard.items) {
                 return;
+            }
+
+            /* Prevent Quill's paste from scrolling page to top */
+            const savedScrollY = window.scrollY;
+            function restoreScroll() {
+                requestAnimationFrame(function () {
+                    window.scrollTo(0, savedScrollY);
+                });
             }
 
             const selection = quill.getSelection(true);
@@ -181,6 +195,7 @@
                 quill.deleteText(insertIndex, replaceLength, 'user');
                 quill.insertText(insertIndex, textPayload, 'user');
                 quill.setSelection(insertIndex + textPayload.length, 0, 'silent');
+                restoreScroll();
                 return;
             }
 
@@ -202,6 +217,7 @@
                 } catch (error) {
                     alert('Unable to upload pasted image.');
                 }
+                restoreScroll();
                 return;
             }
 
@@ -215,6 +231,7 @@
                     quill.deleteText(insertIndex, replaceLength, 'user');
                     quill.insertText(insertIndex, textPayload, 'code-block', true, 'user');
                     quill.setSelection(insertIndex + textPayload.length, 0, 'silent');
+                    restoreScroll();
                     return;
                 }
             }
@@ -236,6 +253,7 @@
                     return n;
                 }, 0);
                 quill.setSelection(insertIndex + pastedLen, 0, 'silent');
+                restoreScroll();
                 return;
             }
         });
