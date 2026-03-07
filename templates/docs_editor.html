@@ -9,8 +9,13 @@
 
 {% block content %}
 <div class="docs-shell docs-shell-reading">
-    <div class="docs-reading-actions">
-        <a class="docs-back" href="{{ url_for('docs.docs_index') }}">Back</a>
+    <div class="docs-editor-topbar" id="docs-editor-topbar">
+        <div class="docs-editor-topbar-inner">
+            <a class="docs-back" href="{{ url_for('docs.docs_index') }}">Back</a>
+            <button type="submit" form="docs-form" class="docs-btn docs-btn-solid docs-editor-save-btn">
+                Save Document
+            </button>
+        </div>
     </div>
 
     <form method="POST" action="{{ url_for('docs.docs_editor', doc_id=doc.id if doc else 0) }}" id="docs-form"
@@ -69,10 +74,6 @@
                 </span>
             </div>
             <div id="editor" class="docs-editor-surface"></div>
-        </div>
-
-        <div class="docs-editor-footer">
-            <button type="submit" class="docs-btn docs-btn-solid">Save Document</button>
         </div>
     </form>
 </div>
@@ -215,6 +216,16 @@
         document.getElementById('docs-form').addEventListener('submit', function () {
             document.getElementById('content_html').value = quill.root.innerHTML;
         });
+
+        /* Sticky topbar: add shadow/backdrop when scrolled */
+        const topbar = document.getElementById('docs-editor-topbar');
+        if (topbar) {
+            const onScroll = function () {
+                topbar.classList.toggle('is-scrolled', window.scrollY > 80);
+            };
+            window.addEventListener('scroll', onScroll, { passive: true });
+            onScroll();
+        }
     })();
 
     (function () {

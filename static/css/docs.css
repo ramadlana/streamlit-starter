@@ -385,6 +385,49 @@
     -webkit-backdrop-filter: none;
 }
 
+/* Docs editor — floating sticky topbar with Save button */
+.docs-editor-topbar {
+    position: sticky;
+    top: 56px;
+    z-index: 10;
+    margin: -0.25rem 0 1rem 0;
+    transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.docs-editor-topbar.is-scrolled {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-radius: var(--radius);
+    padding: 0.35rem 0.5rem;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    margin-top: -0.5rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+.docs-editor-topbar-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: 1040px;
+    margin: 0 auto;
+}
+
+.docs-editor-save-btn {
+    flex-shrink: 0;
+    padding: 0.5rem 1.25rem;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.docs-editor-save-btn:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
 .docs-reading-inline-actions {
     display: flex;
     align-items: center;
@@ -1264,6 +1307,15 @@ body.docs-light select:focus {
         position: static;
         backdrop-filter: none;
         background: transparent;
+    }
+    .docs-editor-topbar {
+        top: 48px;
+        margin: 0 0 1rem 0;
+    }
+    .docs-editor-topbar.is-scrolled {
+        margin-left: -0.9rem;
+        margin-right: -0.9rem;
+        padding: 0.4rem 0.9rem;
     }
     .docs-prose, .ql-snow .ql-editor { font-size: 16px; line-height: 1.65; }
     .docs-editor-clean .ql-snow .ql-editor { font-size: 14px; line-height: 1.55; }
