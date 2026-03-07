@@ -194,7 +194,7 @@
     padding: 0.875rem 1rem;
     text-decoration: none;
     color: inherit;
-    transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
 }
 
 a.home-news-item:hover {
@@ -855,6 +855,7 @@ a.home-news-item:hover {
     border: 1px solid transparent;
     border-radius: var(--radius);
     text-decoration: none;
+    transition: background var(--transition), border-color var(--transition);
     color: inherit;
     transition: border-color 0.15s ease, background 0.15s ease;
 }
@@ -1151,4 +1152,88 @@ a.home-news-item:hover {
     font-size: 0.75rem;
     color: var(--muted-foreground);
     line-height: 1.4;
+}
+
+/* ==========================================================================
+   Home page polish — subtle refinements for a more polished, professional look
+   ========================================================================== */
+body.page-home .container {
+    background: linear-gradient(180deg, #fafafa 0%, #f4f4f5 100%);
+}
+
+.home-page {
+    position: relative;
+}
+
+/* Dashboard bar — accent + refined elevation */
+.home-dashboard-bar {
+    border-left: 3px solid var(--primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.03);
+    transition: box-shadow 0.2s ease;
+}
+
+.home-dashboard-bar:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* Hero — refined depth */
+.home-hero {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+/* Section panels — consistent elevation */
+.home-section-panel,
+.home-upcoming-panel,
+.home-workspace-panel {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.03);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.home-section-panel:hover,
+.home-upcoming-panel:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* My work cards — subtle accent on hover */
+.home-mystats-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.home-mystats-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--primary);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.home-mystats-card:hover::before {
+    opacity: 0.6;
+}
+
+/* App cards — refined hover */
+.home-app-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.home-app-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* News items — subtle hover feedback */
+/* Action buttons — subtle depth */
+.home-dashboard-action-btn {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background var(--transition), border-color var(--transition);
+}
+
+.home-dashboard-action-btn:hover {
+    transform: translateY(-0.5px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
