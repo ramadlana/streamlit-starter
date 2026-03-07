@@ -11,8 +11,8 @@
 
 <body class="{% block body_class %}{% endblock %}">
     <nav class="navbar" id="main-nav">
-        <a href="/" class="logo" style="display: flex; align-items: center;">
-            <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Logo" style="height: 35px;" margin-right: 0.5rem;">
+        <a href="/" class="logo">
+            <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Logo" class="logo-img">
             <!-- <span style="font-weight: 600; font-size: 1.125rem;">Internal Tool</span> -->
         </a>
         <button class="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false" id="nav-toggle-btn">

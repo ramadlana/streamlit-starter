@@ -180,7 +180,7 @@ dashboard_app.py   # Streamlit entrypoint
 flask_app/         # App factory, blueprints (routes/)
 app_db/            # DB config, models, engine, helpers
 templates/         # Jinja HTML (extend base.html)
-static/css/        # base.css only
+static/css/        # base.css (imports variables, reset, navbar, home, footer, showcase, components, docs, utilities, crud, admin, dashboard)
 dashboard_pages/   # Streamlit pages
 scripts/           # manage_admin, kill_ports, docs_attachments_housekeeping
 ```

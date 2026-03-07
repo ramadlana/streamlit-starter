@@ -1,0 +1,45 @@
+/* Reset, body, base layout */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    background-color: var(--muted);
+    color: var(--foreground);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+.container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    margin-top: 56px;
+}
+
+body.docs-light .container,
+body.content-top .container {
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 100%;
+    padding: 2.2rem clamp(1rem, 2.5vw, 3rem);
+}
+
+body.docs-light .container {
+    background: var(--background);
+    color: var(--foreground);
+}
+
+body.nav-menu-open {
+    overflow: hidden;
+}

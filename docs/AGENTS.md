@@ -66,7 +66,7 @@ Minimum agent behavior:
   - `engine.py`: shared SQL engine for raw SQL features
   - `example_crud.py`: feature table bootstrap helper (no `dummydata.py`; that table is expected to exist)
 - `templates/`: Jinja pages (extend `base.html`; no inline styles). Includes `base.html`, `home.html`, `login.html`, `signup.html`, `admin.html`, `docs_index.html`, `docs_view.html`, `docs_editor.html`, `example_crud.html`, `dummydata_crud.html`, `iframe_app_streamlit.html`, `change_password.html`, `components/modal.html`
-- `static/css/`: `base.css` only (single stylesheet; see `FRAMEWORK_REFERENCE.md` Part II — Design System)
+- `static/css/`: Modular stylesheets. `base.css` is the entry point that imports `variables.css`, `reset.css`, `navbar.css`, `home.css`, `footer.css`, `showcase.css`, `components.css`, `docs.css`, `utilities.css`, `crud.css`, `admin.css`, `dashboard.css`. See `FRAMEWORK_REFERENCE.md` Part II — Design System.
 - `dashboard_pages/`: Streamlit page modules (e.g. `home.py`, `example/*.py`). Registered in `dashboard_app.py` via `st.Page(...)` and `st.navigation(...)`.
 - `scripts/`: `manage_admin.py`, `kill_ports.py`, `docs_attachments_housekeeping.py`
 - Root entrypoints:
@@ -285,7 +285,7 @@ Recommended if available:
 - `pytest`
 
 When changing templates/CSS, follow `FRAMEWORK_REFERENCE.md` (Design System & Base CSS):
-- Single stylesheet (`base.css`); no new CSS files or inline `<style>` in templates
+- Modular CSS (`base.css` imports feature modules); add new styles to the appropriate module in `static/css/`; no inline `<style>` in templates
 - Use standard classes (`btn`, `form-control`, `crud-panel-title`, etc.); no duplicate flash blocks
 
 When changing docs/routing/features, verify:

@@ -1,0 +1,41 @@
+/* Portal footer (all pages) */
+.portal-footer {
+    margin-top: auto;
+    padding: 1.25rem 2rem;
+    background: var(--background);
+    border-top: 1px solid var(--border);
+    font-size: 0.8125rem;
+}
+
+.portal-footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.portal-footer a {
+    color: var(--muted-foreground);
+    text-decoration: none;
+}
+
+.portal-footer a:hover {
+    color: var(--foreground);
+    text-decoration: underline;
+}
+
+.portal-footer-meta {
+    color: var(--muted-foreground);
+    margin-left: auto;
+}
+
+@media (max-width: 768px) {
+    .portal-footer-meta {
+        margin-left: 0;
+        width: 100%;
+        text-align: center;
+    }
+}

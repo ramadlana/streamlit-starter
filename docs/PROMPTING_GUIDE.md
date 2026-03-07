@@ -21,7 +21,7 @@ Then implement. Must-do:
 - Flask: new blueprint → import + register in flask_app/__init__.py; @login_required or @role_required as needed; url_for("blueprint.endpoint"); every POST form has csrf_token.
 - CRUD: DB logic in app_db/<feature>.py (ORM or get_sql_engine per AGENTS §9); nav in templates/base.html if user-facing.
 - Streamlit: new file under dashboard_pages/ with "import streamlit as st"; register in dashboard_app.py (st.Page + add to st.navigation).
-- Templates: extend base.html, use base.css classes only ([FRAMEWORK_REFERENCE.md](FRAMEWORK_REFERENCE.md) — Design System), no inline styles.
+- Templates: extend base.html, use design system classes from `static/css/` ([FRAMEWORK_REFERENCE.md](FRAMEWORK_REFERENCE.md) — Design System), no inline styles.
 
 Run compileall when done. Update README/AGENTS/DEPLOYMENT/FRAMEWORK_REFERENCE if routes or structure change.
 ```
@@ -37,7 +37,7 @@ Use these when the feature type is clear. Replace only the placeholder.
 ```
 Add a protected Flask page: <put your page or feature here>.
 
-Follow AGENTS.md §8 "Add a protected Flask route". Use @login_required, url_for, CSRF on forms. If new blueprint: import and register in flask_app/__init__.py. Extend base.html, base.css only.
+Follow AGENTS.md §8 "Add a protected Flask route". Use @login_required, url_for, CSRF on forms. If new blueprint: import and register in flask_app/__init__.py. Extend base.html, use design system classes (static/css/).
 ```
 
 ### New CRUD feature

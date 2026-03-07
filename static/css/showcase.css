@@ -1,0 +1,105 @@
+/* Showcase / cheatsheet (style guide page) */
+.showcase-container {
+    width: 100%;
+    max-width: min(960px, 94vw);
+    margin: 0 auto;
+    padding: 0 0.5rem 3rem;
+}
+
+.showcase-section {
+    margin-bottom: 2.5rem;
+}
+
+.showcase-section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.02em;
+}
+
+.showcase-section-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.showcase-demo {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.showcase-code {
+    margin: 0;
+    padding: 1rem 1.25rem;
+    background: var(--azure-primary);
+    color: #e2e8f0;
+    border-radius: var(--radius);
+    font-family: 'Roboto', 'SF Mono', 'Fira Code', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    white-space: pre;
+    display: block;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+.showcase-code code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+    white-space: inherit;
+    display: inline;
+}
+
+.showcase-card-example {
+    max-width: 360px;
+}
+
+.showcase-card-example .card-header h3.showcase-card-title {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.showcase-form-example {
+    max-width: 320px;
+}
+
+.showcase-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem 1.25rem;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.showcase-nav a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.showcase-nav a:hover {
+    text-decoration: underline;
+}
+
+.showcase-block-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 0.35rem;
+}

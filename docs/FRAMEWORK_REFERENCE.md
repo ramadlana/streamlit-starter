@@ -293,7 +293,7 @@ HTML and CSS standards for the Flask-based internal tool framework. Use when add
 
 ## 8. Design principles
 
-- **Single stylesheet**: All styles live in `static/css/base.css`. Do not add new CSS files or inline `<style>` blocks in templates.
+- **Modular CSS**: Styles live in `static/css/` as modular files. `base.css` is the entry point that imports all modules in cascade order. Do not add inline `<style>` blocks in templates; add new styles to the appropriate module (or create a new module and import it in `base.css`).
 - **Extend base**: Every page extends `templates/base.html` and fills `{% block content %}` (and optionally `title`, `body_class`, `extra_css`).
 - **Use design tokens**: Prefer CSS variables from `:root` (e.g. `var(--accent-color)`, `var(--radius)`) and existing utility/component classes instead of hardcoded colors or one-off styles.
 - **No duplication**: Reuse existing classes (e.g. `btn`, `form-control`, `crud-panel`) rather than redefining the same look in templates.
@@ -389,13 +389,13 @@ Use these instead of inline `style="background: ..."`.
 ## 12. Checklist for new pages
 
 1. Extend `base.html` and set `{% block title %}` and, if needed, `{% block body_class %}`.
-2. Use only classes from `base.css`; no inline styles or new `<style>` tags.
+2. Use only classes from the design system (`static/css/`); no inline styles or new `<style>` tags.
 3. All POST forms include `{% csrf_token() %}` in a hidden input.
 4. Buttons use `btn` + variant; forms use `form-group`, `form-label`, `form-control`.
 5. Do not add a duplicate flash block; base already shows flashed messages.
 6. For modals, use `components/modal.html` and `AppModal`.
 
-**References:** [AGENTS.md](AGENTS.md) — Repo map, routes, and change playbooks. **static/css/base.css** — Single source of truth; sections are commented (e.g. "CRUD", "Admin", "Dashboard").
+**References:** [AGENTS.md](AGENTS.md) — Repo map, routes, and change playbooks. **static/css/** — Modular stylesheets; `base.css` imports variables, reset, navbar, home, footer, showcase, components, docs, utilities, crud, admin, dashboard.
 
 ---
 
@@ -414,7 +414,7 @@ The app runs **two processes** started by `run.py`:
 | **Flask**     | `auth_server.py`   | `5001`       | Authentication gateway, HTML pages, API            |
 | **Streamlit** | `dashboard_app.py` | `8501`       | Data dashboards (embedded inside Flask via iframe) |
 
-In **development**, users visit `http://localhost:5001`. The home page loads the Streamlit dashboard inside an iframe pointing to `localhost:8501`. In **production** (`python3 run.py --prod`), Streamlit is reverse-proxied behind `/streamlit/` (typically via Nginx).
+In **development**, users visit `http://localhost:5001`. The home page (`/`) shows a portal; users navigate to `/iframe-app-streamlit` to load the Streamlit dashboard inside an iframe (pointing to `localhost:8501`). In **production** (`python3 run.py --prod`), Streamlit is reverse-proxied behind `/streamlit/` (typically via Nginx).
 
 ### Key directories
 
@@ -862,28 +862,28 @@ def inject_csrf_token():
 
 ## 22. Embedding Streamlit via iframe
 
-The home page (`/`) demonstrates the iframe-protection pattern: Flask authenticates the user, then renders a full-screen Streamlit iframe.
+The `/iframe-app-streamlit` route demonstrates the iframe-protection pattern: Flask authenticates the user, then renders a full-screen Streamlit iframe.
 
 ### How it works
 
-> **FRAMEWORK CODE** — `flask_app/routes/home.py` — already configured, no changes needed.
+> **FRAMEWORK CODE** — `flask_app/routes/iframe_app_streamlit.py` — already configured, no changes needed.
 
 ```python
-# flask_app/routes/home.py
-@bp.route("/")
+# flask_app/routes/iframe_app_streamlit.py
+@bp.route("/iframe-app-streamlit")
 @login_required
-def index():
+def iframe_app_streamlit():
     streamlit_port = os.environ.get("STREAMLIT_PORT", "8501")
     streamlit_url = f"http://localhost:{streamlit_port}"
     if not current_app.debug:
         streamlit_url = "/streamlit/"
-    return render_template("index.html", streamlit_url=streamlit_url)
+    return render_template("iframe_app_streamlit.html", streamlit_url=streamlit_url)
 ```
 
-> **FRAMEWORK CODE** — `templates/index.html` — already configured, no changes needed.
+> **FRAMEWORK CODE** — `templates/iframe_app_streamlit.html` — already configured, no changes needed.
 
 ```html
-<!-- templates/index.html -->
+<!-- templates/iframe_app_streamlit.html -->
 {% extends "base.html" %}
 {% block content %}
 <iframe src="{{ streamlit_url }}" class="app-viewport"
@@ -982,10 +982,10 @@ If you add the `st.Page(...)` but **don't** add it to one of the lists in `st.na
 ### Verify
 
 1. Restart the app: `python3 run.py`
-2. Log in and open the home page (Streamlit iframe).
+2. Log in and open the Streamlit dashboard (via nav link to `/iframe-app-streamlit` or home page cards).
 3. In the Streamlit sidebar you should see "My Dashboard" under the group you used (e.g. "Main Menu"). Click it — your title and text should appear.
 
-The Streamlit dashboard is already protected by the Flask `@login_required` on the home route; no extra auth is needed in the Streamlit script.
+The Streamlit dashboard is already protected by the Flask `@login_required` on the `/iframe-app-streamlit` route; no extra auth is needed in the Streamlit script.
 
 ### Common mistakes when adding pages
 
@@ -1035,10 +1035,12 @@ The nav bar in `templates/base.html` uses Jinja conditionals to show links based
 
 **Show only to editors and above (dropdown menu):**
 
+The framework uses a context processor `can_show_editor_menu` (from `EDITOR_MENU_ROLES` in `app_db/user_roles.py`). Equivalent inline check:
+
 > **FRAMEWORK CODE** — `templates/base.html` — already configured. Shown as reference.
 
 ```html
-{% if current_user.role in ['editor', 'approval1', 'approval2', 'admin'] %}
+{% if can_show_editor_menu %}
 <div class="nav-dropdown">
     <button class="nav-dropdown-toggle" type="button">
         Editor Menu <span class="nav-dropdown-caret">▾</span>
@@ -1307,20 +1309,44 @@ Provide either `DATABASE_URL` **or** all five `DB_*` variables.
 
 See [Part II — Design System](#part-ii--design-system) above for principles, page structure, and component checklist. This section is the full class reference.
 
-`static/css/base.css` is the **only** stylesheet for all HTML pages (auth, admin, docs, CRUD, etc.). It is loaded by `templates/base.html` and includes layout, components, docs styles, and CRUD/form-and-table styles in one file.
+`static/css/base.css` is the **entry point** for all HTML pages (auth, admin, docs, CRUD, etc.). It is loaded by `templates/base.html` and imports modular stylesheets in cascade order:
+
+| Module         | Purpose                                      |
+| -------------- | -------------------------------------------- |
+| `variables.css`| Design tokens (colors, radius, fonts)         |
+| `reset.css`    | Reset, body, base layout                     |
+| `navbar.css`   | Navbar, dropdowns, mobile menu               |
+| `home.css`     | Home page styles                             |
+| `footer.css`   | Footer styles                                |
+| `showcase.css` | Showcase / landing sections                  |
+| `components.css`| Buttons, forms, cards, alerts, modals       |
+| `docs.css`     | Docs section styles                          |
+| `utilities.css`| Flex, spacing, text utilities                |
+| `crud.css`     | CRUD pages (tables, panels, forms)           |
+| `admin.css`    | Admin panel styles                           |
+| `dashboard.css`| Dashboard / iframe layout                    |
+
+To add styles for a new feature, create a new module (e.g. `my_feature.css`) and add `@import url('my_feature.css');` in `base.css` in the appropriate position.
 
 ### Design tokens (CSS variables)
 
-| Variable           | Typical value | Use for                                |
-| ------------------ | ------------- | -------------------------------------- |
-| `--radius`         | `8px`         | Border radius (buttons, inputs, cards) |
-| `--input-height`   | `2.5rem`      | Height of buttons and text inputs      |
-| `--glass-border`   | `#e2e8f0`     | Default border color                   |
-| `--text-primary`   | `#0f172a`     | Main text                              |
-| `--text-secondary` | `#64748b`     | Muted text                             |
-| `--accent-color`   | `#0078d4`     | Primary actions, links                 |
-| `--error-color`    | `#dc2626`     | Danger buttons, errors                 |
-| `--transition`     | `0.15s ease`  | Hover/focus transitions                |
+Defined in `variables.css` (shadcn/UI-style zinc palette):
+
+| Variable              | Typical value | Use for                                |
+| --------------------- | ------------- | -------------------------------------- |
+| `--radius`            | `0.375rem`    | Border radius (buttons, inputs, cards) |
+| `--radius-lg`         | `0.5rem`      | Larger radius (modals, dropdowns)      |
+| `--input-height`      | `2.25rem`     | Height of buttons and text inputs      |
+| `--foreground`        | `#09090b`     | Main text                              |
+| `--muted-foreground`  | `#71717a`     | Muted text                              |
+| `--primary`           | `#18181b`     | Primary actions, navbar                |
+| `--primary-foreground`| `#fafafa`    | Text on primary background             |
+| `--muted`             | `#f4f4f5`     | Muted backgrounds (hover, panels)      |
+| `--border`            | `#e4e4e7`     | Default border color                   |
+| `--destructive`       | `#dc2626`     | Danger buttons, errors                 |
+| `--transition`        | `0.15s ease`  | Hover/focus transitions                |
+
+Legacy aliases: `--text-primary` → `--foreground`, `--text-secondary` → `--muted-foreground`, `--accent-color` → `--primary`, `--error-color` → `--destructive`, `--glass-border` → `--border`.
 
 ### Buttons
 

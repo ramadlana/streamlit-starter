@@ -7,7 +7,7 @@ This guide removes **every demo/example feature** so you have a minimal framewor
 | **Flask demo CRUD** | `/example-crud`, `/dummydata-crud` (blueprints, routes, templates, `app_db/example_crud.py`) |
 | **Docs** | `/docs` and all docs routes (blueprint, templates, `app_db/docs.py`, `app_db/docs_attachments.py`, `DocumentationPage` model) |
 | **Streamlit iframe page** | `/iframe-app-streamlit` (blueprint, template) |
-| **Streamlit example pages** | Entire "Example" group (Basic Page, Map, Components, Sales Dashboard, PSQL Dummydata, PSQL Pagination, etc.) |
+| **Streamlit example pages** | Entire `dashboard_pages/example/` (Basic Page, Map, Components, Sales Dashboard, PSQL Dummydata, PSQL Pagination, Form and API Call) and `dashboard_pages/pages/` (e.g. overview.py) |
 
 **After cleanup you keep:** Flask (home, auth, admin), Streamlit (single “Home” page that renders README), app_db (User, roles, app_settings, engine), and a minimal nav/home so you can add your own features.
 

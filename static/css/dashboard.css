@@ -1,0 +1,69 @@
+/* Dashboard home (iframe full-height) */
+body.page-dashboard {
+    height: 100%;
+    overflow: hidden;
+}
+
+body.page-dashboard .container {
+    display: block;
+    flex: none;
+    width: 100%;
+    height: calc(100vh - 56px);
+    min-height: calc(100vh - 56px);
+    max-width: 100%;
+    margin-top: 56px;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    align-items: stretch;
+    justify-content: stretch;
+}
+
+body.page-dashboard .app-viewport {
+    width: 100%;
+    height: calc(100vh - 56px);
+    min-height: calc(100vh - 56px);
+    border: none;
+    display: block;
+    background: var(--azure-primary);
+}
+
+.app-viewport {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: var(--azure-primary);
+}
+
+.loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--azure-primary);
+    z-index: 9999;
+    transition: opacity 0.4s ease-out;
+}
+
+.loading-overlay .spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(0, 120, 212, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--accent-color);
+    animation: spin 1s linear infinite;
+    margin-bottom: 1.25rem;
+}
+
+.loading-overlay p {
+    color: #94a3b8;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
