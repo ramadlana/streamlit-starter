@@ -5,18 +5,7 @@
 
 {% block content %}
 <div class="home-page">
-    <!-- Hero -->
-    <section class="home-hero">
-        <div class="home-hero-inner">
-            <div class="home-hero-content">
-                <h1 class="home-hero-title">Portal</h1>
-                <p class="home-hero-tagline">Dashboards, docs, and tools in one place.</p>
-            </div>
-            <div class="home-hero-image">
-                <img src="{{ url_for('static', filename='images/home-portalimage-800x400.jpg') }}" alt="Workspace" width="800" height="400" loading="lazy">
-            </div>
-        </div>
-    </section>
+    
 
     <!-- Quick info strip -->
     <div class="home-info-strip">
@@ -28,8 +17,52 @@
             <span class="home-info-item-dot warning" aria-hidden="true"></span>
             <span>Last deploy: Mar 5, 2025</span>
         </div>
-        <div class="home-info-item">
-            <span>Need help? Check the <a href="{{ url_for('docs.docs_index') }}">Docs</a> or contact IT.</span>
+        <div class="home-info-oncall">
+            <span class="home-info-oncall-label">On-call</span>
+            <button type="button" class="home-info-oncall-arrow home-info-oncall-arrow-left" aria-label="Scroll left" id="oncall-scroll-left">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16l-6-6 6-6"/></svg>
+            </button>
+            <div class="home-info-oncall-scroll" id="oncall-scroll">
+                <div class="home-info-oncall-track">
+                    <div class="home-info-oncall-person">
+                        <span class="home-info-oncall-name">Rama</span>
+                        <a href="https://wa.me/6281212345678" class="home-info-oncall-phone" title="WhatsApp" target="_blank" rel="noopener noreferrer">
+                            <span class="home-info-oncall-icon home-info-oncall-icon-wa" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></span>
+                            <span>WhatsApp</span>
+                        </a>
+                        <a href="https://teams.microsoft.com/l/chat/0/0?users=youremail@company.com" class="home-info-oncall-teams" title="Chat in Microsoft Teams" target="_blank" rel="noopener noreferrer">
+                            <span class="home-info-oncall-icon home-info-oncall-icon-teams" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zM12 15h-2v-4H8V9h4v6zm5-4.5V9h-2v1.5h-1V9h-2v1.5h-1V9H9v4h1.5v-2.5h1V13H13v-2.5h1V13h1.5V9h-2v1.5h-1z"/></svg></span>
+                            <span>Ms Teams</span>
+                        </a>
+                    </div>
+                    <div class="home-info-oncall-person">
+                        <span class="home-info-oncall-name">Daniel</span>
+                        <a href="https://wa.me/6281212345678" class="home-info-oncall-phone" title="WhatsApp" target="_blank" rel="noopener noreferrer">
+                            <span class="home-info-oncall-icon home-info-oncall-icon-wa" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></span>
+                            <span>WhatsApp</span>
+                        </a>
+                        <a href="https://teams.microsoft.com/l/chat/0/0?users=youremail@company.com" class="home-info-oncall-teams" title="Chat in Microsoft Teams" target="_blank" rel="noopener noreferrer">
+                            <span class="home-info-oncall-icon home-info-oncall-icon-teams" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zM12 15h-2v-4H8V9h4v6zm5-4.5V9h-2v1.5h-1V9h-2v1.5h-1V9H9v4h1.5v-2.5h1V13H13v-2.5h1V13h1.5V9h-2v1.5h-1z"/></svg></span>
+                            <span>Ms Teams</span>
+                        </a>
+                    </div>
+                    <div class="home-info-oncall-person">
+                        <span class="home-info-oncall-name">Suresh</span>
+                        <a href="https://wa.me/6281212345678" class="home-info-oncall-phone" title="WhatsApp" target="_blank" rel="noopener noreferrer">
+                            <span class="home-info-oncall-icon home-info-oncall-icon-wa" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></span>
+                            <span>WhatsApp</span>
+                        </a>
+                        <a href="https://teams.microsoft.com/l/chat/0/0?users=youremail@company.com" class="home-info-oncall-teams" title="Chat in Microsoft Teams" target="_blank" rel="noopener noreferrer">
+                            <span class="home-info-oncall-icon home-info-oncall-icon-teams" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zM12 15h-2v-4H8V9h4v6zm5-4.5V9h-2v1.5h-1V9h-2v1.5h-1V9H9v4h1.5v-2.5h1V13H13v-2.5h1V13h1.5V9h-2v1.5h-1z"/></svg></span>
+                            <span>Ms Teams</span>
+                        </a>
+                    </div>
+                    
+                </div>
+            </div>
+            <button type="button" class="home-info-oncall-arrow home-info-oncall-arrow-right" aria-label="Scroll right" id="oncall-scroll-right">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4l6 6-6 6"/></svg>
+            </button>
         </div>
     </div>
 
@@ -58,50 +91,86 @@
         </div>
     </div>
 
+    <!-- My work today -->
+    <section class="home-section home-mystats">
+        <div class="home-mystats-inner">
+            <header class="home-mystats-header">
+                <span class="home-mystats-header-accent" aria-hidden="true"></span>
+                <h2 class="home-mystats-title">My work today</h2>
+            </header>
+            <div class="home-mystats-grid">
+                <a href="/#" class="home-mystats-card">
+                    <span class="home-mystats-card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h4v4H3zM10 4h4v4h-4zM3 10h4v4H3zM10 10h4v4h-4z"/><path d="M2 2h16v16H2z"/></svg>
+                    </span>
+                    <span class="home-mystats-card-value">3</span>
+                    <span class="home-mystats-card-label">Open tickets assigned</span>
+                    <span class="home-mystats-card-link">Service Desk <span aria-hidden="true">→</span></span>
+                </a>
+                <a href="/#" class="home-mystats-card">
+                    <span class="home-mystats-card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 14l2-2 4 4 8-8"/><path d="M10 4v4l2 2"/><circle cx="10" cy="10" r="7"/></svg>
+                    </span>
+                    <span class="home-mystats-card-value">2</span>
+                    <span class="home-mystats-card-label">Pending approvals</span>
+                    <span class="home-mystats-card-link">Approvals <span aria-hidden="true">→</span></span>
+                </a>
+                <a href="/#" class="home-mystats-card">
+                    <span class="home-mystats-card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="12" rx="2"/><path d="M16 3v2M4 3v2M3 9h14"/></svg>
+                    </span>
+                    <span class="home-mystats-card-value">Mar 10</span>
+                    <span class="home-mystats-card-label">Next maintenance 02:00 UTC</span>
+                    <span class="home-mystats-card-link">Status Page <span aria-hidden="true">→</span></span>
+                </a>
+            </div>
+        </div>
+    </section>
+
     <div class="home-two-col">
         <!-- News & announcements -->
-        <div class="home-col">
-            <section class="home-section">
-                <h2 class="home-section-title">News &amp; announcements</h2>
+        <div class="home-col home-col-news">
+            <section class="home-section home-section-panel">
+                <header class="home-section-header">
+                    <h2 class="home-section-title">News &amp; announcements</h2>
+                    <span class="home-section-meta">Latest updates</span>
+                </header>
                 <div class="home-news-list">
                     <a href="{{ url_for('docs.docs_index') }}" class="home-news-item">
-                        <div class="home-news-item-date">Mar 4, 2025</div>
-                        <div class="home-news-item-title">New documentation hub live</div>
+                        <span class="home-news-item-date">Mar 4, 2025</span>
+                        <span class="home-news-item-title">New documentation hub live</span>
                         <p class="home-news-item-excerpt">Browse and search all internal docs in one place. Tagged and searchable for your team.</p>
                     </a>
-                    <div class="home-news-item">
-                        <div class="home-news-item-date">Mar 1, 2025</div>
-                        <div class="home-news-item-title">Streamlit dashboard updates</div>
-                        <p class="home-news-item-excerpt">The analytics dashboard now includes Q1 metrics and export options. Open it from the Apps section below.</p>
-                    </div>
-                    <div class="home-news-item">
-                        <div class="home-news-item-date">Feb 28, 2025</div>
-                        <div class="home-news-item-title">Scheduled maintenance window</div>
+                    <a href="/#" class="home-news-item">
+                        <span class="home-news-item-date">Mar 1, 2025</span>
+                        <span class="home-news-item-title">Streamlit dashboard updates</span>
+                        <p class="home-news-item-excerpt">The analytics dashboard now includes Q1 metrics and export options. Open it from the Apps section.</p>
+                    </a>
+                    <div class="home-news-item home-news-item-static">
+                        <span class="home-news-item-date">Feb 28, 2025</span>
+                        <span class="home-news-item-title">Scheduled maintenance window</span>
                         <p class="home-news-item-excerpt">Planned maintenance on Sunday 2–4 AM UTC. Brief read-only mode possible. No action required.</p>
                     </div>
-                    <div class="home-news-item">
-                        <div class="home-news-item-date">Feb 28, 2025</div>
-                        <div class="home-news-item-title">Scheduled maintenance window</div>
-                        <p class="home-news-item-excerpt">Planned maintenance on Sunday 2–4 AM UTC. Brief read-only mode possible. No action required.</p>
-                    </div>
-                    <div class="home-news-item">
-                        <div class="home-news-item-date">Feb 28, 2025</div>
-                        <div class="home-news-item-title">Scheduled maintenance window</div>
-                        <p class="home-news-item-excerpt">Planned maintenance on Sunday 2–4 AM UTC. Brief read-only mode possible. No action required.</p>
-                    </div>
-                    <div class="home-news-item">
-                        <div class="home-news-item-date">Feb 28, 2025</div>
-                        <div class="home-news-item-title">Scheduled maintenance window</div>
-                        <p class="home-news-item-excerpt">Planned maintenance on Sunday 2–4 AM UTC. Brief read-only mode possible. No action required.</p>
+                    <div class="home-news-item home-news-item-static">
+                        <span class="home-news-item-date">Feb 25, 2025</span>
+                        <span class="home-news-item-title">Portal quick actions available</span>
+                        <p class="home-news-item-excerpt">Use the quick actions bar above to create tickets, log time, or request changes from one place.</p>
                     </div>
                 </div>
+                <footer class="home-news-footer">
+                    <a href="/#" class="home-news-footer-link">View all news</a>
+                </footer>
             </section>
         </div>
 
-        <!-- Sub-apps -->
+        <!-- Apps -->
         <div class="home-col home-col-apps">
-            <section class="home-section">
-                <h2 class="home-section-title">Apps</h2>
+            <section class="home-section home-section-panel">
+                <header class="home-section-header">
+                    <h2 class="home-section-title">Apps</h2>
+                    <span class="home-section-meta">25 apps</span>
+                </header>
+                <div class="home-apps-scroll">
                 <div class="home-apps-grid">
                     <div class="home-apps-category" style="grid-column: 1 / -1;">Service delivery, infra &amp; ops</div>
                     <a href="/#" class="home-app-card">
@@ -356,17 +425,169 @@
                         <span class="home-app-card-arrow" aria-hidden="true">→</span>
                     </a>
                 </div>
+                </div>
             </section>
         </div>
     </div>
 
-    <section class="home-section mt-5">
-        <div class="crud-panel p-4 home-getting-started">
-            <img src="{{ url_for('static', filename='images/get-started-241-400x240.jpg') }}" alt="" width="400" height="240" loading="lazy">
-            <div class="home-getting-started-content">
-                <p class="text-muted small mb-2">Open an app above to get started. Access and role: <strong>{{ current_user.role if current_user.is_authenticated else 'Guest' }}</strong>. For access changes, contact your admin or IT.</p>
+    <!-- Upcoming (CAB, maintenance, key dates) -->
+    <section class="home-section home-upcoming mt-5">
+        <div class="home-upcoming-panel">
+            <header class="home-upcoming-header">
+                <h2 class="home-upcoming-title">Upcoming</h2>
+                <a href="/#" class="home-upcoming-viewall">View calendar</a>
+            </header>
+            <div class="home-upcoming-list">
+                <a href="/#" class="home-upcoming-item">
+                    <span class="home-upcoming-item-date">Mar 12</span>
+                    <span class="home-upcoming-item-content">
+                        <span class="home-upcoming-item-title">CAB meeting</span>
+                        <span class="home-upcoming-item-meta">14:00 · Change approvals</span>
+                    </span>
+                    <span class="home-upcoming-item-arrow">→</span>
+                </a>
+                <a href="/#" class="home-upcoming-item">
+                    <span class="home-upcoming-item-date">Mar 10</span>
+                    <span class="home-upcoming-item-content">
+                        <span class="home-upcoming-item-title">Planned maintenance</span>
+                        <span class="home-upcoming-item-meta">02:00–04:00 UTC · Core services</span>
+                    </span>
+                    <span class="home-upcoming-item-arrow">→</span>
+                </a>
+                <a href="/#" class="home-upcoming-item">
+                    <span class="home-upcoming-item-date">Mar 15</span>
+                    <span class="home-upcoming-item-content">
+                        <span class="home-upcoming-item-title">SLA review (March)</span>
+                        <span class="home-upcoming-item-meta">Delivery &amp; ops</span>
+                    </span>
+                    <span class="home-upcoming-item-arrow">→</span>
+                </a>
             </div>
         </div>
     </section>
+
+    <section class="home-section mt-5">
+        <div class="home-workspace-panel">
+            <header class="home-workspace-header">
+                <div class="home-workspace-header-left">
+                    <span class="home-workspace-header-accent" aria-hidden="true"></span>
+                    <h2 class="home-workspace-title">At a glance</h2>
+                </div>
+                <span class="home-workspace-badge">{{ current_user.role if current_user.is_authenticated else 'Guest' }}</span>
+            </header>
+            <div class="home-workspace-body">
+                <div class="home-workspace-tasks">
+                    <a href="/#" class="home-workspace-task">
+                        <span class="home-workspace-task-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h4v4H3zM10 4h4v4h-4zM3 10h4v4H3zM10 10h4v4h-4z"/><path d="M2 2h16v16H2z"/></svg>
+                        </span>
+                        <span class="home-workspace-task-content">
+                            <span class="home-workspace-task-label">Report an incident or request</span>
+                            <span class="home-workspace-task-app">Service Desk</span>
+                        </span>
+                        <span class="home-workspace-task-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="/#" class="home-workspace-task">
+                        <span class="home-workspace-task-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2"/></svg>
+                        </span>
+                        <span class="home-workspace-task-content">
+                            <span class="home-workspace-task-label">Log project or consultant time</span>
+                            <span class="home-workspace-task-app">Time &amp; Billing</span>
+                        </span>
+                        <span class="home-workspace-task-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="/#" class="home-workspace-task">
+                        <span class="home-workspace-task-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="6"/><path d="M10 6v4l2 2"/><path d="M4 4l2 2M16 4l-2 2M4 16l2-2M16 16l-2-2"/></svg>
+                        </span>
+                        <span class="home-workspace-task-content">
+                            <span class="home-workspace-task-label">Check service health</span>
+                            <span class="home-workspace-task-app">Status Page</span>
+                        </span>
+                        <span class="home-workspace-task-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="/#" class="home-workspace-task">
+                        <span class="home-workspace-task-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="12" rx="2"/><path d="M16 3v2M4 3v2M3 9h14"/></svg>
+                        </span>
+                        <span class="home-workspace-task-content">
+                            <span class="home-workspace-task-label">Request or approve a change</span>
+                            <span class="home-workspace-task-app">Change Management</span>
+                        </span>
+                        <span class="home-workspace-task-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="/#" class="home-workspace-task">
+                        <span class="home-workspace-task-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v1.5m0 13v1.5M4.2 4.2l1 1m9.6 9.6l1 1M2 10h1.5m13 0H17M4.2 15.8l1-1m9.6-9.6l1-1"/></svg>
+                        </span>
+                        <span class="home-workspace-task-content">
+                            <span class="home-workspace-task-label">See who’s on-call</span>
+                            <span class="home-workspace-task-app">On-call Schedule</span>
+                        </span>
+                        <span class="home-workspace-task-arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="/#" class="home-workspace-task">
+                        <span class="home-workspace-task-icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2h7l5 5v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M12 2v5h5"/><path d="M7 10h6M7 13h4"/></svg>
+                        </span>
+                        <span class="home-workspace-task-content">
+                            <span class="home-workspace-task-label">Look up a procedure</span>
+                            <span class="home-workspace-task-app">Runbooks / Knowledge Base</span>
+                        </span>
+                        <span class="home-workspace-task-arrow" aria-hidden="true">→</span>
+                    </a>
+                </div>
+                <div class="home-workspace-help">
+                    <h3 class="home-workspace-help-title">Need help?</h3>
+                    <div class="home-workspace-help-links">
+                        <a href="{{ url_for('docs.docs_index') }}" class="home-workspace-help-link">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2h7l5 5v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M12 2v5h5"/></svg>
+                            <span>Docs &amp; how-tos</span>
+                        </a>
+                        <a href="/#" class="home-workspace-help-link">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="6"/><path d="M10 6v4l2 2"/></svg>
+                            <span>Status &amp; incidents</span>
+                        </a>
+                        <a href="/#" class="home-workspace-help-link">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2a6 6 0 0 0-3 11.3V16a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-2.7A6 6 0 0 0 10 2z"/><path d="M9 19h2"/></svg>
+                            <span>Suggest an app</span>
+                        </a>
+                    </div>
+                    <p class="home-workspace-help-note">Access changes: contact your admin or IT</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hero -->
+    <section class="home-hero">
+        <div class="home-hero-inner">
+            <div class="home-hero-content">
+                <h1 class="home-hero-title">Portal</h1>
+                <p class="home-hero-tagline">Dashboards, docs, and tools in one place.</p>
+            </div>
+            <div class="home-hero-image">
+                <img src="{{ url_for('static', filename='images/home-portalimage-800x400.jpg') }}" alt="Workspace" width="800" height="400" loading="lazy">
+            </div>
+        </div>
+    </section>
+    
 </div>
+
+<script>
+(function () {
+    var scrollEl = document.getElementById('oncall-scroll');
+    var leftBtn = document.getElementById('oncall-scroll-left');
+    var rightBtn = document.getElementById('oncall-scroll-right');
+    if (!scrollEl || !leftBtn || !rightBtn) return;
+    var step = 220;
+    leftBtn.addEventListener('click', function () {
+        scrollEl.scrollBy({ left: -step, behavior: 'smooth' });
+    });
+    rightBtn.addEventListener('click', function () {
+        scrollEl.scrollBy({ left: step, behavior: 'smooth' });
+    });
+})();
+</script>
 {% endblock %}
