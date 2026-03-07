@@ -20,6 +20,7 @@ from werkzeug.utils import secure_filename
 from app_db import (
     create_or_update_document,
     db,
+    get_all_tags,
     get_document_by_id,
     get_document_by_slug,
     list_documents,
@@ -122,15 +123,17 @@ def _attachments_dir() -> Path:
 @login_required
 def docs_index():
     search = (request.args.get("q") or "").strip()
+    tags = request.args.getlist("tags")
     page = _parse_positive_int(request.args.get("page"), 1)
     per_page_raw = _parse_positive_int(request.args.get("per_page"), DOCS_PER_PAGE_OPTIONS[0])
     per_page = per_page_raw if per_page_raw in DOCS_PER_PAGE_OPTIONS else DOCS_PER_PAGE_OPTIONS[0]
-    page_data = list_documents(search=search, page=page, per_page=per_page)
+    page_data = list_documents(search=search, tags=tags, page=page, per_page=per_page)
     return render_template(
         "docs_index.html",
         docs=_decorate_docs(page_data["items"]),
         query=search,
-        active_tag="",
+        active_tags=tags,
+        available_tags=get_all_tags(),
         can_manage_docs=_can_manage_docs(current_user),
         per_page_options=DOCS_PER_PAGE_OPTIONS,
         pagination=_pagination_context(page_data),
@@ -145,22 +148,14 @@ def docs_by_tag(tag: str):
     safe_tag = (tag or "").strip().lower()
     if not safe_tag:
         return redirect(url_for("docs.docs_index"))
-    search = (request.args.get("q") or "").strip()
-    page = _parse_positive_int(request.args.get("page"), 1)
-    per_page_raw = _parse_positive_int(request.args.get("per_page"), DOCS_PER_PAGE_OPTIONS[0])
-    per_page = per_page_raw if per_page_raw in DOCS_PER_PAGE_OPTIONS else DOCS_PER_PAGE_OPTIONS[0]
-    page_data = list_documents(search=search, tag=safe_tag, page=page, per_page=per_page)
-    return render_template(
-        "docs_index.html",
-        docs=_decorate_docs(page_data["items"]),
-        query=search,
-        active_tag=safe_tag,
-        can_manage_docs=_can_manage_docs(current_user),
-        per_page_options=DOCS_PER_PAGE_OPTIONS,
-        pagination=_pagination_context(page_data),
-        pagination_endpoint="docs.docs_by_tag",
-        pagination_kwargs={"tag": safe_tag},
-    )
+    kwargs = {"tags": [safe_tag]}
+    if request.args.get("q"):
+        kwargs["q"] = request.args.get("q")
+    if request.args.get("per_page"):
+        kwargs["per_page"] = request.args.get("per_page")
+    if request.args.get("page"):
+        kwargs["page"] = request.args.get("page")
+    return redirect(url_for("docs.docs_index", **kwargs))
 
 
 @bp.route("/docs/<string:slug>")
@@ -229,7 +224,11 @@ def docs_editor(doc_id: int):
         if not doc:
             abort(404)
 
-    return render_template("docs_editor.html", doc=doc)
+    return render_template(
+        "docs_editor.html",
+        doc=doc,
+        available_tags=get_all_tags(),
+    )
 
 
 @bp.route("/docs/upload-image", methods=["POST"])

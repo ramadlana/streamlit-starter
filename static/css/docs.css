@@ -385,13 +385,6 @@
     -webkit-backdrop-filter: none;
 }
 
-/* Editor page: keep "Back" row non-sticky so toolbar can be the sticky element */
-body.docs-editor-page .docs-reading-actions {
-    position: static;
-    top: auto;
-    z-index: auto;
-}
-
 .docs-reading-inline-actions {
     display: flex;
     align-items: center;
@@ -713,12 +706,125 @@ body.docs-light select:focus {
 }
 
 #slug,
-#summary,
-#tags {
+#summary {
     border: none;
     border-bottom: 1px solid #e2e8f0;
     border-radius: 0;
     padding: 0.55rem 0;
+}
+
+/* Docs editor — tag input (chips + suggestions) */
+.docs-tag-input {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius);
+    background: var(--background);
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.docs-tag-input:focus-within {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px rgba(24, 24, 27, 0.08);
+}
+
+.docs-tag-input-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+}
+
+.docs-tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+}
+
+.docs-tag-chip-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    margin: 0 -0.125rem 0 0.125rem;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    color: inherit;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background var(--transition);
+}
+
+.docs-tag-chip-remove:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.docs-tag-input-field {
+    flex: 1;
+    min-width: 140px;
+    border: none;
+    background: transparent;
+    font-size: 0.875rem;
+    color: var(--foreground);
+    outline: none;
+}
+
+.docs-tag-input-field::placeholder {
+    color: var(--muted-foreground);
+}
+
+.docs-tag-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin: 0.25rem 0 0;
+    padding: 0.375rem;
+    list-style: none;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+    display: none;
+}
+
+.docs-tag-input.is-suggesting .docs-tag-suggestions {
+    display: block;
+}
+
+.docs-tag-suggestions li {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background var(--transition);
+}
+
+.docs-tag-suggestions li:hover {
+    background: var(--muted);
+}
+
+.docs-tag-input-hint {
+    margin: 0.375rem 0 0;
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
 }
 
 .ql-toolbar.ql-snow {
@@ -864,7 +970,7 @@ body.docs-light select:focus {
 
 .docs-index-admin .docs-housekeeping-form { margin: 0; }
 
-.docs-index-search-inner {
+.docs-index-search-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -875,9 +981,9 @@ body.docs-light select:focus {
     flex: 1;
     min-width: 180px;
     max-width: 320px;
-    height: 2rem;
-    padding: 0 0.625rem;
-    font-size: 0.8125rem;
+    height: 2.25rem;
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--background);
@@ -903,7 +1009,7 @@ body.docs-light select:focus {
 .docs-index-per-page-label { white-space: nowrap; }
 
 .docs-index-per-page-select {
-    height: 2rem;
+    height: 2.25rem;
     padding: 0 1.5rem 0 0.5rem;
     font-size: 0.8125rem;
     border: 1px solid var(--border);
@@ -913,28 +1019,85 @@ body.docs-light select:focus {
     cursor: pointer;
 }
 
+/* Tag pills — click to toggle filter */
+.docs-index-tags-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+}
+
+.docs-index-tags-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    flex-shrink: 0;
+}
+
+.docs-index-tags-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+}
+
+.docs-tag-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    text-decoration: none;
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+    border: 1px solid var(--border);
+    background: var(--background);
+    color: var(--muted-foreground);
+}
+
+.docs-tag-pill:hover {
+    background: var(--muted);
+    color: var(--foreground);
+    border-color: var(--border);
+}
+
+.docs-tag-pill.is-active {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+}
+
+.docs-tag-pill.is-active:hover {
+    background: var(--accent-hover, #27272a);
+    border-color: var(--accent-hover, #27272a);
+    color: var(--primary-foreground);
+}
+
+.docs-index-tags-clear {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    text-decoration: none;
+    margin-left: auto;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius);
+    transition: color var(--transition), background var(--transition);
+}
+
+.docs-index-tags-clear:hover {
+    color: var(--foreground);
+    background: var(--muted);
+}
+
 .docs-btn-sm {
     height: 2rem;
     padding: 0 0.75rem;
     font-size: 0.8125rem;
 }
-
-.docs-index-filter {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    margin-bottom: 0.75rem;
-    font-size: 0.8125rem;
-}
-
-.docs-index-filter-label { color: var(--muted-foreground); }
-.docs-index-filter-tag { color: var(--foreground); }
-.docs-index-filter-clear {
-    color: var(--primary);
-    text-decoration: none;
-    margin-left: 0.25rem;
-}
-.docs-index-filter-clear:hover { text-decoration: underline; }
 
 .docs-index-meta {
     margin-bottom: 0.5rem;
@@ -1089,6 +1252,13 @@ body.docs-light select:focus {
     .docs-index-row-tags {
         width: 100%;
         margin-top: 0.25rem;
+    }
+    .docs-index-tags-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .docs-index-tags-clear {
+        margin-left: 0;
     }
     .docs-reading-actions {
         position: static;

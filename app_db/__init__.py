@@ -2,6 +2,7 @@ from app_db.base import db
 from app_db.config import build_database_uri
 from app_db.docs import (
     create_or_update_document,
+    get_all_tags,
     get_document_by_id,
     get_document_by_slug,
     list_documents,
@@ -24,6 +25,7 @@ __all__ = [
     "build_database_uri",
     "get_sql_engine",
     "ensure_example_crud_table",
+    "get_all_tags",
     "get_document_by_id",
     "get_document_by_slug",
     "list_documents",

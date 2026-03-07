@@ -36,12 +36,9 @@
             </div>
         </div>
 
-        <form method="GET"
-            action="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag) }}{% else %}{{ url_for('docs.docs_index') }}{% endif %}"
-            class="docs-index-search">
-            <div class="docs-index-search-inner">
+        <form method="GET" action="{{ url_for('docs.docs_index') }}" class="docs-index-search">
+            <div class="docs-index-search-row">
                 <input type="text" name="q" value="{{ query }}" placeholder="Search by title or slug..." class="docs-index-search-input">
-                <button type="submit" class="docs-btn docs-btn-secondary docs-btn-sm">Search</button>
                 <label class="docs-index-per-page">
                     <span class="docs-index-per-page-label">Per page</span>
                     <select name="per_page" onchange="this.form.submit()" class="docs-index-per-page-select">
@@ -50,17 +47,33 @@
                         {% endfor %}
                     </select>
                 </label>
+                <button type="submit" class="docs-btn docs-btn-secondary docs-btn-sm">Search</button>
             </div>
+            {% if available_tags %}
+            <div class="docs-index-tags-bar">
+                <span class="docs-index-tags-label">Tags</span>
+                <div class="docs-index-tags-pills">
+                    {% for tag in available_tags %}
+                    {% set is_active = tag in active_tags %}
+                    {% if is_active %}
+                    {% set new_tags = active_tags|reject('equalto', tag)|list %}
+                    <a href="{{ url_for('docs.docs_index', q=query, tags=new_tags, per_page=pagination.per_page) }}" class="docs-tag-pill is-active" title="Click to remove filter">#{{ tag }}</a>
+                    {% else %}
+                    {% set new_tags = active_tags + [tag] %}
+                    <a href="{{ url_for('docs.docs_index', q=query, tags=new_tags, per_page=pagination.per_page) }}" class="docs-tag-pill" title="Click to filter by this tag">#{{ tag }}</a>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% if active_tags %}
+                <a href="{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page) }}" class="docs-index-tags-clear">Clear</a>
+                {% endif %}
+            </div>
+            {% for t in active_tags %}
+            <input type="hidden" name="tags" value="{{ t }}">
+            {% endfor %}
+            {% endif %}
         </form>
     </header>
-
-    {% if active_tag %}
-    <div class="docs-index-filter">
-        <span class="docs-index-filter-label">Tag:</span>
-        <strong class="docs-index-filter-tag">#{{ active_tag }}</strong>
-        <a href="{{ url_for('docs.docs_index') }}" class="docs-index-filter-clear">Clear</a>
-    </div>
-    {% endif %}
 
     <div class="docs-index-meta">
         <span class="docs-index-count">
@@ -90,7 +103,7 @@
                 {% for tag in doc.tags_csv.split(',') %}
                 {% set t = tag.strip() %}
                 {% if t %}
-                <a href="{{ url_for('docs.docs_by_tag', tag=t) }}" class="docs-index-tag">#{{ t }}</a>
+                <a href="{{ url_for('docs.docs_index', tags=[t], q=query) }}" class="docs-index-tag">#{{ t }}</a>
                 {% endif %}
                 {% endfor %}
             </div>
@@ -107,7 +120,7 @@
     <nav class="docs-index-pagination" aria-label="Docs pagination">
         {% if pagination.has_prev %}
         <a class="docs-page-btn docs-page-prev"
-            href="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag, q=query, per_page=pagination.per_page, page=pagination.page - 1) }}{% else %}{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page, page=pagination.page - 1) }}{% endif %}">← Previous</a>
+            href="{{ url_for('docs.docs_index', q=query, tags=active_tags, per_page=pagination.per_page, page=pagination.page - 1) }}">← Previous</a>
         {% else %}
         <span class="docs-page-btn docs-page-prev is-disabled">← Previous</span>
         {% endif %}
@@ -120,14 +133,14 @@
             <span class="docs-page-btn is-active">{{ page_number }}</span>
             {% else %}
             <a class="docs-page-btn"
-                href="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag, q=query, per_page=pagination.per_page, page=page_number) }}{% else %}{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page, page=page_number) }}{% endif %}">{{ page_number }}</a>
+                href="{{ url_for('docs.docs_index', q=query, tags=active_tags, per_page=pagination.per_page, page=page_number) }}">{{ page_number }}</a>
             {% endif %}
             {% endfor %}
         </div>
 
         {% if pagination.has_next %}
         <a class="docs-page-btn docs-page-next"
-            href="{% if active_tag %}{{ url_for('docs.docs_by_tag', tag=active_tag, q=query, per_page=pagination.per_page, page=pagination.page + 1) }}{% else %}{{ url_for('docs.docs_index', q=query, per_page=pagination.per_page, page=pagination.page + 1) }}{% endif %}">Next →</a>
+            href="{{ url_for('docs.docs_index', q=query, tags=active_tags, per_page=pagination.per_page, page=pagination.page + 1) }}">Next →</a>
         {% else %}
         <span class="docs-page-btn docs-page-next is-disabled">Next →</span>
         {% endif %}

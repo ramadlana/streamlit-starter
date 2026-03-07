@@ -103,9 +103,29 @@ def create_or_update_document(
     return page
 
 
-def list_documents(search: str = "", tag: str = "", *, page: int = 1, per_page: int = 12):
+def get_all_tags():
+    """Return sorted list of distinct tags used across all documents."""
+    query = text(
+        """
+        SELECT DISTINCT LOWER(TRIM(tag)) AS tag
+        FROM documentation_pages,
+             LATERAL unnest(string_to_array(coalesce(tags_csv, ''), ',')) AS tag
+        WHERE TRIM(tag) != ''
+        ORDER BY tag
+        """
+    )
+    with get_sql_engine().connect() as conn:
+        rows = conn.execute(query).fetchall()
+    return [r[0] for r in rows]
+
+
+def list_documents(search: str = "", tag: str = "", tags: list = None, *, page: int = 1, per_page: int = 12):
     search_term = (search or "").strip().lower()
     tag_term = (tag or "").strip().lower()
+    tags_list = tags or []
+    if tag_term and tag_term not in tags_list:
+        tags_list = [tag_term]
+    tags_list = [t.strip().lower() for t in tags_list if t and t.strip()]
     safe_page = max(1, int(page or 1))
     safe_per_page = max(1, min(100, int(per_page or 12)))
 
@@ -130,9 +150,13 @@ def list_documents(search: str = "", tag: str = "", *, page: int = 1, per_page: 
             "END, updated_at DESC, id DESC"
         )
 
-    if tag_term:
-        where_clauses.append("position(:tag_token in concat(',', coalesce(tags_csv, ''), ',')) > 0")
-        params["tag_token"] = f",{tag_term},"
+    if tags_list:
+        tag_conditions = []
+        for i, t in enumerate(tags_list):
+            key = f"tag_token_{i}"
+            params[key] = f",{t},"
+            tag_conditions.append(f"position(:{key} in concat(',', coalesce(lower(tags_csv), ''), ',')) > 0")
+        where_clauses.append("(" + " OR ".join(tag_conditions) + ")")
 
     where_sql = ""
     if where_clauses:
