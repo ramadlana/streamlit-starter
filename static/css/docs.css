@@ -370,6 +370,14 @@
 
 .docs-delete-btn { margin-bottom: 0.6rem; }
 
+/* Docs reading view — unified width wrapper for actions + article */
+.docs-reading-wrap {
+    width: 100%;
+    max-width: min(920px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 0 0.5rem;
+}
+
 .docs-reading-actions {
     display: flex;
     justify-content: space-between;
@@ -378,11 +386,20 @@
     position: sticky;
     top: 56px;
     z-index: 3;
-    padding: 0.5rem 0 0.45rem;
-    margin-bottom: 1rem;
-    background: transparent;
+    padding: 0.5rem 0 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--background);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.docs-reading-actions.is-scrolled {
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    padding-bottom: 0.75rem;
 }
 
 /* Docs editor — floating sticky topbar with Save button */
@@ -489,9 +506,10 @@
 }
 
 .docs-reading {
-    max-width: min(80vw, 840px);
-    margin: 0 auto;
-    background: #ffffff;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    background: transparent;
     border: none;
     border-radius: 0;
     padding: 0;
@@ -500,24 +518,26 @@
 .docs-reading-clean { animation: docsFadeIn 0.22s ease; }
 
 .docs-hero-title {
-    margin-bottom: 0.5rem;
+    margin: 0 0 0.5rem;
     color: #0f172a;
-    font-size: clamp(2rem, 3.1vw, 3rem);
-    line-height: 1.12;
-    letter-spacing: -0.025em;
+    font-size: clamp(1.875rem, 2.8vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
 }
 
 .docs-hero-summary {
     color: #475569;
-    font-size: 1.2rem;
-    margin-bottom: 0.95rem;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    margin: 0 0 1rem;
 }
 
 .docs-hero-divider {
     width: 100%;
     height: 1px;
-    background: #e2e8f0;
-    margin: 1.5rem 0 2rem;
+    background: linear-gradient(to right, transparent, #e2e8f0 10%, #e2e8f0 90%, transparent);
+    margin: 1.75rem 0 2rem;
 }
 
 .docs-hero-tags { margin-bottom: 1.2rem; }
@@ -526,7 +546,8 @@
     color: #0f172a;
     max-width: 100%;
     overflow-x: hidden;
-    padding: unset;
+    padding: 0;
+    hyphens: auto;
 }
 
 .docs-hero-meta {
@@ -601,28 +622,40 @@
     word-break: break-word;
 }
 
-/* Reading view: 16px text and spacing (wins over Quill .ql-editor defaults) */
+/* Reading view: optimal line length ~65–75 chars, 17px base */
 .docs-reading .docs-content.docs-prose {
-    font-size: 16px;
+    font-size: 17px;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
 }
 .docs-reading .docs-content.docs-prose p,
 .docs-reading .docs-content.docs-prose ul,
 .docs-reading .docs-content.docs-prose ol,
 .docs-reading .docs-content.docs-prose blockquote,
 .docs-reading .docs-content.docs-prose pre {
-    margin-bottom: 1.1rem;
+    margin-bottom: 1.25rem;
+}
+.docs-reading .docs-content.docs-prose p:first-of-type {
+    margin-top: 0;
 }
 .docs-reading .docs-content.docs-prose p:last-child,
 .docs-reading .docs-content.docs-prose > *:last-child {
     margin-bottom: 0;
 }
 
-.docs-prose h1,
-.docs-prose h2,
-.docs-prose h3 {
+.docs-reading .docs-prose h1,
+.docs-reading .docs-prose h2,
+.docs-reading .docs-prose h3 {
     color: #0f172a;
-    line-height: 1.3;
-    margin: 1.4rem 0 0.75rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: 2rem 0 0.75rem;
+    letter-spacing: -0.02em;
+}
+.docs-reading .docs-prose h1:first-child,
+.docs-reading .docs-prose h2:first-child,
+.docs-reading .docs-prose h3:first-child {
+    margin-top: 0;
 }
 
 .docs-prose blockquote {
@@ -1304,6 +1337,10 @@ body.docs-light select:focus {
 
 @media (max-width: 768px) {
     .container { padding: 1.15rem 0.9rem; }
+    .docs-reading-wrap {
+        max-width: 100%;
+        padding: 0;
+    }
     .docs-list { grid-template-columns: 1fr; }
     .docs-topbar { align-items: flex-start; }
     .docs-actions { justify-content: flex-start; }
